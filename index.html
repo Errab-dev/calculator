@@ -1,0 +1,2116 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bear Hunt — Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600;700;800;900&family=Barlow:wght@300;400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:         #0a0b0d;
+  --bg2:        #0f1115;
+  --surface:    #13171e;
+  --surface2:   #191e27;
+  --border:     #252c38;
+  --border2:    #1e2530;
+  --amber:      #e8a020;
+  --amber-dim:  #8a5e12;
+  --amber-glow: rgba(232,160,32,.12);
+  --red:        #d94f3d;
+  --red-dim:    rgba(217,79,61,.15);
+  --green:      #3dbc7c;
+  --green-dim:  rgba(61,188,124,.12);
+  --inf:        #5ba3d4;
+  --cav:        #6abf7a;
+  --arc:        #d4a84b;
+  --text:       #cdd4de;
+  --text-dim:   #6b7785;
+  --text-faint: #3a4150;
+  --f-display:  'Barlow Condensed', sans-serif;
+  --f-body:     'Barlow', sans-serif;
+  --f-mono:     'Share Tech Mono', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--f-body);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+  padding: 0 0 80px;
+  background-image:
+    linear-gradient(rgba(37,44,56,.35) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37,44,56,.35) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.025) 2px, rgba(0,0,0,.025) 4px);
+  pointer-events: none; z-index: 1000;
+}
+
+.page { max-width: 560px; margin: 0 auto; padding: 0 16px; }
+
+/* ── HEADER ── */
+.hdr {
+  padding: 32px 0 20px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 28px;
+  position: relative;
+}
+.hdr::after {
+  content: ''; position: absolute; bottom: -1px; left: 0;
+  width: 80px; height: 2px;
+  background: var(--amber); box-shadow: 0 0 12px var(--amber);
+}
+.hdr-top { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.hdr-label { font-family: var(--f-mono); font-size: 10px; color: var(--amber); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 4px; opacity: .8; }
+.hdr-title { font-family: var(--f-display); font-size: 3rem; font-weight: 900; line-height: .9; text-transform: uppercase; letter-spacing: -1px; color: #fff; }
+.hdr-title span { color: var(--amber); }
+.hdr-sub { font-family: var(--f-mono); font-size: 10px; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; margin-top: 8px; }
+.hdr-badge { font-family: var(--f-mono); font-size: 9px; color: var(--text-faint); letter-spacing: 1.5px; text-align: right; line-height: 1.8; }
+
+/* ── SECTION LABEL ── */
+.sec {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin: 28px 0 0;
+}
+.sec-num {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  color: var(--bg2);
+  background: var(--amber);
+  padding: 3px 8px;
+  letter-spacing: 1px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.sec-body {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: none;
+  padding: 10px 14px;
+}
+.sec-title {
+  font-family: var(--f-display);
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text);
+  line-height: 1.1;
+}
+.sec-desc {
+  font-family: var(--f-body);
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 2px;
+  font-weight: 400;
+}
+
+/* ── PANEL ── */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  margin-top: 8px;
+  margin-bottom: 4px;
+  position: relative;
+  overflow: hidden;
+  animation: fadeUp .2s ease both;
+}
+.panel-accent { position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+.pa-amber { background: linear-gradient(90deg, var(--amber), transparent 70%); }
+.pa-blue  { background: linear-gradient(90deg, var(--inf), transparent 70%); }
+.pa-multi { background: linear-gradient(90deg, var(--inf), var(--cav), var(--arc)); }
+
+.panel-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border2);
+}
+.ph-icon { font-family: var(--f-mono); font-size: 11px; color: var(--amber); }
+.ph-title { font-family: var(--f-display); font-size: .95rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+.ph-tag {
+  margin-left: auto;
+  font-family: var(--f-mono); font-size: 9px; letter-spacing: 1.5px; padding: 2px 8px;
+  border: 1px solid; text-transform: uppercase;
+}
+.tag-amber { color: var(--amber); border-color: var(--amber-dim); background: var(--amber-glow); }
+.tag-blue  { color: var(--inf);   border-color: rgba(91,163,212,.3); background: rgba(91,163,212,.07); }
+
+.panel-body { padding: 16px; }
+
+/* ── AIDE CONTEXTUELLE ── */
+.help-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  background: rgba(232,160,32,.05);
+  border: 1px solid rgba(232,160,32,.15);
+  border-left: 2px solid var(--amber);
+}
+.help-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+.help-text { font-size: 12px; color: var(--text-dim); line-height: 1.55; }
+.help-text strong { color: var(--text); font-weight: 600; }
+
+/* ── FIELDS ── */
+.field { margin-bottom: 14px; }
+.field:last-child { margin-bottom: 0; }
+.field-label {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--f-body); font-size: 13px; font-weight: 600;
+  color: var(--text); margin-bottom: 5px;
+}
+.field-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.fd-inf   { background: var(--inf);   box-shadow: 0 0 5px var(--inf); }
+.fd-cav   { background: var(--cav);   box-shadow: 0 0 5px var(--cav); }
+.fd-arc   { background: var(--arc);   box-shadow: 0 0 5px var(--arc); }
+.fd-amber { background: var(--amber); box-shadow: 0 0 5px var(--amber); }
+
+.field-sub {
+  font-size: 11px; color: var(--text-faint);
+  margin-top: 4px; font-style: italic;
+}
+
+input[type=number] {
+  width: 100%; background: var(--bg2);
+  border: 1px solid var(--border); color: var(--text);
+  font-family: var(--f-mono); font-size: 1rem; padding: 10px 14px; outline: none;
+  transition: border-color .15s, box-shadow .15s;
+  -moz-appearance: textfield; appearance: textfield; letter-spacing: 1px;
+}
+input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+input[type=number]:focus { border-color: var(--amber); box-shadow: 0 0 0 2px var(--amber-glow); }
+input[type=number]::placeholder { color: var(--text-faint); font-size: .85rem; }
+
+/* ── RATIO GRID ── */
+.ratio-section-label {
+  font-size: 12px; font-weight: 600; color: var(--text-dim);
+  margin: 16px 0 8px; padding-bottom: 6px;
+  border-bottom: 1px solid var(--border2);
+}
+.ratio-section-label span { color: var(--text-faint); font-weight: 400; font-size: 11px; margin-left: 4px; }
+
+.ratio-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.ratio-cell-label {
+  font-size: 11px; font-weight: 600; color: var(--text-dim);
+  margin-bottom: 5px; display: flex; align-items: center; gap: 5px;
+}
+.ratio-input-wrap { position: relative; }
+.ratio-inp {
+  width: 100%; background: var(--bg2); border: 1px solid var(--border);
+  color: var(--text); font-family: var(--f-display); font-size: 1.6rem; font-weight: 800;
+  padding: 8px 22px 8px 10px; outline: none; text-align: center; transition: border-color .15s;
+  -moz-appearance: textfield; appearance: textfield;
+}
+.ratio-inp::-webkit-inner-spin-button, .ratio-inp::-webkit-outer-spin-button { -webkit-appearance: none; }
+.ratio-inp.ri { border-color: rgba(91,163,212,.3); }  .ratio-inp.ri:focus { border-color: var(--inf); }
+.ratio-inp.rc { border-color: rgba(106,191,122,.3); } .ratio-inp.rc:focus { border-color: var(--cav); }
+.ratio-inp.ra { border-color: rgba(212,168,75,.3); }  .ratio-inp.ra:focus { border-color: var(--arc); }
+.ratio-pct { position: absolute; right: 7px; top: 50%; transform: translateY(-50%); font-family: var(--f-mono); font-size: 10px; color: var(--text-faint); pointer-events: none; }
+.rbar { height: 2px; margin-top: 4px; background: var(--border2); overflow: hidden; }
+.rbar-fill { height: 100%; transition: width .25s ease; }
+.rbar-i { background: var(--inf); } .rbar-c { background: var(--cav); } .rbar-a { background: var(--arc); }
+
+.ratio-total {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 7px 10px; background: var(--bg2); border: 1px solid var(--border2); margin-top: 4px;
+}
+.ratio-total-lbl { font-size: 11px; color: var(--text-faint); }
+.ratio-total-val { font-family: var(--f-mono); font-size: .9rem; }
+.rv-ok { color: var(--green); } .rv-warn { color: var(--red); }
+
+.ratio-warn {
+  font-size: 11px; color: var(--red); margin-top: 6px; padding: 5px 10px;
+  background: var(--red-dim); border-left: 2px solid var(--red); display: none;
+}
+
+/* ── TROOP BAR ── */
+.tbar-wrap { margin: 14px 0 10px; }
+.tbar-labels { display: flex; justify-content: space-between; margin-bottom: 4px; }
+.tbar-lbl { font-size: 10px; color: var(--text-faint); font-family: var(--f-mono); letter-spacing: .5px; }
+.tbar { height: 6px; display: flex; overflow: hidden; background: var(--border2); border: 1px solid var(--border); }
+.tbar-i { background: var(--inf); transition: width .3s ease; }
+.tbar-c { background: var(--cav); transition: width .3s ease; }
+.tbar-a { background: var(--arc); transition: width .3s ease; }
+
+/* ── COUNT GRID ── */
+.count-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-top: 10px; }
+.cg-cell { background: var(--bg2); border: 1px solid var(--border2); padding: 10px 8px; text-align: center; }
+.cg-lbl { font-size: 10px; color: var(--text-faint); margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 4px; }
+.cg-val { font-family: var(--f-display); font-size: 1.1rem; font-weight: 700; }
+.cg-pct { font-family: var(--f-mono); font-size: 10px; color: var(--text-faint); margin-top: 2px; }
+.cv-inf { color: var(--inf); } .cv-cav { color: var(--cav); } .cv-arc { color: var(--arc); }
+
+/* ── STATUS CHIP ── */
+.chip {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 9px 12px; margin-top: 12px;
+  font-size: 12px; font-weight: 500; border-left: 2px solid; line-height: 1.4;
+}
+.chip-icon { font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+.chip.ok   { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+.chip.err  { background: var(--red-dim);   border-color: var(--red);   color: #f08080; }
+.chip.idle { background: var(--bg2);       border-color: var(--border); color: var(--text-faint); }
+
+/* ── SCORE PANEL ── */
+.score-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 14px; }
+.score-cell { background: var(--surface2); padding: 14px 16px; }
+.score-lbl { font-size: 11px; color: var(--text-faint); margin-bottom: 6px; }
+.score-val { font-family: var(--f-display); font-size: 1.8rem; font-weight: 900; color: var(--amber); line-height: 1; }
+.score-sub { font-size: 11px; color: var(--text-faint); margin-top: 4px; }
+.eff-bar { height: 3px; background: var(--border2); margin: 8px 0 4px; overflow: hidden; }
+.eff-fill { height: 100%; background: linear-gradient(90deg, var(--amber-dim), var(--amber)); transition: width .4s ease; }
+.eff-val { font-family: var(--f-mono); font-size: 10px; color: var(--text-faint); }
+
+/* ── JOINER TABS ── */
+.jctrl { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px; margin-bottom: 12px; }
+.jbtn {
+  padding: 8px 18px; font-family: var(--f-display); font-size: .9rem; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all .15s; border: 1px solid;
+}
+.jbtn-add { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+.jbtn-add:hover:not(:disabled) { background: rgba(61,188,124,.2); }
+.jbtn-rem { background: var(--red-dim); border-color: var(--red); color: var(--red); }
+.jbtn-rem:hover:not(:disabled) { background: rgba(217,79,61,.22); }
+.jbtn:disabled { opacity: .25; cursor: not-allowed; }
+.jcount-lbl { font-family: var(--f-mono); font-size: 10px; color: var(--text-faint); letter-spacing: 1px; margin-left: auto; }
+
+.jtabs { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 10px; }
+.jtab {
+  padding: 5px 14px; border: 1px solid var(--border); background: var(--bg2);
+  color: var(--text-faint); font-family: var(--f-display); font-size: .85rem; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; transition: all .15s; position: relative;
+}
+.jtab.act { background: rgba(91,163,212,.08); border-color: var(--inf); color: var(--inf); }
+.tbadge {
+  display: none; position: absolute; top: -8px; right: -6px;
+  background: var(--green); color: var(--bg);
+  font-family: var(--f-mono); font-size: 8px; padding: 1px 5px; letter-spacing: .5px;
+}
+.tbadge.vis { display: block; }
+.jpanel { display: none; } .jpanel.act { display: block; }
+
+/* ── AUTO SECTION ── */
+.auto-section { margin-top: 28px; }
+.sep { height: 1px; background: var(--border); margin-bottom: 20px; }
+
+.auto-btn {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  width: 100%; padding: 16px 24px;
+  background: var(--amber-glow); border: 1px solid var(--amber-dim);
+  color: var(--amber); font-family: var(--f-display); font-size: 1.1rem; font-weight: 800;
+  letter-spacing: 3px; text-transform: uppercase; cursor: pointer; transition: all .2s; position: relative; overflow: hidden;
+}
+.auto-btn::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, transparent 30%, rgba(232,160,32,.05)); pointer-events: none; }
+.auto-btn:hover:not(:disabled) { background: rgba(232,160,32,.18); border-color: var(--amber); box-shadow: 0 0 24px rgba(232,160,32,.15); }
+.auto-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+.auto-desc {
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: rgba(232,160,32,.04);
+  border: 1px solid rgba(232,160,32,.1);
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.55;
+}
+.auto-desc strong { color: var(--text); font-weight: 600; }
+
+.load-wrap { margin-top: 10px; display: none; }
+.load-hdr { display: flex; justify-content: space-between; font-family: var(--f-mono); font-size: 10px; color: var(--text-faint); letter-spacing: 1px; margin-bottom: 4px; }
+.load-track { height: 3px; background: var(--border2); overflow: hidden; }
+.load-fill { height: 100%; width: 0%; background: var(--amber); transition: width .2s; }
+
+.idle-msg {
+  display: flex; align-items: flex-start; gap: 10px; padding: 11px 14px;
+  background: rgba(91,163,212,.05); border: 1px solid rgba(91,163,212,.15); border-left: 2px solid var(--inf);
+  font-size: 12px; color: var(--text-dim); margin-bottom: 12px; line-height: 1.5;
+}
+
+/* ── SUMMARY ── */
+.summary { display: none; margin-top: 28px; }
+
+.kpi-grid {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 1px; background: var(--border); border: 1px solid var(--border); margin-bottom: 14px;
+}
+.kpi-cell { background: var(--surface); padding: 14px 10px; text-align: center; }
+.kpi-lbl { font-size: 10px; color: var(--text-faint); margin-bottom: 6px; line-height: 1.3; }
+.kpi-val { font-family: var(--f-display); font-size: 1.25rem; font-weight: 900; line-height: 1; }
+.kpi-sub { font-family: var(--f-mono); font-size: 9px; color: var(--text-faint); margin-top: 3px; }
+
+.prog-wrap { margin: 14px 0; }
+.prog-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-faint); margin-bottom: 5px; }
+.prog-track { height: 8px; background: var(--bg2); border: 1px solid var(--border2); display: flex; overflow: hidden; }
+.prog-used { background: linear-gradient(90deg, rgba(232,160,32,.6), rgba(232,160,32,.3)); transition: width .5s; }
+
+.rem-strip { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 8px; }
+.rem-cell { background: var(--surface2); padding: 10px; text-align: center; }
+.rem-lbl { font-size: 10px; color: var(--text-faint); margin-bottom: 4px; }
+.rem-val { font-family: var(--f-display); font-size: 1rem; font-weight: 700; }
+
+.alert { display: flex; align-items: flex-start; gap: 10px; padding: 10px 14px; margin-top: 10px; font-size: 12px; line-height: 1.5; border-left: 2px solid; }
+.alert.warn { background: var(--red-dim); border-color: var(--red); color: #f08080; }
+.alert.ok   { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+
+/* ── EXPORT / RESET ── */
+.export-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; margin-top: 14px; padding: 11px 16px;
+  background: transparent; border: 1px solid var(--border);
+  color: var(--text-dim); font-family: var(--f-mono); font-size: 10px;
+  letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all .15s;
+}
+.export-btn:hover { border-color: var(--amber-dim); color: var(--amber); background: var(--amber-glow); }
+.export-btn.copied { border-color: var(--green); color: var(--green); background: var(--green-dim); }
+
+.reset-zone { text-align: center; margin-top: 20px; }
+.reset-btn {
+  background: none; border: none; font-size: 11px; color: var(--text-faint); cursor: pointer;
+  letter-spacing: 1.5px; text-transform: uppercase; padding: 6px 12px;
+  border-bottom: 1px solid var(--text-faint); transition: color .15s, border-color .15s;
+  font-family: var(--f-mono);
+}
+.reset-btn:hover { color: var(--red); border-color: var(--red); }
+
+footer { text-align: center; padding: 40px 20px 20px; }
+.footer-title { font-family: var(--f-display); font-size: 1rem; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; color: var(--text-faint); margin-bottom: 4px; }
+.footer-sub { font-family: var(--f-mono); font-size: 10px; color: var(--text-faint); letter-spacing: 1.5px; opacity: .5; }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.panel { animation: fadeUp .2s ease both; }
+
+/* ── TIER TABLE ── */
+.tier-table-header {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr .9fr .9fr;
+  gap: 6px;
+  padding: 6px 0 8px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 6px;
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.tier-row {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr .9fr .9fr;
+  gap: 6px;
+  align-items: center;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border2);
+}
+.tier-row:last-child { border-bottom: none; }
+.tier-row-label {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12px; font-weight: 600; color: var(--text);
+}
+.tier-stat {
+  font-family: var(--f-display);
+  font-size: 1rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+select {
+  width: 100%;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: var(--f-mono);
+  font-size: .78rem;
+  padding: 8px 6px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color .15s;
+  appearance: none;
+  -webkit-appearance: none;
+  text-align: center;
+}
+select:focus { border-color: var(--amber); }
+select option { background: #13171e; }
+
+/* ── HERO SLOTS ── */
+.hero-slot {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  margin-bottom: 10px;
+  position: relative;
+}
+.hero-slot-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border2);
+  cursor: pointer;
+}
+.hero-slot-num {
+  font-family: var(--f-mono); font-size: 9px;
+  color: var(--amber); background: var(--amber-glow);
+  border: 1px solid var(--amber-dim);
+  padding: 2px 6px; letter-spacing: 1px; flex-shrink: 0;
+}
+.hero-slot-name {
+  font-family: var(--f-display); font-size: .95rem; font-weight: 700;
+  color: var(--text); flex: 1;
+}
+.hero-slot-class {
+  font-family: var(--f-mono); font-size: 9px; letter-spacing: 1px;
+  padding: 2px 7px; border: 1px solid; text-transform: uppercase;
+}
+.hsc-inf { color: var(--inf); border-color: rgba(91,163,212,.3); }
+.hsc-cav { color: var(--cav); border-color: rgba(106,191,122,.3); }
+.hsc-arc { color: var(--arc); border-color: rgba(212,168,75,.3); }
+.hero-remove-btn {
+  background: none; border: none; color: var(--text-faint);
+  cursor: pointer; font-size: 1.1rem; padding: 2px 4px;
+  transition: color .15s;
+}
+.hero-remove-btn:hover { color: var(--red); }
+.hero-slot-body { padding: 12px; display: block; }
+
+.hero-select-wrap { margin-bottom: 12px; }
+.hero-select-label {
+  font-size: 11px; font-weight: 600; color: var(--text-dim);
+  margin-bottom: 5px;
+}
+
+.hero-skills { margin-top: 12px; }
+.hero-skills-title {
+  font-family: var(--f-mono); font-size: 9px; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text-faint);
+  margin-bottom: 8px; padding-bottom: 5px;
+  border-bottom: 1px solid var(--border2);
+}
+.hero-skill-row {
+  display: grid; grid-template-columns: 1fr auto;
+  align-items: center; gap: 8px;
+  padding: 6px 0; border-bottom: 1px solid var(--border2);
+}
+.hero-skill-row:last-child { border-bottom: none; }
+.hero-skill-info {}
+.hero-skill-name {
+  font-size: 12px; font-weight: 600; color: var(--text);
+  margin-bottom: 2px;
+}
+.hero-skill-desc {
+  font-size: 10px; color: var(--text-faint); line-height: 1.4;
+}
+.hero-skill-val {
+  font-family: var(--f-display); font-size: 1rem; font-weight: 700;
+  color: var(--amber); white-space: nowrap; text-align: right;
+}
+.hero-widget-row {
+  margin-top: 8px; padding: 8px 10px;
+  background: var(--surface); border: 1px solid var(--amber-dim);
+  border-left: 2px solid var(--amber);
+}
+.hero-widget-label {
+  font-family: var(--f-mono); font-size: 9px; color: var(--amber);
+  letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px;
+}
+
+.hero-stat-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 6px; margin: 10px 0;
+}
+.hero-stat-field {}
+.hero-stat-label {
+  font-size: 10px; color: var(--text-faint); margin-bottom: 4px;
+}
+.hero-stat-input-wrap { position: relative; }
+.hero-stat-input-wrap input { padding-right: 24px; font-size: .85rem; }
+.hero-stat-pct {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  font-family: var(--f-mono); font-size: 10px; color: var(--text-faint);
+  pointer-events: none;
+}
+.bonus-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px; }
+.bonus-label {
+  font-size: 11px; font-weight: 600; color: var(--text-dim);
+  margin-bottom: 5px; display: flex; align-items: center; gap: 5px;
+}
+.bonus-input-wrap { position: relative; }
+.bonus-input-wrap input { padding-right: 28px; }
+.bonus-pct {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  font-family: var(--f-mono); font-size: 11px; color: var(--text-faint);
+  pointer-events: none;
+}
+.bonus-summary {
+  margin-top: 12px; padding: 10px 12px;
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-left: 2px solid var(--amber);
+  font-family: var(--f-mono); font-size: 10px; color: var(--text-dim);
+  line-height: 1.8; letter-spacing: .3px;
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- ══ HEADER ══ -->
+<header class="hdr">
+  <div class="hdr-top">
+    <div>
+      <div class="hdr-label">// Kingshot · Bear Hunt</div>
+      <div class="hdr-title">BEAR<span>CALC</span></div>
+      <div class="hdr-sub">Composition des Escouades · Optimisation Globale</div>
+    </div>
+    <div class="hdr-badge">
+      <div>S.1507</div>
+      <div>by Errab</div>
+      <div style="margin-top:4px;color:var(--amber);opacity:.5">v7.0</div>
+    </div>
+  </div>
+</header>
+
+<!-- ══ ÉTAPE 00 — NIVEAU DES TROUPES ══ -->
+<div class="sec">
+  <div class="sec-num">00</div>
+  <div class="sec-body">
+    <div class="sec-title">Niveau de tes troupes</div>
+    <div class="sec-desc">Sélectionne le tier et le niveau TG de chaque type de troupe</div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-accent pa-multi"></div>
+  <div class="panel-body">
+    <div class="help-box">
+      <span class="help-icon">⚔️</span>
+      <div class="help-text">
+        Le <strong>Tier</strong> (T1 à T11) correspond au niveau de tes troupes dans le jeu. Le <strong>TG</strong> (0 à 5) est le niveau de forge Truegold. Ces valeurs changent les stats d'Attaque et de Santé, ce qui impacte directement les dégâts calculés.
+      </div>
+    </div>
+    <!-- En-tête colonnes -->
+    <div class="tier-table-header">
+      <div></div>
+      <div>Tier</div>
+      <div>TG</div>
+      <div>Attaque</div>
+      <div>Santé</div>
+    </div>
+    <!-- Ligne Infanterie -->
+    <div class="tier-row">
+      <div class="tier-row-label"><span class="field-dot fd-inf"></span>Infanterie</div>
+      <div><select id="tierInfT" onchange="onTierChange()"></select></div>
+      <div><select id="tierInfG" onchange="onTierChange()"></select></div>
+      <div class="tier-stat cv-inf" id="si_atk">—</div>
+      <div class="tier-stat cv-inf" id="si_hp">—</div>
+    </div>
+    <!-- Ligne Cavalerie -->
+    <div class="tier-row">
+      <div class="tier-row-label"><span class="field-dot fd-cav"></span>Cavalerie</div>
+      <div><select id="tierCavT" onchange="onTierChange()"></select></div>
+      <div><select id="tierCavG" onchange="onTierChange()"></select></div>
+      <div class="tier-stat cv-cav" id="sc_atk">—</div>
+      <div class="tier-stat cv-cav" id="sc_hp">—</div>
+    </div>
+    <!-- Ligne Archers -->
+    <div class="tier-row">
+      <div class="tier-row-label"><span class="field-dot fd-arc"></span>Archers</div>
+      <div><select id="tierArcT" onchange="onTierChange()"></select></div>
+      <div><select id="tierArcG" onchange="onTierChange()"></select></div>
+      <div class="tier-stat cv-arc" id="sa_atk">—</div>
+      <div class="tier-stat cv-arc" id="sa_hp">—</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ÉTAPE 00b — BONUS GOUVERNEUR ══ -->
+<div class="sec" style="margin-top:16px">
+  <div class="sec-num" style="background:var(--text-faint)">+%</div>
+  <div class="sec-body">
+    <div class="sec-title">Tes bonus de stats</div>
+    <div class="sec-desc">Bonus depuis ta Recherche, Équipement, Charmes — par type de troupe</div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-accent" style="background:linear-gradient(90deg,var(--green),transparent 70%)"></div>
+  <div class="panel-body">
+    <div class="help-box">
+      <span class="help-icon">📊</span>
+      <div class="help-text">
+        Retrouve tes bonus dans ton profil → <strong>Puissance de Combat</strong>. Entre le total en % pour chaque stat. Les bonus <strong>globaux</strong> (toutes troupes) vont dans la 1ère colonne. Si tu as des bonus spécifiques par type (ex : Archer Attack +50%), ajoute-les dans la colonne correspondante — ils s'additionneront.
+      </div>
+    </div>
+
+    <!-- Grille bonus : ligne header + 3 colonnes INF/CAV/ARC -->
+    <div style="display:grid;grid-template-columns:90px 1fr 1fr 1fr;gap:6px;align-items:center;margin-bottom:10px">
+      <!-- Headers -->
+      <div></div>
+      <div style="text-align:center;font-family:var(--f-mono);font-size:9px;letter-spacing:1px;color:var(--inf);font-weight:700">INF</div>
+      <div style="text-align:center;font-family:var(--f-mono);font-size:9px;letter-spacing:1px;color:var(--cav);font-weight:700">CAV</div>
+      <div style="text-align:center;font-family:var(--f-mono);font-size:9px;letter-spacing:1px;color:var(--arc);font-weight:700">ARC</div>
+      <!-- ATK row -->
+      <div style="font-size:11px;font-weight:600;color:var(--amber)">⚔ ATK %</div>
+      <div class="bonus-input-wrap"><input type="number" id="bonusAtkInf" placeholder="0" min="0" style="text-align:center" oninput="onBonusChange()"><span class="bonus-pct">%</span></div>
+      <div class="bonus-input-wrap"><input type="number" id="bonusAtkCav" placeholder="0" min="0" style="text-align:center" oninput="onBonusChange()"><span class="bonus-pct">%</span></div>
+      <div class="bonus-input-wrap"><input type="number" id="bonusAtkArc" placeholder="0" min="0" style="text-align:center" oninput="onBonusChange()"><span class="bonus-pct">%</span></div>
+      <!-- LTH row -->
+      <div style="font-size:11px;font-weight:600;color:var(--red)">🗡 LET %</div>
+      <div class="bonus-input-wrap"><input type="number" id="bonusLthInf" placeholder="0" min="0" style="text-align:center" oninput="onBonusChange()"><span class="bonus-pct">%</span></div>
+      <div class="bonus-input-wrap"><input type="number" id="bonusLthCav" placeholder="0" min="0" style="text-align:center" oninput="onBonusChange()"><span class="bonus-pct">%</span></div>
+      <div class="bonus-input-wrap"><input type="number" id="bonusLthArc" placeholder="0" min="0" style="text-align:center" oninput="onBonusChange()"><span class="bonus-pct">%</span></div>
+    </div>
+    <!-- Bonus globaux : escouade + HP + DEF -->
+    <div class="bonus-grid" style="grid-template-columns:1fr 1fr;margin-top:4px">
+      <div>
+        <div class="bonus-label"><span class="field-dot fd-amber"></span>ATK Escouade globale (%)</div>
+        <div class="bonus-input-wrap"><input type="number" id="bonusAtkSquad" placeholder="0" min="0" oninput="onBonusChange()"><span class="bonus-pct">%</span></div>
+      </div>
+      <div>
+        <div class="bonus-label"><span class="field-dot" style="background:var(--red);box-shadow:0 0 5px var(--red)"></span>LET Escouade globale (%)</div>
+        <div class="bonus-input-wrap"><input type="number" id="bonusLthSquad" placeholder="0" min="0" oninput="onBonusChange()"><span class="bonus-pct">%</span></div>
+      </div>
+      <div>
+        <div class="bonus-label"><span class="field-dot fd-inf"></span>Santé globale (%)</div>
+        <div class="bonus-input-wrap"><input type="number" id="bonusHp" placeholder="ex : 200" min="0" oninput="onBonusChange()"><span class="bonus-pct">%</span></div>
+      </div>
+      <div>
+        <div class="bonus-label"><span class="field-dot fd-cav"></span>Défense globale (%)</div>
+        <div class="bonus-input-wrap"><input type="number" id="bonusDef" placeholder="ex : 120" min="0" oninput="onBonusChange()"><span class="bonus-pct">%</span></div>
+      </div>
+    </div>
+    <div class="bonus-summary" id="bonusSummary">
+      Remplis tes bonus pour voir l'impact sur les poids de calcul
+    </div>
+  </div>
+</div>
+
+<!-- ══ ÉTAPE 1 — STOCK ══ -->
+<div class="sec">
+  <div class="sec-num">01</div>
+  <div class="sec-body">
+    <div class="sec-title">Tes troupes disponibles</div>
+    <div class="sec-desc">Entre le nombre total de chaque type de troupe que tu possèdes</div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-accent pa-multi"></div>
+  <div class="panel-body">
+    <div class="help-box">
+      <span class="help-icon">💡</span>
+      <div class="help-text">
+        Dans le jeu, clique sur ta <strong>photo de profil</strong>, puis sur l'onglet <strong>Escouades</strong>. Tu y verras le total de chaque type de troupe que tu possèdes.
+      </div>
+    </div>
+    <div class="field">
+      <div class="field-label"><span class="field-dot fd-inf"></span>Infanterie</div>
+      <input type="number" id="tInf" placeholder="ex : 90 000" min="0" oninput="onStockChange()">
+    </div>
+    <div class="field">
+      <div class="field-label"><span class="field-dot fd-cav"></span>Cavalerie</div>
+      <input type="number" id="tCav" placeholder="ex : 87 000" min="0" oninput="onStockChange()">
+    </div>
+    <div class="field">
+      <div class="field-label"><span class="field-dot fd-arc"></span>Archers</div>
+      <input type="number" id="tArc" placeholder="ex : 160 000" min="0" oninput="onStockChange()">
+    </div>
+    <div id="stockChip" class="chip idle">
+      <span class="chip-icon">◈</span>
+      <span>Entre tes stocks ci-dessus pour commencer</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ÉTAPE 2 — LEADER ══ -->
+<div class="sec">
+  <div class="sec-num">02</div>
+  <div class="sec-body">
+    <div class="sec-title">Ta marche leader</div>
+    <div class="sec-desc">Combien de troupes envoies-tu dans ton propre rally ?</div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-accent pa-amber"></div>
+  <div class="panel-header">
+    <span class="ph-icon">◆</span>
+    <span class="ph-title">Escouade Leader</span>
+    <span class="ph-tag tag-amber">Rally Leader</span>
+  </div>
+  <div class="panel-body">
+    <div class="help-box">
+      <span class="help-icon">📖</span>
+      <div class="help-text">
+        Pour trouver ta <strong>capacité de marche</strong> : lance un rally contre une <strong>Terreur</strong> et regarde le nombre maximum de troupes que tu peux envoyer — c'est ta capacité. Les <strong>ratios</strong> indiquent le % de chaque type de troupe dans cette marche. Laisse les valeurs par défaut si tu débutes.
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label"><span class="field-dot fd-amber"></span>Capacité de Marche</div>
+      <input type="number" id="leadCap" placeholder="ex : 110 810" min="1" oninput="_clearExact('lead');updateLeader()">
+      <div class="field-sub">Visible dans ton profil chef → "Capacité de Marche"</div>
+    </div>
+
+    <div class="ratio-section-label">
+      Répartition des troupes <span>— modifie si tu veux ajuster, sinon laisse tel quel</span>
+    </div>
+    <div class="ratio-grid">
+      <div class="ratio-cell">
+        <div class="ratio-cell-label"><span class="field-dot fd-inf"></span>Infanterie</div>
+        <div class="ratio-input-wrap">
+          <input type="number" class="ratio-inp ri" id="lInf" value="10" min="0" max="100" oninput="_clearExact('lead');snapRatio('l','Inf');updateLeader()">
+          <span class="ratio-pct">%</span>
+        </div>
+        <div class="rbar"><div class="rbar-fill rbar-i" id="lBarI" style="width:10%"></div></div>
+      </div>
+      <div class="ratio-cell">
+        <div class="ratio-cell-label"><span class="field-dot fd-cav"></span>Cavalerie</div>
+        <div class="ratio-input-wrap">
+          <input type="number" class="ratio-inp rc" id="lCav" value="10" min="0" max="100" oninput="_clearExact('lead');snapRatio('l','Cav');updateLeader()">
+          <span class="ratio-pct">%</span>
+        </div>
+        <div class="rbar"><div class="rbar-fill rbar-c" id="lBarC" style="width:10%"></div></div>
+      </div>
+      <div class="ratio-cell">
+        <div class="ratio-cell-label"><span class="field-dot fd-arc"></span>Archers</div>
+        <div class="ratio-input-wrap">
+          <input type="number" class="ratio-inp ra" id="lArc" value="80" min="0" max="100" oninput="_clearExact('lead');snapRatio('l','Arc');updateLeader()">
+          <span class="ratio-pct">%</span>
+        </div>
+        <div class="rbar"><div class="rbar-fill rbar-a" id="lBarA" style="width:80%"></div></div>
+      </div>
+    </div>
+    <div class="ratio-total">
+      <span class="ratio-total-lbl">Total</span>
+      <span class="ratio-total-val rv-ok" id="lRatioVal">100%</span>
+    </div>
+    <div class="ratio-warn" id="lWarn"></div>
+
+    <div class="tbar-wrap">
+      <div class="tbar-labels">
+        <span class="tbar-lbl">INF</span>
+        <span class="tbar-lbl">CAV</span>
+        <span class="tbar-lbl">ARC</span>
+      </div>
+      <div class="tbar">
+        <div class="tbar-i" id="lSI" style="width:10%"></div>
+        <div class="tbar-c" id="lSC" style="width:10%"></div>
+        <div class="tbar-a" id="lSA" style="width:80%"></div>
+      </div>
+    </div>
+
+    <div class="count-grid">
+      <div class="cg-cell">
+        <div class="cg-lbl"><span class="field-dot fd-inf"></span>Infanterie</div>
+        <div class="cg-val cv-inf" id="lCI">—</div>
+        <div class="cg-pct" id="lPI">10%</div>
+      </div>
+      <div class="cg-cell">
+        <div class="cg-lbl"><span class="field-dot fd-cav"></span>Cavalerie</div>
+        <div class="cg-val cv-cav" id="lCC">—</div>
+        <div class="cg-pct" id="lPC">10%</div>
+      </div>
+      <div class="cg-cell">
+        <div class="cg-lbl"><span class="field-dot fd-arc"></span>Archers</div>
+        <div class="cg-val cv-arc" id="lCA">—</div>
+        <div class="cg-pct" id="lPA">80%</div>
+      </div>
+    </div>
+
+    <div id="lChip" class="chip idle">
+      <span class="chip-icon">◈</span>
+      <span>Entre ta capacité de marche pour voir le résultat</span>
+    </div>
+
+
+
+    <!-- ── HÉROS ── -->
+    <div style="height:1px;background:var(--border);margin:18px 0 14px"></div>
+    <div style="font-family:var(--f-display);font-size:.85rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px">
+      ⚔ Héros de l'Escouade Leader
+    </div>
+    <div class="help-box" style="margin-bottom:12px">
+      <span class="help-icon">🦸</span>
+      <div class="help-text">
+        Sélectionne tes 3 héros. Pour chaque héros, renseigne ses <strong>Hero Stats</strong> (Attack / Defense / Lethality / Health en %) visibles dans sa fiche in-game, ainsi que le niveau de ses compétences d'expédition.
+      </div>
+    </div>
+    <div id="heroSlots"></div>
+    <div style="margin-top:8px">
+      <button class="jbtn jbtn-add" id="btnAddHero" onclick="addHeroSlot()" style="font-size:.8rem;padding:7px 14px;letter-spacing:1px">+ Ajouter un héros</button>
+    </div>
+    <div class="bonus-summary" id="heroSummary" style="margin-top:10px">
+      Ajoute tes héros pour voir l'impact sur les dégâts
+    </div>
+  </div>
+</div>
+
+<!-- ══ ÉTAPE 3 — JOINERS ══ -->
+<div class="sec">
+  <div class="sec-num">03</div>
+  <div class="sec-body">
+    <div class="sec-title">Tes marches joiners</div>
+    <div class="sec-desc">Les troupes qu'il te reste après ton rally leader — tu les envoies dans d'autres rallies pour faire un maximum de points</div>
+  </div>
+</div>
+
+<div class="panel" style="overflow:visible">
+  <div class="panel-accent pa-blue"></div>
+  <div class="panel-body">
+    <div class="help-box">
+      <span class="help-icon">👥</span>
+      <div class="help-text">
+        Après avoir envoyé ton rally leader, il te reste des troupes. Une <strong>marche joiner</strong>, c'est toi qui rejoins le rally d'un autre joueur avec ces troupes restantes, pour maximiser tes points. Le calculateur répartit automatiquement tes troupes restantes en autant de marches joiners que possible. Tu peux aussi renseigner des capacités manuellement si tu connais les rallies disponibles.
+      </div>
+    </div>
+
+    <div class="jctrl">
+      <button class="jbtn jbtn-add" id="btnAdd" onclick="addJoiner()">+ Ajouter un joiner</button>
+      <button class="jbtn jbtn-rem" id="btnRem" onclick="removeJoiner()">− Retirer</button>
+      <span class="jcount-lbl" id="jCountLbl">0 / 6</span>
+    </div>
+
+    <div class="jtabs" id="jtabs"></div>
+    <div id="jpanels"></div>
+
+    <div class="idle-msg" id="jIdleMsg">
+      <span>◈</span>
+      <span>Aucune marche joiner configurée. Lance l'<strong>optimisation automatique</strong> ci-dessous pour que le calculateur répartisse tes troupes restantes en marches joiners, ou ajoute-les manuellement.</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ OPTIMISATION AUTO ══ -->
+<div class="auto-section">
+  <div class="sep"></div>
+  <button class="auto-btn" id="autoBtn" onclick="runAutoOptimize()">
+    <span style="font-size:1rem;opacity:.7">⚡</span>
+    <span id="autoBtnLabel">OPTIMISATION AUTOMATIQUE</span>
+    <span style="font-size:1rem;opacity:.7">⚡</span>
+  </button>
+  <div class="auto-desc">
+    <strong>Comment ça marche ?</strong> Une fois tes stocks et ta capacité leader renseignés, clique ici. Le calculateur va prendre tes troupes restantes après ton rally leader et calculer automatiquement <strong>combien de rallies joiners tu peux faire</strong>, leur taille, et la meilleure répartition INF/CAV/ARC pour un maximum de dégâts.
+  </div>
+  <div id="loadingWrap" class="load-wrap">
+    <div class="load-hdr">
+      <span id="loadingLabel">Calcul en cours…</span>
+      <span id="loadingPct">0%</span>
+    </div>
+    <div class="load-track"><div class="load-fill" id="loadingBar"></div></div>
+  </div>
+</div>
+
+<!-- ══ RÉSUMÉ ══ -->
+<div class="summary" id="summary">
+  <div class="sec">
+    <div class="sec-num">✓</div>
+    <div class="sec-body">
+      <div class="sec-title">Résumé de l'opération</div>
+      <div class="sec-desc">Ton rally leader + toutes tes marches joiners optimisées</div>
+    </div>
+  </div>
+  <div class="panel" style="margin-top:8px">
+    <div class="panel-accent" style="background:linear-gradient(90deg,var(--green),transparent 70%)"></div>
+    <div class="panel-body">
+      <div id="sumContent"></div>
+      <button class="export-btn" id="exportBtn" onclick="exportToClipboard()">
+        ▣ &nbsp;COPIER LE RÉSUMÉ POUR DISCORD
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="reset-zone">
+  <button class="reset-btn" onclick="resetAll()">↺ Tout réinitialiser</button>
+</div>
+
+</div><!-- /page -->
+
+<footer>
+  <div class="footer-title">Bear Hunt Calculator</div>
+  <div class="footer-sub">S.1507 · by Errab</div>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   STATS PAR TIER/TG — source : kingshotsimulator.com
+   Format : [tier][tg] = { atk, hp }  (def=10, let=10 toujours)
+═══════════════════════════════════════════════════════════ */
+const TROOP_STATS = {
+  inf: {
+    1:{0:{atk:63,hp:189},1:{atk:66,hp:197},2:{atk:69,hp:206},3:{atk:72,hp:217},4:{atk:76,hp:228},5:{atk:80,hp:239}},
+    2:{0:{atk:94,hp:283},1:{atk:98,hp:294},2:{atk:103,hp:309},3:{atk:108,hp:324},4:{atk:113,hp:341},5:{atk:119,hp:358}},
+    3:{0:{atk:132,hp:397},1:{atk:137,hp:413},2:{atk:144,hp:434},3:{atk:151,hp:455},4:{atk:159,hp:478},5:{atk:167,hp:502}},
+    4:{0:{atk:172,hp:516},1:{atk:179,hp:537},2:{atk:188,hp:563},3:{atk:197,hp:592},4:{atk:207,hp:621},5:{atk:217,hp:652}},
+    5:{0:{atk:206,hp:619},1:{atk:214,hp:644},2:{atk:225,hp:676},3:{atk:236,hp:710},4:{atk:248,hp:745},5:{atk:260,hp:782}},
+    6:{0:{atk:243,hp:730},1:{atk:253,hp:759},2:{atk:265,hp:797},3:{atk:279,hp:837},4:{atk:293,hp:879},5:{atk:307,hp:923}},
+    7:{0:{atk:287,hp:862},1:{atk:298,hp:896},2:{atk:313,hp:941},3:{atk:329,hp:988},4:{atk:346,hp:1038},5:{atk:363,hp:1090}},
+    8:{0:{atk:339,hp:1017},1:{atk:353,hp:1058},2:{atk:370,hp:1111},3:{atk:389,hp:1166},4:{atk:408,hp:1224},5:{atk:429,hp:1286}},
+    9:{0:{atk:400,hp:1200},1:{atk:416,hp:1248},2:{atk:437,hp:1310},3:{atk:459,hp:1376},4:{atk:482,hp:1445},5:{atk:506,hp:1517}},
+    10:{0:{atk:472,hp:1416},1:{atk:491,hp:1473},2:{atk:515,hp:1546},3:{atk:541,hp:1624},4:{atk:568,hp:1705},5:{atk:597,hp:1790}},
+    11:{0:{atk:566,hp:1699},1:{atk:589,hp:1767},2:{atk:618,hp:1855},3:{atk:649,hp:1948},4:{atk:681,hp:2045},5:{atk:716,hp:2148}},
+  },
+  cav: {
+    1:{0:{atk:189,hp:63},1:{atk:197,hp:66},2:{atk:206,hp:69},3:{atk:217,hp:72},4:{atk:228,hp:76},5:{atk:239,hp:80}},
+    2:{0:{atk:283,hp:94},1:{atk:294,hp:98},2:{atk:309,hp:103},3:{atk:324,hp:108},4:{atk:341,hp:113},5:{atk:358,hp:119}},
+    3:{0:{atk:397,hp:132},1:{atk:413,hp:137},2:{atk:434,hp:144},3:{atk:455,hp:151},4:{atk:478,hp:159},5:{atk:502,hp:167}},
+    4:{0:{atk:516,hp:172},1:{atk:537,hp:179},2:{atk:563,hp:188},3:{atk:592,hp:197},4:{atk:621,hp:207},5:{atk:652,hp:217}},
+    5:{0:{atk:619,hp:206},1:{atk:644,hp:214},2:{atk:676,hp:225},3:{atk:710,hp:236},4:{atk:745,hp:248},5:{atk:782,hp:260}},
+    6:{0:{atk:730,hp:243},1:{atk:759,hp:253},2:{atk:797,hp:265},3:{atk:837,hp:279},4:{atk:879,hp:293},5:{atk:923,hp:307}},
+    7:{0:{atk:862,hp:287},1:{atk:896,hp:298},2:{atk:941,hp:313},3:{atk:988,hp:329},4:{atk:1038,hp:346},5:{atk:1090,hp:363}},
+    8:{0:{atk:1017,hp:339},1:{atk:1058,hp:353},2:{atk:1111,hp:370},3:{atk:1166,hp:389},4:{atk:1224,hp:408},5:{atk:1286,hp:429}},
+    9:{0:{atk:1200,hp:400},1:{atk:1248,hp:416},2:{atk:1310,hp:437},3:{atk:1376,hp:459},4:{atk:1445,hp:482},5:{atk:1517,hp:506}},
+    10:{0:{atk:1416,hp:472},1:{atk:1473,hp:491},2:{atk:1546,hp:515},3:{atk:1624,hp:541},4:{atk:1705,hp:568},5:{atk:1790,hp:597}},
+    11:{0:{atk:1699,hp:566},1:{atk:1767,hp:589},2:{atk:1855,hp:618},3:{atk:1948,hp:649},4:{atk:2045,hp:681},5:{atk:2148,hp:716}},
+  },
+  arc: {
+    1:{0:{atk:252,hp:47},1:{atk:262,hp:49},2:{atk:275,hp:51},3:{atk:289,hp:54},4:{atk:303,hp:57},5:{atk:319,hp:59}},
+    2:{0:{atk:378,hp:71},1:{atk:393,hp:74},2:{atk:413,hp:78},3:{atk:433,hp:81},4:{atk:455,hp:85},5:{atk:478,hp:90}},
+    3:{0:{atk:529,hp:99},1:{atk:550,hp:103},2:{atk:578,hp:108},3:{atk:607,hp:114},4:{atk:637,hp:119},5:{atk:669,hp:125}},
+    4:{0:{atk:688,hp:129},1:{atk:716,hp:134},2:{atk:751,hp:141},3:{atk:789,hp:148},4:{atk:828,hp:155},5:{atk:870,hp:163}},
+    5:{0:{atk:825,hp:155},1:{atk:858,hp:161},2:{atk:901,hp:169},3:{atk:946,hp:178},4:{atk:993,hp:187},5:{atk:1043,hp:196}},
+    6:{0:{atk:974,hp:183},1:{atk:1013,hp:190},2:{atk:1064,hp:200},3:{atk:1117,hp:210},4:{atk:1173,hp:220},5:{atk:1231,hp:231}},
+    7:{0:{atk:1149,hp:215},1:{atk:1195,hp:224},2:{atk:1255,hp:235},3:{atk:1317,hp:247},4:{atk:1383,hp:259},5:{atk:1452,hp:272}},
+    8:{0:{atk:1356,hp:254},1:{atk:1410,hp:264},2:{atk:1481,hp:277},3:{atk:1555,hp:291},4:{atk:1633,hp:306},5:{atk:1714,hp:321}},
+    9:{0:{atk:1600,hp:300},1:{atk:1664,hp:312},2:{atk:1747,hp:328},3:{atk:1835,hp:344},4:{atk:1926,hp:361},5:{atk:2023,hp:379}},
+    10:{0:{atk:1888,hp:354},1:{atk:1964,hp:368},2:{atk:2062,hp:387},3:{atk:2165,hp:406},4:{atk:2273,hp:426},5:{atk:2387,hp:448}},
+    11:{0:{atk:2266,hp:390},1:{atk:2357,hp:406},2:{atk:2474,hp:426},3:{atk:2598,hp:447},4:{atk:2728,hp:470},5:{atk:2865,hp:493}},
+  }
+};
+
+const ROUNDS=10, BEAR_TOTAL=5000, BEAR_DEF_BASE=8.3333, PITFALL=1.25, TROOP_MIN=5000;
+const OBJECTIVE=1200000000;
+const RANGED_BONUS=1.10; // Archers vs infanterie bear
+
+/* Stats dynamiques courantes */
+let curStats = {
+  inf: { atk:243, hp:730, def:10, lth:10 },
+  cav: { atk:730, hp:243, def:10, lth:10 },
+  arc: { atk:974, hp:183, def:10, lth:10 },
+};
+let curBonus = {
+  atkInf:0, atkCav:0, atkArc:0,    // ATK par type de troupe
+  lthInf:0, lthCav:0, lthArc:0,    // LET par type de troupe
+  atkSquad:0, lthSquad:0,           // ATK/LET escouade globaux (recherche)
+  hp:0, def:0                       // globaux
+};
+
+/* ═══════════════════════════════════════════════════════════
+   FORMULE BEAR HUNT — bonus distincts par type de troupe
+   atkMult_t = 1 + (bonusAtk_t + heroAtk_t) / 100
+   lthMult_t = 1 + (bonusLth_t + heroLth_t) / 100
+   bearDef   = 8.3333 × (1 - lthReduceEnemy/100)
+═══════════════════════════════════════════════════════════ */
+/* ─── CALCUL DES POIDS PAR MARCHE ───────────────────────────────────
+   calcWeightsFor(extra) : poids avec bonus gouverneur + bonus extra
+   calcWeightsLeader()   : poids avec TOUS les bonus héros leader
+   calcWeightsJoiner(i)  : poids avec seulement la 1ère compétence du héros joiner i
+   dmg(nI,nC,nA,w)       : w optionnel, sinon utilise calcWeightsLeader()
+─────────────────────────────────────────────────────────────────── */
+function calcWeightsFor(extra) {
+  // extra = { totalAtk, totalLth, totalDmgEV, lthReduceEnemy, atkInf, atkCav, atkArc, lthInf, lthCav, lthArc }
+  const e = extra || {};
+  const tAtk = e.totalAtk||0, tLth = e.totalLth||0;
+  const atkMult_inf = 1 + (curBonus.atkInf + curBonus.atkSquad + tAtk + (e.atkInf||0)) / 100;
+  const atkMult_cav = 1 + (curBonus.atkCav + curBonus.atkSquad + tAtk + (e.atkCav||0)) / 100;
+  const atkMult_arc = 1 + (curBonus.atkArc + curBonus.atkSquad + tAtk + (e.atkArc||0)) / 100;
+  const lthMult_inf = 1 + (curBonus.lthInf + curBonus.lthSquad + tLth + (e.lthInf||0)) / 100;
+  const lthMult_cav = 1 + (curBonus.lthCav + curBonus.lthSquad + tLth + (e.lthCav||0)) / 100;
+  const lthMult_arc = 1 + (curBonus.lthArc + curBonus.lthSquad + tLth + (e.lthArc||0)) / 100;
+  const dmgMult = 1 + (e.totalDmgEV||0);
+  const bearDef = BEAR_DEF_BASE * (1 - (e.lthReduceEnemy||0) / 100);
+  return {
+    w_inf: curStats.inf.atk * atkMult_inf * PITFALL * (curStats.inf.lth * lthMult_inf) / 100 / bearDef * dmgMult,
+    w_cav: curStats.cav.atk * atkMult_cav * PITFALL * (curStats.cav.lth * lthMult_cav) / 100 / bearDef * dmgMult,
+    w_arc: curStats.arc.atk * atkMult_arc * PITFALL * (curStats.arc.lth * lthMult_arc) / 100 / bearDef * RANGED_BONUS * dmgMult,
+  };
+}
+
+// Poids du leader (tous les héros leader + joiners)
+function calcWeights() { return calcWeightsFor(calcHeroBonuses()); }
+
+// Cache des poids joiners { [i]: weights }
+let _joinerWeightsCache = {};
+function invalidateJoinerCache(i){ if(i===undefined) _joinerWeightsCache={}; else delete _joinerWeightsCache[i]; }
+
+// Poids d'un joiner i : gouverneur + 1ère compétence de son héros seulement
+// Si aucun héros défini → fallback sur les poids du leader
+function calcWeightsJoiner(i) {
+  if(_joinerWeightsCache[i]) return _joinerWeightsCache[i];
+  const data = joinerHeroData[i];
+  // Pas de héros joiner → on utilise les poids leader (meilleure approximation)
+  if(!data?.heroKey) {
+    _joinerWeightsCache[i] = calcWeights();
+    return _joinerWeightsCache[i];
+  }
+  const extra = { totalAtk:0, totalLth:0, totalDmgEV:0, lthReduceEnemy:0, atkInf:0, atkCav:0, atkArc:0, lthInf:0, lthCav:0, lthArc:0 };
+  if(data?.heroKey) {
+    const hero = HEROES_DB[data.heroKey];
+    if(hero?.skills[0]) {
+      const sk = hero.skills[0], lvl = data.skillLevel||1, val = sk.vals?.[lvl-1]||0;
+      switch(sk.type) {
+        case 'atk_squad': case 'atk_rally': extra.totalAtk+=val; break;
+        case 'let_squad': case 'let_rally': extra.totalLth+=val; break;
+        case 'dmg_squad': extra.totalAtk+=val; break;
+        case 'dmg_chance': extra.totalDmgEV+=(val/100)*(sk.bonus||50)/100; break;
+        case 'let_reduce_enemy': extra.lthReduceEnemy+=val; break;
+        case 'atk_arc': extra.atkArc+=val; break;
+        case 'atk_inf': extra.atkInf+=val; break;
+        case 'atk_cav': extra.atkCav+=val; break;
+        case 'let_arc': extra.lthArc+=val; break;
+        case 'let_inf': extra.lthInf+=val; break;
+        case 'let_cav': extra.lthCav+=val; break;
+      }
+    }
+  }
+  _joinerWeightsCache[i] = calcWeightsFor(extra);
+  return _joinerWeightsCache[i];
+}
+
+/* ── INIT TIER SELECTS ── */
+function buildTierOptions() {
+  // Selects Tier : T1 à T11
+  ['tierInfT','tierCavT','tierArcT'].forEach((id, idx) => {
+    const sel = document.getElementById(id);
+    sel.innerHTML = '';
+    for (let t = 1; t <= 11; t++) {
+      const opt = document.createElement('option');
+      opt.value = t;
+      opt.textContent = t <= 10 ? `T${t}` : `T11`;
+      if (t === 6) opt.selected = true;
+      sel.appendChild(opt);
+    }
+  });
+  // Selects TG : 0 à 5
+  ['tierInfG','tierCavG','tierArcG'].forEach(id => {
+    const sel = document.getElementById(id);
+    sel.innerHTML = '';
+    for (let g = 0; g <= 5; g++) {
+      const opt = document.createElement('option');
+      opt.value = g;
+      opt.textContent = `TG${g}`;
+      if (g === 0) opt.selected = true;
+      sel.appendChild(opt);
+    }
+  });
+  onTierChange();
+}
+
+function parseTier(typeKey) {
+  const t = parseInt(document.getElementById(`tier${typeKey}T`)?.value) || 6;
+  const g = parseInt(document.getElementById(`tier${typeKey}G`)?.value) || 0;
+  return { tier: t, tg: g };
+}
+
+function onTierChange() {
+  const i = parseTier('Inf'), c = parseTier('Cav'), a = parseTier('Arc');
+  const si = TROOP_STATS.inf[i.tier]?.[i.tg] || TROOP_STATS.inf[6][0];
+  const sc = TROOP_STATS.cav[c.tier]?.[c.tg] || TROOP_STATS.cav[6][0];
+  const sa = TROOP_STATS.arc[a.tier]?.[a.tg] || TROOP_STATS.arc[6][0];
+  curStats.inf = { atk:si.atk, hp:si.hp, def:10, lth:10 };
+  curStats.cav = { atk:sc.atk, hp:sc.hp, def:10, lth:10 };
+  curStats.arc = { atk:sa.atk, hp:sa.hp, def:10, lth:10 };
+  document.getElementById('si_atk').textContent = si.atk;
+  document.getElementById('si_hp').textContent  = si.hp;
+  document.getElementById('sc_atk').textContent = sc.atk;
+  document.getElementById('sc_hp').textContent  = sc.hp;
+  document.getElementById('sa_atk').textContent = sa.atk;
+  document.getElementById('sa_hp').textContent  = sa.hp;
+  refreshAfterStatChange();
+}
+
+function onBonusChange() {
+  invalidateHeroCache();
+  const gf = id => parseFloat(document.getElementById(id)?.value)||0;
+  curBonus.atkInf = gf('bonusAtkInf'); curBonus.atkCav = gf('bonusAtkCav'); curBonus.atkArc = gf('bonusAtkArc');
+  curBonus.lthInf = gf('bonusLthInf'); curBonus.lthCav = gf('bonusLthCav'); curBonus.lthArc = gf('bonusLthArc');
+  curBonus.atkSquad = gf('bonusAtkSquad');
+  curBonus.lthSquad = gf('bonusLthSquad');
+  curBonus.hp  = gf('bonusHp');
+  curBonus.def = gf('bonusDef');
+  const w = calcWeights();
+  document.getElementById('bonusSummary').innerHTML =
+    `Poids calculés avec tes bonus :<br>` +
+    `<span style="color:var(--inf)">INF : <strong>${w.w_inf.toFixed(4)}</strong></span> &nbsp;·&nbsp; ` +
+    `<span style="color:var(--cav)">CAV : <strong>${w.w_cav.toFixed(4)}</strong></span> &nbsp;·&nbsp; ` +
+    `<span style="color:var(--arc)">ARC : <strong>${w.w_arc.toFixed(4)}</strong></span><br>` +
+    `<span style="color:var(--text-faint)">Les archers font ×${(w.w_arc/w.w_inf).toFixed(1)} plus de dégâts par troupe que l'infanterie</span>`;
+  refreshAfterStatChange();
+}
+
+function refreshAfterStatChange() {
+  invalidateHeroCache();
+  invalidateJoinerCache(); // invalide tous les caches joiner
+  updateLeader();
+  for (let i = 1; i <= jCount; i++) updateJoiner(i);
+  refreshSummary();
+  saveState();
+}
+
+/* ── FORMULE DÉGÂTS ── */
+function dmg(nI,nC,nA,w){
+  const tot=nI+nC+nA; if(tot<=0)return 0;
+  const am=Math.min(tot,BEAR_TOTAL);
+  if(!w) w=calcWeights();
+  return ROUNDS*(Math.sqrt(nI*am)*w.w_inf/100+Math.sqrt(nC*am)*w.w_cav/100+Math.sqrt(nA*am)*w.w_arc/100);
+}
+function eff(nI,nC,nA,w){const t=nI+nC+nA;return t>0?dmg(nI,nC,nA,w)/t:0;}
+
+function solveOptimal(cap,maxI,maxC,maxA,w){
+  if(!w) w=calcWeights();
+  const C=Math.min(cap,maxI+maxC+maxA);if(C<=0)return{i:0,c:0,a:0};
+  const w2=[w.w_inf*w.w_inf,w.w_cav*w.w_cav,w.w_arc*w.w_arc],maxArr=[maxI,maxC,maxA];
+  let alloc=[0,0,0],active=[0,1,2],remaining=C;
+  for(let iter=0;iter<10;iter++){
+    const sumW2=active.reduce((s,i)=>s+w2[i],0);if(sumW2<=0)break;
+    let saturated=false;const newAlloc=[...alloc];
+    for(const i of active)newAlloc[i]=remaining*w2[i]/sumW2;
+    const nextActive=[];
+    for(const i of active){if(newAlloc[i]>maxArr[i]){newAlloc[i]=maxArr[i];saturated=true;}else nextActive.push(i);}
+    alloc=newAlloc;if(!saturated)break;
+    active=nextActive;remaining=C-[0,1,2].filter(i=>!active.includes(i)).reduce((s,i)=>s+alloc[i],0);
+    if(active.length===0||remaining<=0)break;
+  }
+  let ni=Math.min(Math.round(alloc[0]),maxI),nc=Math.min(Math.round(alloc[1]),maxC),na=Math.min(Math.round(alloc[2]),maxA);
+  let diff=C-(ni+nc+na);const vals=[ni,nc,na],maxes=[maxI,maxC,maxA];
+  for(const idx of[2,1,0]){if(diff===0)break;if(diff>0){const add=Math.min(diff,maxes[idx]-vals[idx]);vals[idx]+=add;diff-=add;}else{const sub=Math.min(-diff,vals[idx]);vals[idx]-=sub;diff+=sub;}}
+  [ni,nc,na]=vals;
+  if(maxI>0&&ni<TROOP_MIN)ni=TROOP_MIN;
+  if(maxC>0&&nc<TROOP_MIN)nc=TROOP_MIN;
+  if(maxA>0&&na<=0)na=1;
+  if(maxI>=TROOP_MIN&&ni<TROOP_MIN){const d=TROOP_MIN-ni;ni=TROOP_MIN;const ta=Math.min(d,Math.max(0,na-1));na-=ta;const tc=Math.min(d-ta,Math.max(0,nc-TROOP_MIN));nc-=tc;}
+  if(maxC>=TROOP_MIN&&nc<TROOP_MIN){const d=TROOP_MIN-nc;nc=TROOP_MIN;const ta=Math.min(d,Math.max(0,na-1));na-=ta;}
+  return{i:Math.max(0,ni),c:Math.max(0,nc),a:Math.max(0,na)};
+}
+
+function runAutoOptimize(){
+  const btn=document.getElementById('autoBtn'),wrap=document.getElementById('loadingWrap');
+  const bar=document.getElementById('loadingBar'),pctEl=document.getElementById('loadingPct');
+  const lbl=document.getElementById('loadingLabel'),hint=document.getElementById('autoBtnLabel');
+  const s=stock(),leadCap=gv('leadCap');
+  if(s.inf+s.cav+s.arc<=0){alert('⚠️ Entre tes stocks de troupes (Étape 1) !');return;}
+  if(leadCap<=0){alert('⚠️ Entre ta capacité de marche (Étape 2) !');return;}
+  btn.disabled=true;hint.textContent='CALCUL EN COURS…';wrap.style.display='block';
+  function setP(p,label){bar.style.width=p+'%';pctEl.textContent=p+'%';if(label)lbl.textContent=label;}
+  setP(0,'Initialisation…');
+  const forcedCapsSnap=[];for(let i=1;i<=jCount;i++){const cap=gv(`j${i}_cap`);if(cap>0)forcedCapsSnap.push(cap);}
+  const nForced=forcedCapsSnap.length,slotsAuto=JMAX-nForced;let bestScore=-1,bestAlloc=null;
+  const nAutoValues=Array.from({length:slotsAuto+1},(_,i)=>i);
+  function processChunk(idx){
+    if(idx>=nAutoValues.length){setP(95,'Application…');setTimeout(()=>{_applyOptimResult(bestAlloc,nForced,forcedCapsSnap);setP(100,'Terminé !');hint.textContent='OPTIMISATION AUTOMATIQUE';btn.disabled=false;setTimeout(()=>{wrap.style.display='none';},1200);},20);return;}
+    const nAuto=nAutoValues[idx];setP(Math.round(idx/nAutoValues.length*90),`Test ${nAuto} joiner${nAuto>1?'s':''}…`);
+    setTimeout(()=>{_computeNAuto(nAuto,s,leadCap,forcedCapsSnap,slotsAuto,(score,alloc)=>{if(score>bestScore){bestScore=score;bestAlloc=alloc;}});processChunk(idx+1);},10);
+  }
+  setTimeout(()=>processChunk(0),30);
+}
+
+function _computeNAuto(nAuto,s,leadCap,forcedCapsList,slotsAuto,callback){
+  let bestScore=-1,bestAlloc=null;
+  const wL=calcWeights();
+  const wJForced=forcedCapsList.map((_,fi)=>calcWeightsJoiner(fi+1));
+  const wJAuto=calcWeightsFor({});
+
+  // Itérer en nombre de troupes réel — seule contrainte : INF >= TROOP_MIN, CAV >= 1, ARC >= 1
+  // On teste ~30 valeurs pour INF et ~30 pour CAV → ~900 combinaisons par cap
+  const STEPS = 30;
+  function iterCap(cap, maxI, maxC, maxA, fn) {
+    // INF : de TROOP_MIN à min(maxI, cap - TROOP_MIN - 1)
+    const iMin = TROOP_MIN, iMax = Math.min(maxI, cap - TROOP_MIN - 1);
+    if(iMin > iMax) return;
+    const iStep = Math.max(1, Math.floor((iMax - iMin) / STEPS));
+    for(let nI = iMin; nI <= iMax; nI += iStep) {
+      // CAV : de TROOP_MIN à min(maxC, cap - nI - 1)
+      const cMin = TROOP_MIN, cMax = Math.min(maxC, cap - nI - 1);
+      if(cMax < cMin) continue;
+      const cStep = Math.max(1, Math.floor((cMax - cMin) / STEPS));
+      for(let nC = cMin; nC <= cMax; nC += cStep) {
+        const nA = cap - nI - nC;
+        if(nA < 1 || nA > maxA) continue;
+        fn(nI, nC, nA);
+      }
+    }
+  }
+
+  iterCap(leadCap, s.inf, s.cav, s.arc, (lI, lC, lA) => {
+    const rI=s.inf-lI, rC=s.cav-lC, rA=s.arc-lA, rTot=rI+rC+rA;
+    if(nAuto===0&&forcedCapsList.length===0){
+      const score=dmg(lI,lC,lA,wL);
+      if(score>bestScore){bestScore=score;bestAlloc=[{i:lI,c:lC,a:lA}];}
+      return;
+    }
+    const jCapAutoRange=nAuto===0?[null]:(()=>{
+      const maxP=Math.floor(rTot/nAuto);if(maxP<TROOP_MIN+2)return[];
+      const result=[],step=Math.max(1000,Math.floor((maxP-TROOP_MIN)/STEPS));
+      for(let c=TROOP_MIN+2;c<=maxP;c+=step)result.push(c);
+      if(!result.length||result[result.length-1]!==maxP)result.push(maxP);
+      return result;
+    })();
+    for(const jCapAuto of jCapAutoRange){
+      const allJoinCaps=jCapAuto===null?forcedCapsList:[...forcedCapsList,...Array(nAuto).fill(jCapAuto)];
+      if(!allJoinCaps.length)continue;
+      // Pour les joiners, même logique : on itère en troupes réelles
+      const jCap0=allJoinCaps[0];
+      iterCap(jCap0, rI, rC, rA, (jI0, jC0, jA0) => {
+        // Si plusieurs joiners on applique le même ratio à tous (approximation)
+        let ok=true, remI=rI, remC=rC, remA=rA; const jAllocs=[];
+        for(let jIdx=0;jIdx<allJoinCaps.length;jIdx++){
+          const jCap=allJoinCaps[jIdx];
+          const ratio=jCap/jCap0;
+          const jI=Math.round(jI0*ratio),jC=Math.round(jC0*ratio),jA=jCap-jI-jC;
+          if(jI<TROOP_MIN||jC<1||jA<1){ok=false;break;}
+          if(jI>remI||jC>remC||jA>remA){ok=false;break;}
+          remI-=jI;remC-=jC;remA-=jA;jAllocs.push({i:jI,c:jC,a:jA});
+        }
+        if(!ok)return;
+        let score=dmg(lI,lC,lA,wL);
+        for(let jIdx=0;jIdx<jAllocs.length;jIdx++){
+          const wJ=jIdx<wJForced.length?wJForced[jIdx]:wJAuto;
+          score+=dmg(jAllocs[jIdx].i,jAllocs[jIdx].c,jAllocs[jIdx].a,wJ);
+        }
+        if(score>bestScore){bestScore=score;bestAlloc=[{i:lI,c:lC,a:lA},...jAllocs];}
+      });
+    }
+  });
+  callback(bestScore,bestAlloc);
+}
+
+function _applyOptimResult(bestAlloc,nForced,forcedCapsList){
+  if(!bestAlloc){const s=stock(),lo=solveOptimal(gv('leadCap'),s.inf,s.cav,s.arc);bestAlloc=[{i:lo.i,c:lo.c,a:lo.a}];}
+  while(jCount>0){document.getElementById(`jtab${jCount}`)?.remove();document.getElementById(`jpanel${jCount}`)?.remove();jCount--;}
+  const la=bestAlloc[0];_setMarchExact('lead',la.i,la.c,la.a);
+  for(let ji=1;ji<bestAlloc.length;ji++){jCount=ji;buildJoinerTab(ji,ji<=nForced);buildJoinerPanel(ji);_setMarchExact(`j${ji}`,bestAlloc[ji].i,bestAlloc[ji].c,bestAlloc[ji].a);updateJoiner(ji);}
+  const s=stock(),usedI=bestAlloc.reduce((s,a)=>s+a.i,0),usedC=bestAlloc.reduce((s,a)=>s+a.c,0),usedA=bestAlloc.reduce((s,a)=>s+a.a,0);
+  const fI=s.inf-usedI,fC=s.cav-usedC,fA=s.arc-usedA,fR=fI+fC+fA;
+  document.getElementById('jIdleMsg').style.display=jCount>0?'none':'flex';
+  if(fR>0&&!canMarch(fI,fC,fA)){const msg=document.getElementById('jIdleMsg');msg.style.display='flex';const which=[];if(fI<TROOP_MIN)which.push(`pas assez d'Infanterie (min 5 000, reste ${fmt(fI)})`);if(fC<TROOP_MIN)which.push(`pas assez de Cavalerie (min 5 000, reste ${fmt(fC)})`);if(fA<=0)which.push("pas d'Archers");msg.innerHTML=`<span>◈</span><span><strong>${fmt(fR)} troupes non déployées</strong> — impossible de créer d'autres marches : ${which.join(' · ')}</span>`;}
+  switchJoiner(jCount);syncJCtrl();refreshSummary();saveState();
+  setTimeout(()=>document.getElementById('summary').scrollIntoView({behavior:'smooth',block:'start'}),300);
+}
+
+function canMarch(rI,rC,rA){return rI>=TROOP_MIN&&rC>=TROOP_MIN&&rA>0;}
+function fmt(n){return n==null?'—':Math.round(n).toLocaleString('fr-FR');}
+function fmtD(d){if(!d)return'—';if(d>=1e9)return(d/1e9).toFixed(3)+' Md';if(d>=1e6)return(d/1e6).toFixed(2)+' M';if(d>=1e3)return(d/1e3).toFixed(1)+' k';return d.toFixed(0);}
+function fmtEff(e){if(!e)return'—';if(e>=1)return e.toFixed(3)+' pts/troupe';return(e*1000).toFixed(2)+' mpts/troupe';}
+
+const gv=id=>parseInt(document.getElementById(id)?.value)||0;
+function stock(){return{inf:gv('tInf'),cav:gv('tCav'),arc:gv('tArc')};}
+
+function _setMarchExact(pfx,nI,nC,nA){
+  const tot=nI+nC+nA,ip=tot>0?Math.round(nI/tot*100):10,cp=tot>0?Math.round(nC/tot*100):10,ap=100-ip-cp;
+  if(pfx==='lead'){document.getElementById('leadCap').value=tot;document.getElementById('lInf').value=ip;document.getElementById('lCav').value=cp;document.getElementById('lArc').value=ap;const el=document.getElementById('leadCap');el.dataset.exactI=nI;el.dataset.exactC=nC;el.dataset.exactA=nA;updateLeader();}
+  else{const n=pfx.replace('j',''),el=document.getElementById(`j${n}_cap`);el.value=tot;document.getElementById(`j${n}_inf`).value=ip;document.getElementById(`j${n}_cav`).value=cp;document.getElementById(`j${n}_arc`).value=ap;el.dataset.exactI=nI;el.dataset.exactC=nC;el.dataset.exactA=nA;}
+}
+function _getMarchCounts(pfx){
+  const capEl=document.getElementById(pfx==='lead'?'leadCap':`j${pfx.replace('j','')}_cap`);
+  if(capEl?.dataset.exactI!==undefined)return{i:parseInt(capEl.dataset.exactI)||0,c:parseInt(capEl.dataset.exactC)||0,a:parseInt(capEl.dataset.exactA)||0};
+  const cap=parseInt(capEl?.value)||0;
+  if(pfx==='lead'){const ip=parseFloat(document.getElementById('lInf')?.value)||10,cp=parseFloat(document.getElementById('lCav')?.value)||10;const ni=Math.floor(cap*ip/100),nc=Math.floor(cap*cp/100);return{i:ni,c:nc,a:cap-ni-nc};}
+  const n=pfx.replace('j','');const ip=parseFloat(document.getElementById(`j${n}_inf`)?.value)||10,cp=parseFloat(document.getElementById(`j${n}_cav`)?.value)||10;const ni=Math.floor(cap*ip/100),nc=Math.floor(cap*cp/100);return{i:ni,c:nc,a:cap-ni-nc};
+}
+function _clearExact(pfx){const el=document.getElementById(pfx==='lead'?'leadCap':`j${pfx.replace('j','')}_cap`);if(el){delete el.dataset.exactI;delete el.dataset.exactC;delete el.dataset.exactA;}}
+
+function onStockChange(){
+  const s=stock(),tot=s.inf+s.cav+s.arc,chip=document.getElementById('stockChip');
+  if(tot>0){chip.className='chip ok';chip.innerHTML=`<span class="chip-icon">✓</span><span>Total : <strong>${fmt(tot)} troupes</strong> — INF ${fmt(s.inf)} · CAV ${fmt(s.cav)} · ARC ${fmt(s.arc)}</span>`;}
+  else{chip.className='chip idle';chip.innerHTML='<span class="chip-icon">◈</span><span>Entre tes stocks ci-dessus pour commencer</span>';}
+  _clearExact('lead');for(let i=1;i<=jCount;i++)_clearExact(`j${i}`);
+  updateLeader();for(let i=1;i<=jCount;i++)updateJoiner(i);refreshSummary();saveState();
+}
+
+function snapRatio(pfx,changed){
+  const keys=['Inf','Cav','Arc'],getId=k=>pfx==='l'?`l${k}`:`j${pfx}_${k.toLowerCase()}`;
+  let vals={};keys.forEach(k=>vals[k]=parseFloat(document.getElementById(getId(k))?.value)||0);
+  const fixed=Math.max(0,Math.min(100,vals[changed]));document.getElementById(getId(changed)).value=fixed;
+  const others=keys.filter(k=>k!==changed),sumO=others.reduce((s,k)=>s+vals[k],0),rem=100-fixed;
+  if(sumO>0&&rem>=0){let leftover=rem;others.forEach((k,idx)=>{if(idx===others.length-1){document.getElementById(getId(k)).value=leftover;}else{const v=Math.round(vals[k]/sumO*rem);document.getElementById(getId(k)).value=v;leftover-=v;}});}
+}
+
+function ratioSum(pfx){const getId=k=>pfx==='l'?`l${k}`:`j${pfx}_${k.toLowerCase()}`;return['Inf','Cav','Arc'].reduce((s,k)=>s+(parseFloat(document.getElementById(getId(k))?.value)||0),0);}
+
+function checkWarn(pfx,warnId){
+  const s=ratioSum(pfx),w=document.getElementById(warnId);if(!w)return s;
+  if(Math.abs(s-100)>0.5){w.textContent=`⚠ Le total doit être 100% (actuellement ${s.toFixed(0)}%)`;w.style.display='block';}else w.style.display='none';
+  return s;
+}
+
+function updateBar(siId,scId,saId,ip,cp,ap){const si=document.getElementById(siId),sc=document.getElementById(scId),sa=document.getElementById(saId);if(!si)return;si.style.width=ip+'%';sc.style.width=cp+'%';sa.style.width=ap+'%';}
+function updateRatioBars(pfx,ip,cp,ap){const ids=pfx==='l'?['lBarI','lBarC','lBarA']:[`j${pfx}_barI`,`j${pfx}_barC`,`j${pfx}_barA`];const bi=document.getElementById(ids[0]),bc=document.getElementById(ids[1]),ba=document.getElementById(ids[2]);if(bi)bi.style.width=ip+'%';if(bc)bc.style.width=cp+'%';if(ba)ba.style.width=ap+'%';}
+
+function updateLeader(){
+  const cap=gv('leadCap'),rs=checkWarn('l','lWarn');
+  const ip=parseFloat(document.getElementById('lInf')?.value)||10,cp=parseFloat(document.getElementById('lCav')?.value)||10,ap=parseFloat(document.getElementById('lArc')?.value)||80;
+  updateBar('lSI','lSC','lSA',ip,cp,ap);updateRatioBars('l',ip,cp,ap);
+  document.getElementById('lPI').textContent=ip+'%';document.getElementById('lPC').textContent=cp+'%';document.getElementById('lPA').textContent=ap+'%';
+  const rv=document.getElementById('lRatioVal');if(rv){rv.textContent=Math.round(rs)+'%';rv.className=Math.abs(rs-100)<=0.5?'ratio-total-val rv-ok':'ratio-total-val rv-warn';}
+  if(cap>0&&Math.abs(rs-100)<=0.5){
+    const exact=_getMarchCounts('lead'),nI=exact.i,nC=exact.c,nA=exact.a;
+    document.getElementById('lCI').textContent=fmt(nI);document.getElementById('lCC').textContent=fmt(nC);document.getElementById('lCA').textContent=fmt(nA);
+    const s=stock(),chip=document.getElementById('lChip');
+    if((s.inf+s.cav+s.arc)>0){
+      if(nI<=s.inf&&nC<=s.cav&&nA<=s.arc){chip.className='chip ok';chip.innerHTML=`<span class="chip-icon">✓</span><span>Marche configurée : <strong>${fmt(cap)} troupes</strong></span>`;}
+      else{const over=[];if(nI>s.inf)over.push(`Infanterie : ${fmt(nI-s.inf)} en trop`);if(nC>s.cav)over.push(`Cavalerie : ${fmt(nC-s.cav)} en trop`);if(nA>s.arc)over.push(`Archers : ${fmt(nA-s.arc)} en trop`);chip.className='chip err';chip.innerHTML=`<span class="chip-icon">✕</span><span>Stock insuffisant — ${over.join(' · ')}</span>`;}
+    }else{chip.className='chip ok';chip.innerHTML=`<span class="chip-icon">✓</span><span>Marche : <strong>${fmt(cap)} troupes</strong></span>`;}
+  }else{
+    ['lCI','lCC','lCA'].forEach(id=>document.getElementById(id).textContent='—');
+    if(!cap){const chip=document.getElementById('lChip');chip.className='chip idle';chip.innerHTML='<span class="chip-icon">◈</span><span>Entre ta capacité de marche pour voir le résultat</span>';}
+  }
+  refreshSummary();saveState();
+}
+
+let jCount=0;const JMAX=6;
+
+function addJoiner(){if(jCount>=JMAX)return;jCount++;buildJoinerTab(jCount,false);buildJoinerPanel(jCount);switchJoiner(jCount);syncJCtrl();document.getElementById('jIdleMsg').style.display='none';refreshSummary();setTimeout(()=>document.getElementById(`jpanel${jCount}`)?.scrollIntoView({behavior:'smooth',block:'nearest'}),50);}
+function removeJoiner(){if(jCount<=0)return;document.getElementById(`jtab${jCount}`)?.remove();document.getElementById(`jpanel${jCount}`)?.remove();jCount--;if(jCount>0)switchJoiner(jCount);else document.getElementById('jIdleMsg').style.display='flex';syncJCtrl();refreshSummary();saveState();}
+function syncJCtrl(){document.getElementById('btnAdd').disabled=jCount>=JMAX;document.getElementById('btnRem').disabled=jCount<=0;document.getElementById('jCountLbl').textContent=`${jCount} / ${JMAX} joiners`;}
+function switchJoiner(i){document.querySelectorAll('.jtab').forEach(t=>t.classList.remove('act'));document.querySelectorAll('.jpanel').forEach(p=>p.classList.remove('act'));document.getElementById(`jtab${i}`)?.classList.add('act');document.getElementById(`jpanel${i}`)?.classList.add('act');}
+
+function buildJoinerTab(i,isForced=false){
+  const d=document.createElement('button');d.className='jtab';d.id=`jtab${i}`;
+  const badge=isForced?`<span style="font-size:8px;color:var(--amber);margin-left:4px;font-family:var(--f-mono)">FIXÉ</span>`:'';
+  d.innerHTML=`Joiner ${i}${badge}`;d.onclick=()=>switchJoiner(i);document.getElementById('jtabs').appendChild(d);
+}
+
+function buildJoinerPanel(i){
+  const d=document.createElement('div');d.className='jpanel act';d.id=`jpanel${i}`;
+  d.innerHTML=`
+  <div class="panel">
+    <div class="panel-accent pa-blue"></div>
+    <div class="panel-header">
+      <span class="ph-icon">◆</span>
+      <span class="ph-title">Joiner ${i}</span>
+      <span class="ph-tag tag-blue">Marche Joiner</span>
+    </div>
+    <div class="panel-body">
+      <div class="field">
+        <div class="field-label"><span class="field-dot fd-amber"></span>Capacité de Marche</div>
+        <input type="number" id="j${i}_cap" placeholder="ex : 70 000" min="0" oninput="_clearExact('j${i}');updateJoiner(${i})">
+        <div class="field-sub">La capacité de marche du rally que tu vas rejoindre</div>
+      </div>
+      <div class="ratio-section-label">Répartition des troupes <span>— modifie si besoin</span></div>
+      <div class="ratio-grid">
+        <div class="ratio-cell">
+          <div class="ratio-cell-label"><span class="field-dot fd-inf"></span>Infanterie</div>
+          <div class="ratio-input-wrap"><input type="number" class="ratio-inp ri" id="j${i}_inf" value="10" min="0" max="100" oninput="_clearExact('j${i}');snapRatio(${i},'Inf');updateJoiner(${i})"><span class="ratio-pct">%</span></div>
+          <div class="rbar"><div class="rbar-fill rbar-i" id="j${i}_barI" style="width:10%"></div></div>
+        </div>
+        <div class="ratio-cell">
+          <div class="ratio-cell-label"><span class="field-dot fd-cav"></span>Cavalerie</div>
+          <div class="ratio-input-wrap"><input type="number" class="ratio-inp rc" id="j${i}_cav" value="10" min="0" max="100" oninput="_clearExact('j${i}');snapRatio(${i},'Cav');updateJoiner(${i})"><span class="ratio-pct">%</span></div>
+          <div class="rbar"><div class="rbar-fill rbar-c" id="j${i}_barC" style="width:10%"></div></div>
+        </div>
+        <div class="ratio-cell">
+          <div class="ratio-cell-label"><span class="field-dot fd-arc"></span>Archers</div>
+          <div class="ratio-input-wrap"><input type="number" class="ratio-inp ra" id="j${i}_arc" value="80" min="0" max="100" oninput="_clearExact('j${i}');snapRatio(${i},'Arc');updateJoiner(${i})"><span class="ratio-pct">%</span></div>
+          <div class="rbar"><div class="rbar-fill rbar-a" id="j${i}_barA" style="width:80%"></div></div>
+        </div>
+      </div>
+      <div class="ratio-warn" id="j${i}_warn"></div>
+      <div class="tbar-wrap">
+        <div class="tbar-labels"><span class="tbar-lbl">INF</span><span class="tbar-lbl">CAV</span><span class="tbar-lbl">ARC</span></div>
+        <div class="tbar"><div class="tbar-i" id="j${i}_si" style="width:10%"></div><div class="tbar-c" id="j${i}_sc" style="width:10%"></div><div class="tbar-a" id="j${i}_sa" style="width:80%"></div></div>
+      </div>
+      <div class="count-grid">
+        <div class="cg-cell"><div class="cg-lbl"><span class="field-dot fd-inf"></span>Infanterie</div><div class="cg-val cv-inf" id="j${i}_ci">—</div><div class="cg-pct" id="j${i}_pi">10%</div></div>
+        <div class="cg-cell"><div class="cg-lbl"><span class="field-dot fd-cav"></span>Cavalerie</div><div class="cg-val cv-cav" id="j${i}_cc">—</div><div class="cg-pct" id="j${i}_pc">10%</div></div>
+        <div class="cg-cell"><div class="cg-lbl"><span class="field-dot fd-arc"></span>Archers</div><div class="cg-val cv-arc" id="j${i}_ca">—</div><div class="cg-pct" id="j${i}_pa">80%</div></div>
+      </div>
+      <div id="j${i}_chip" class="chip idle"><span class="chip-icon">◈</span><span>Entre la capacité de marche de ce joiner</span></div>
+    </div>
+  </div>`;
+  document.getElementById('jpanels').appendChild(d);
+}
+
+function updateJoiner(i){
+  const cap=gv(`j${i}_cap`),rs=checkWarn(i,`j${i}_warn`);
+  const ip=parseFloat(document.getElementById(`j${i}_inf`)?.value)||10,cp=parseFloat(document.getElementById(`j${i}_cav`)?.value)||10,ap=parseFloat(document.getElementById(`j${i}_arc`)?.value)||80;
+  updateBar(`j${i}_si`,`j${i}_sc`,`j${i}_sa`,ip,cp,ap);updateRatioBars(String(i),ip,cp,ap);
+  document.getElementById(`j${i}_pi`).textContent=ip+'%';document.getElementById(`j${i}_pc`).textContent=cp+'%';document.getElementById(`j${i}_pa`).textContent=ap+'%';
+  if(cap>0&&Math.abs(rs-100)<=0.5){
+    const exact=_getMarchCounts(`j${i}`),nI=exact.i,nC=exact.c,nA=exact.a;
+    document.getElementById(`j${i}_ci`).textContent=fmt(nI);document.getElementById(`j${i}_cc`).textContent=fmt(nC);document.getElementById(`j${i}_ca`).textContent=fmt(nA);
+    const s=stock(),le=_getMarchCounts('lead');let usedI=le.i,usedC=le.c,usedA=le.a;
+    for(let k=1;k<i;k++){if(gv(`j${k}_cap`)>0){const je=_getMarchCounts(`j${k}`);usedI+=je.i;usedC+=je.c;usedA+=je.a;}}
+    const remI=s.inf-usedI,remC=s.cav-usedC,remA=s.arc-usedA;
+    const chip=document.getElementById(`j${i}_chip`);
+    if(nI<=remI&&nC<=remC&&nA<=remA){chip.className='chip ok';chip.innerHTML=`<span class="chip-icon">✓</span><span>Marche : <strong>${fmt(cap)} troupes</strong></span>`;}
+    else{const over=[];if(nI>remI)over.push(`Infanterie : ${fmt(nI-remI)} en trop`);if(nC>remC)over.push(`Cavalerie : ${fmt(nC-remC)} en trop`);if(nA>remA)over.push(`Archers : ${fmt(nA-remA)} en trop`);chip.className='chip err';chip.innerHTML=`<span class="chip-icon">✕</span><span>Stock insuffisant — ${over.join(' · ')}</span>`;}
+  }else{
+    [`j${i}_ci`,`j${i}_cc`,`j${i}_ca`].forEach(id=>document.getElementById(id).textContent='—');
+    const chip=document.getElementById(`j${i}_chip`);chip.className='chip idle';chip.innerHTML='<span class="chip-icon">◈</span><span>Entre la capacité de marche de ce joiner</span>';
+  }
+  refreshSummary();saveState();
+}
+
+function refreshSummary(){
+  const s=stock(),totalStock=s.inf+s.cav+s.arc;
+  if(totalStock<=0&&gv('leadCap')<=0){document.getElementById('summary').style.display='none';return;}
+  const lCap=gv('leadCap'),le=_getMarchCounts('lead'),lI=le.i,lC=le.c,lA=le.a;
+  let jTotalTroops=0,jTeams=0;
+  for(let i=1;i<=jCount;i++){const jcap=gv(`j${i}_cap`);if(jcap>0){const je=_getMarchCounts(`j${i}`);jTotalTroops+=je.i+je.c+je.a;jTeams++;}}
+  const totalDeployed=lI+lC+lA+jTotalTroops;
+  const usedPct=totalStock>0?Math.min(100,Math.round(totalDeployed/totalStock*100)):0;
+  let usedI=lI,usedC=lC,usedA=lA;
+  for(let i=1;i<=jCount;i++){if(gv(`j${i}_cap`)>0){const je=_getMarchCounts(`j${i}`);usedI+=je.i;usedC+=je.c;usedA+=je.a;}}
+  const remI=Math.max(0,s.inf-usedI),remC=Math.max(0,s.cav-usedC),remA=Math.max(0,s.arc-usedA),remTot=remI+remC+remA;
+  document.getElementById('summary').style.display='block';
+  document.getElementById('sumContent').innerHTML=`
+    <div class="kpi-grid">
+      <div class="kpi-cell"><div class="kpi-lbl">Marche<br>Leader</div><div class="kpi-val" style="color:var(--amber)">${fmt(lCap)}</div><div class="kpi-sub">troupes</div></div>
+      <div class="kpi-cell"><div class="kpi-lbl">${jTeams} Joiner${jTeams>1?'s':''}</div><div class="kpi-val" style="color:var(--inf)">${fmt(jTotalTroops)}</div><div class="kpi-sub">troupes</div></div>
+      <div class="kpi-cell"><div class="kpi-lbl">Troupes<br>Déployées</div><div class="kpi-val">${fmt(totalDeployed)}</div><div class="kpi-sub">${usedPct}% du stock</div></div>
+      <div class="kpi-cell"><div class="kpi-lbl">Non<br>Déployées</div><div class="kpi-val" style="color:${remTot>0?'var(--red)':'var(--green)'}">${fmt(remTot)}</div><div class="kpi-sub">troupes restantes</div></div>
+    </div>
+    <div class="prog-wrap">
+      <div class="prog-labels"><span>Stock utilisé</span><span style="color:${remTot>0?'var(--red)':'var(--green)'}">Reste : INF ${fmt(remI)} · CAV ${fmt(remC)} · ARC ${fmt(remA)}</span></div>
+      <div class="prog-track"><div class="prog-used" style="width:${usedPct}%"></div></div>
+    </div>
+    <div class="rem-strip">
+      <div class="rem-cell"><div class="rem-lbl">Infanterie restante</div><div class="rem-val cv-inf">${fmt(remI)}</div></div>
+      <div class="rem-cell"><div class="rem-lbl">Cavalerie restante</div><div class="rem-val cv-cav">${fmt(remC)}</div></div>
+      <div class="rem-cell"><div class="rem-lbl">Archers restants</div><div class="rem-val cv-arc">${fmt(remA)}</div></div>
+    </div>
+    ${remTot>totalStock*0.05&&jCount<JMAX?`<div class="alert warn"><span>⚠</span><span><strong>${fmt(remTot)} troupes non déployées.</strong> Lance l'optimisation automatique ou ajoute des joiners.</span></div>`:''}
+  `;
+}
+
+function exportToClipboard(){
+  const s=stock(),le=_getMarchCounts('lead');let lines=[];
+  lines.push(`🐻 **Bear Hunt** · S.1507`);
+  lines.push(`**Stocks** : INF ${fmt(s.inf)} | CAV ${fmt(s.cav)} | ARC ${fmt(s.arc)}`);
+  lines.push('');
+  lines.push(`👑 **Leader** : ${fmt(le.i+le.c+le.a)} troupes — INF ${fmt(le.i)} · CAV ${fmt(le.c)} · ARC ${fmt(le.a)}`);
+  for(let i=1;i<=jCount;i++){const jcap=gv(`j${i}_cap`);if(jcap>0){const je=_getMarchCounts(`j${i}`);lines.push(`⚡ **Joiner ${i}** : ${fmt(je.i+je.c+je.a)} troupes — INF ${fmt(je.i)} · CAV ${fmt(je.c)} · ARC ${fmt(je.a)}`);}}
+  lines.push('');lines.push(`_Bear Hunt Calculator · by Errab_`);
+  navigator.clipboard.writeText(lines.join('\n')).then(()=>{const btn=document.getElementById('exportBtn');btn.classList.add('copied');btn.textContent='✓ COPIÉ DANS LE PRESSE-PAPIER !';setTimeout(()=>{btn.classList.remove('copied');btn.innerHTML='▣ &nbsp;COPIER LE RÉSUMÉ POUR DISCORD';},2500);}).catch(()=>alert('Erreur copie.'));
+}
+
+function resetAll(){
+  if(!confirm('Réinitialiser tous les champs ?'))return;
+  ['tInf','tCav','tArc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const chip=document.getElementById('stockChip');chip.className='chip idle';chip.innerHTML='<span class="chip-icon">◈</span><span>Entre tes stocks ci-dessus pour commencer</span>';
+  document.getElementById('leadCap').value='';document.getElementById('lInf').value=10;document.getElementById('lCav').value=10;document.getElementById('lArc').value=80;_clearExact('lead');
+  while(jCount>0){document.getElementById(`jtab${jCount}`)?.remove();document.getElementById(`jpanel${jCount}`)?.remove();jCount--;}
+  document.getElementById('jIdleMsg').style.display='flex';document.getElementById('summary').style.display='none';
+  syncJCtrl();updateLeader();localStorage.removeItem('bearCalcState');
+  // Reset tiers et bonus
+  buildTierOptions();
+  ['bonusAtkInf','bonusAtkCav','bonusAtkArc','bonusLthInf','bonusLthCav','bonusLthArc','bonusAtkSquad','bonusLthSquad','bonusHp','bonusDef'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  curBonus={atkInf:0,atkCav:0,atkArc:0,lthInf:0,lthCav:0,lthArc:0,atkSquad:0,lthSquad:0,hp:0,def:0};
+  document.getElementById('bonusSummary').textContent="Remplis tes bonus pour voir l'impact sur les poids de calcul";
+  // Reset héros
+  heroSlots=[]; heroSlotCount=0;
+  document.getElementById('heroSlots').innerHTML='';
+  document.getElementById('btnAddHero').disabled=false;
+  document.getElementById('heroSummary').textContent="Ajoute tes héros pour voir l'impact sur les ratios";
+}
+
+function saveState(){
+  try{
+    const joiners=[];for(let i=1;i<=jCount;i++)joiners.push({cap:gv(`j${i}_cap`),inf:parseFloat(document.getElementById(`j${i}_inf`)?.value)||10,cav:parseFloat(document.getElementById(`j${i}_cav`)?.value)||10,arc:parseFloat(document.getElementById(`j${i}_arc`)?.value)||80,exactI:document.getElementById(`j${i}_cap`)?.dataset.exactI,exactC:document.getElementById(`j${i}_cap`)?.dataset.exactC,exactA:document.getElementById(`j${i}_cap`)?.dataset.exactA});
+    localStorage.setItem('bearCalcState',JSON.stringify({
+      tierInfT: document.getElementById('tierInfT')?.value,
+      tierInfG: document.getElementById('tierInfG')?.value,
+      tierCavT: document.getElementById('tierCavT')?.value,
+      tierCavG: document.getElementById('tierCavG')?.value,
+      tierArcT: document.getElementById('tierArcT')?.value,
+      tierArcG: document.getElementById('tierArcG')?.value,
+      bonusAtkInf: document.getElementById('bonusAtkInf')?.value,
+      bonusAtkCav: document.getElementById('bonusAtkCav')?.value,
+      bonusAtkArc: document.getElementById('bonusAtkArc')?.value,
+      bonusLthInf: document.getElementById('bonusLthInf')?.value,
+      bonusLthCav: document.getElementById('bonusLthCav')?.value,
+      bonusLthArc: document.getElementById('bonusLthArc')?.value,
+      bonusAtkSquad: document.getElementById('bonusAtkSquad')?.value,
+      bonusLthSquad: document.getElementById('bonusLthSquad')?.value,
+      bonusHp:  document.getElementById('bonusHp')?.value,
+      bonusDef: document.getElementById('bonusDef')?.value,
+      heroes: heroSlots.map(s=>({heroKey:s.heroKey,skillLevels:s.skillLevels,widgetLevel:s.widgetLevel,heroStats:s.heroStats||{atk:'',def:'',lth:'',hp:''}})),
+      inf:gv('tInf'),cav:gv('tCav'),arc:gv('tArc'),leadCap:gv('leadCap'),lInf:parseFloat(document.getElementById('lInf')?.value)||10,lCav:parseFloat(document.getElementById('lCav')?.value)||10,lArc:parseFloat(document.getElementById('lArc')?.value)||80,leadExactI:document.getElementById('leadCap')?.dataset.exactI,leadExactC:document.getElementById('leadCap')?.dataset.exactC,leadExactA:document.getElementById('leadCap')?.dataset.exactA,joiners}));
+  }catch(e){}
+}
+
+function loadState(){
+  try{
+    const raw=localStorage.getItem('bearCalcState');if(!raw)return;const st=JSON.parse(raw);
+    // Tiers
+    ['InfT','InfG','CavT','CavG','ArcT','ArcG'].forEach(k => {
+      const key = 'tier'+k;
+      if(st[key] !== undefined){ const el=document.getElementById(key); if(el) el.value=st[key]; }
+    });
+    if(st.tierInfT||st.tierCavT||st.tierArcT) onTierChange();
+    // Bonus par type
+    const bids=['bonusAtkInf','bonusAtkCav','bonusAtkArc','bonusLthInf','bonusLthCav','bonusLthArc','bonusAtkSquad','bonusLthSquad','bonusHp','bonusDef'];
+    bids.forEach(id=>{if(st[id]!==undefined){const el=document.getElementById(id);if(el)el.value=st[id]||'';}});
+    if(bids.some(id=>st[id])) onBonusChange();
+    // Héros
+    if(st.heroes?.length){
+      st.heroes.forEach(h=>{
+        if(!h.heroKey)return;
+        heroSlotCount++;
+        heroSlots.push({heroKey:h.heroKey,skillLevels:h.skillLevels||[1,1,1],widgetLevel:h.widgetLevel||0,heroStats:h.heroStats||{atk:'',def:'',lth:'',hp:''}});
+        renderHeroSlot(heroSlotCount-1);
+      });
+      if(heroSlotCount>=3)document.getElementById('btnAddHero').disabled=true;
+      updateHeroSummary();
+    }
+    if(st.inf)document.getElementById('tInf').value=st.inf;if(st.cav)document.getElementById('tCav').value=st.cav;if(st.arc)document.getElementById('tArc').value=st.arc;if(st.inf||st.cav||st.arc)onStockChange();
+    if(st.leadCap){document.getElementById('leadCap').value=st.leadCap;document.getElementById('lInf').value=st.lInf??10;document.getElementById('lCav').value=st.lCav??10;document.getElementById('lArc').value=st.lArc??80;if(st.leadExactI!==undefined){document.getElementById('leadCap').dataset.exactI=st.leadExactI;document.getElementById('leadCap').dataset.exactC=st.leadExactC;document.getElementById('leadCap').dataset.exactA=st.leadExactA;}updateLeader();}
+    if(st.joiners?.length){for(const j of st.joiners){jCount++;buildJoinerTab(jCount,false);buildJoinerPanel(jCount);document.getElementById(`j${jCount}_cap`).value=j.cap||'';document.getElementById(`j${jCount}_inf`).value=j.inf??10;document.getElementById(`j${jCount}_cav`).value=j.cav??10;document.getElementById(`j${jCount}_arc`).value=j.arc??80;if(j.exactI!==undefined){document.getElementById(`j${jCount}_cap`).dataset.exactI=j.exactI;document.getElementById(`j${jCount}_cap`).dataset.exactC=j.exactC;document.getElementById(`j${jCount}_cap`).dataset.exactA=j.exactA;}updateJoiner(jCount);}if(jCount>0){document.getElementById('jIdleMsg').style.display='none';switchJoiner(jCount);}syncJCtrl();}
+    refreshSummary();
+  }catch(e){}
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BASE DE DONNÉES HÉROS — Compétences d'Expédition
+   Source : kingshot-data.com · types offensifs : atk_squad/rally,
+   let_squad/rally, dmg_squad, dmg_chance
+═══════════════════════════════════════════════════════════ */
+const HEROES_DB = {
+  /* ── GEN 1 MYTHIQUES ── */
+  // Source : kingshot-data.com + kingshotdata.com + ldshop.gg
+  'amadeus': { name:'Amadeus', gen:1, 'class':'inf', skills:[
+    { nom:'Élan du Ranger',    desc:l=>`Létalité de toutes les escouades +${[5,10,15,20,25][l-1]}%`,        type:'let_squad',  vals:[5,10,15,20,25] },
+    { nom:"Art de l'Épée",    desc:l=>`Attaque de toutes les escouades +${[5,10,15,20,25][l-1]}%`,          type:'atk_squad',  vals:[5,10,15,20,25] },
+    { nom:'Frappe Sauvage',   desc:l=>`${[8,16,24,32,40][l-1]}% de chance : dégâts +50% toutes escouades`,  type:'dmg_chance', vals:[8,16,24,32,40], bonus:50 },
+  ], widget:{ nom:'Discernement', desc:l=>`Attaque troupes ralliées +${[5,7.5,10,12.5,15][l-1]}%`, type:'atk_rally', vals:[5,7.5,10,12.5,15] }},
+
+  'helga': { name:'Helga', gen:1, 'class':'inf', skills:[
+    // Oath of Guardian : 40% chance -50% dmg subi
+    { nom:'Serment du Gardien', desc:l=>`${[8,16,24,32,40][l-1]}% de chance : dégâts subis −50% toutes escouades`, type:'none', vals:[8,16,24,32,40] },
+    // Echoes of Valhalla : Squad ATK +25%
+    { nom:'Échos du Valhalla',  desc:l=>`Attaque de toutes les escouades +${[5,10,15,20,25][l-1]}%`,             type:'atk_squad', vals:[5,10,15,20,25] },
+    // Nature's Balance : Squad LET +25%
+    { nom:'Balance Naturelle',  desc:l=>`Létalité de toutes les escouades +${[5,10,15,20,25][l-1]}%`,            type:'let_squad', vals:[5,10,15,20,25] },
+  ], widget:{ nom:'Zèle', desc:l=>`Létalité troupes ralliées +${[5,7.5,10,12.5,15][l-1]}%`, type:'let_rally', vals:[5,7.5,10,12.5,15] }},
+
+  'jabel': { name:'Jabel', gen:1, 'class':'cav', skills:[
+    // Rally Flag : 40% chance -50% dmg subi
+    { nom:'Rally Flag',      desc:l=>`${[8,16,24,32,40][l-1]}% de chance : dégâts subis −50% toutes escouades`, type:'none',      vals:[8,16,24,32,40] },
+    // Hero's Domain : dégâts +30%
+    { nom:"Domaine du Héros", desc:l=>`Dégâts infligés +${[10,15,20,25,30][l-1]}% toutes escouades`,             type:'dmg_squad', vals:[10,15,20,25,30] },
+    // Youthful Rage : 50% chance +50% dégâts
+    { nom:'Fougue Juvénile',  desc:l=>`50% de chance : dégâts +50% toutes escouades (${l} passif)`,              type:'dmg_chance', vals:[50,50,50,50,50], bonus:50 },
+  ], widget:{ nom:'Force Divine', desc:l=>`Létalité troupes défenseurs +${[5,7.5,10,12.5,15][l-1]}%`, type:'none', vals:[5,7.5,10,12.5,15] }},
+
+  'saul': { name:'Saul', gen:1, 'class':'arc', skills:[
+    // Saul skill 1 : Squad DEF+HP
+    { nom:'Détermination',  desc:l=>`Défense +${[5,10,15,20,25][l-1]}% et Santé +${[5,10,15,20,25][l-1]}% toutes escouades`, type:'none', vals:[5,10,15,20,25] },
+    // Skill 2 : Defender ATK (garrison)
+    { nom:'Flanc Puissant', desc:l=>`Attaque troupes défenseurs +${[5,7.5,10,12.5,15][l-1]}%`,                    type:'none', vals:[5,7.5,10,12.5,15] },
+    // Skill 3 : Construction speed (growth)
+    { nom:'Maître Bâtisseur',desc:l=>`Vitesse de construction −${[3,6,9,12,15][l-1]}%`,                           type:'none', vals:[3,6,9,12,15] },
+  ], widget:{ nom:'Bouclier Défenseur', desc:l=>`Attaque troupes défenseurs +${[5,7.5,10,12.5,15][l-1]}%`, type:'none', vals:[5,7.5,10,12.5,15] }},
+
+  /* ── GEN 2 MYTHIQUES ── */
+  'zoe': { name:'Zoe', gen:2, 'class':'inf', skills:[
+    // Sundering Wound : 20% chance Sunder
+    { nom:'Blessure Profonde', desc:l=>`${[8,16,24,32,40][l-1]}% de chance : Sunder (dégâts +40%/tour, 3 tours)`, type:'dmg_chance', vals:[8,16,24,32,40], bonus:40 },
+    // Stoic : Squad ATK +25%
+    { nom:'Stoïque',           desc:l=>`Attaque de toutes les escouades +${[5,10,15,20,25][l-1]}%`,               type:'atk_squad',  vals:[5,10,15,20,25] },
+    // Infinite Arsenal : 50% chance dégâts ennemis +50%
+    { nom:'Arsenal Infini',    desc:l=>`${[10,20,30,40,50][l-1]}% de chance : dégâts ennemis subis +50%`,         type:'dmg_chance', vals:[10,20,30,40,50], bonus:50 },
+  ], widget:{ nom:'Dame Sombre', desc:l=>`Attaque troupes défenseurs +${[5,7.5,10,12.5,15][l-1]}%`, type:'none', vals:[5,7.5,10,12.5,15] }},
+
+  'hilde': { name:'Hilde', gen:2, 'class':'cav', skills:[
+    // Noble Path : Squad ATK +25% (valeur max confirmée)
+    { nom:'Noble Voie',       desc:l=>`Attaque de toutes les escouades +${[5,10,15,20,25][l-1]}%`,                type:'atk_squad',  vals:[5,10,15,20,25] },
+    // Elixir of Strength : 25% chance escouades 200% dégâts
+    { nom:"Élixir de Force",  desc:l=>`${[8,16,24,32,40][l-1]}% de chance : escouades infligent 200% dégâts`,    type:'dmg_chance', vals:[8,16,24,32,40], bonus:100 },
+    // Trial by Fire : 40% chance -50% dégâts subis
+    { nom:"Épreuve du Feu",   desc:l=>`${[8,16,24,32,40][l-1]}% de chance : dégâts subis −50% toutes escouades`, type:'none',        vals:[8,16,24,32,40] },
+  ], widget:{ nom:'Fortitude', desc:l=>`Santé troupes défenseurs +${[5,7.5,10,12.5,15][l-1]}%`, type:'none', vals:[5,7.5,10,12.5,15] }},
+
+  'marlin': { name:'Marlin', gen:2, 'class':'arc', skills:[
+    // Wild Card : 40% chance +50% dégâts
+    { nom:'Wild Card', desc:l=>`${[8,16,24,32,40][l-1]}% de chance : dégâts +50% toutes escouades`,              type:'dmg_chance',       vals:[8,16,24,32,40], bonus:50 },
+    // Rumhead : 20% chance -50% LET ennemie
+    { nom:'Rumhead',   desc:l=>`20% de chance : Létalité ennemie −50% (2 tours)`,                                 type:'let_reduce_enemy', vals:[20,20,20,20,20] },
+    // Dynamo : 50% chance +50% dégâts
+    { nom:'Dynamo',    desc:l=>`50% de chance : dégâts +50% toutes escouades`,                                    type:'dmg_chance',       vals:[50,50,50,50,50], bonus:50 },
+  ], widget:{ nom:'Amiral en Ligne', desc:l=>`Létalité troupes ralliées +${[5,7.5,10,12.5,15][l-1]}%`, type:'let_rally', vals:[5,7.5,10,12.5,15] }},
+
+  /* ── GEN 3 MYTHIQUES ── */
+  'eric': { name:'Eric', gen:3, 'class':'inf', skills:[
+    // Exhortation : Squad HP +25%
+    { nom:'Exhortation',  desc:l=>`Santé de toutes les escouades +${[5,10,15,20,25][l-1]}%`,                      type:'none', vals:[5,10,15,20,25] },
+    // Conviction : ATK ennemie −20%
+    { nom:'Conviction',   desc:l=>`Attaque de toutes les escouades ennemies −${[4,8,12,16,20][l-1]}%`,            type:'none', vals:[4,8,12,16,20] },
+    // Squad HP via "inspiring leader"
+    { nom:'Vœu de Paladine', desc:l=>`Défense troupes défenseurs +${[5,7.5,10,12.5,15][l-1]}%`,                  type:'none', vals:[5,7.5,10,12.5,15] },
+  ], widget:{ nom:'Conviction de Foi', desc:l=>`Défense troupes défenseurs +${[5,7.5,10,12.5,15][l-1]}%`, type:'none', vals:[5,7.5,10,12.5,15] }},
+
+  'petra': { name:'Petra', gen:3, 'class':'cav', skills:[
+    // Evil Eye : 50% chance ATK +50%
+    { nom:"L'Œil du Mal",  desc:l=>`${[10,20,30,40,50][l-1]}% de chance : Attaque escouades +50%`,               type:'dmg_chance', vals:[10,20,30,40,50], bonus:50 },
+    // The Favor : 50% chance +50% dégâts
+    { nom:'La Faveur',     desc:l=>`${[10,20,30,40,50][l-1]}% de chance : dégâts +50% toutes escouades`,          type:'dmg_chance', vals:[10,20,30,40,50], bonus:50 },
+    // The Shield : 40% chance -50% dégâts subis
+    { nom:'Le Bouclier',   desc:l=>`${[8,16,24,32,40][l-1]}% de chance : dégâts subis −50% toutes escouades`,    type:'none',        vals:[8,16,24,32,40] },
+  ], widget:{ nom:"Œil Cosmique", desc:l=>`Attaque troupes ralliées +${[5,7.5,10,12.5,15][l-1]}%`, type:'atk_rally', vals:[5,7.5,10,12.5,15] }},
+
+  'jaeger': { name:'Jaeger', gen:3, 'class':'arc', skills:[
+    // The Tempest : 20% chance dégâts +40% pendant 3 tours
+    { nom:'La Tempête',     desc:l=>`${[8,16,24,32,40][l-1]}% de chance : dégâts +40% toutes escouades (3 tours)`, type:'dmg_chance',       vals:[8,16,24,32,40], bonus:40 },
+    // The Resistance : 20% chance LET ennemie -50%
+    { nom:'La Résistance',  desc:l=>`20% de chance : Létalité ennemie −50% (2 tours)`,                             type:'let_reduce_enemy', vals:[20,20,20,20,20] },
+    // The Celebration : Squad HP +25%
+    { nom:'La Célébration', desc:l=>`Santé de toutes les escouades +${[5,10,15,20,25][l-1]}%`,                     type:'none',             vals:[5,10,15,20,25] },
+  ], widget:{ nom:'Son du Silence', desc:l=>`Santé troupes défenseurs +${[5,7.5,10,12.5,15][l-1]}%`, type:'none', vals:[5,7.5,10,12.5,15] }},
+
+  /* ── GEN 4 MYTHIQUES ── */
+  'alcar': { name:'Alcar', gen:4, 'class':'inf', skills:[
+    // Rescuing Hands : Defender HP +15%
+    { nom:'Mains Secourables',  desc:l=>`Santé troupes défenseurs +${[5,7.5,10,12.5,15][l-1]}%`,                  type:'none',       vals:[5,7.5,10,12.5,15] },
+    // Praetorian Will : INF+ARC dégâts subis -70% every 5 turns (2 turns)
+    { nom:'Volonté Prétorienne', desc:l=>`INF+ARC : dégâts subis −${[14,28,42,56,70][l-1]}% toutes les 5 attaques`, type:'none',      vals:[14,28,42,56,70] },
+    // Carpe Diem : chance +100% dégâts INF
+    { nom:'Carpe Diem',          desc:l=>`${[8,16,24,32,40][l-1]}% de chance : INF infligent +100% dégâts`,       type:'dmg_chance', vals:[8,16,24,32,40], bonus:100 },
+  ], widget:{ nom:"Vœu d'Honneur", desc:l=>`Santé troupes défenseurs +${[5,7.5,10,12.5,15][l-1]}%`, type:'none', vals:[5,7.5,10,12.5,15] }},
+
+  'margot': { name:'Margot', gen:4, 'class':'cav', skills:[
+    // Warbringer : Squad ATK (depuis kingshotguide.org : "boost squad attack")
+    { nom:'Instigatrice de Guerre', desc:l=>`Attaque de toutes les escouades +${[5,10,15,20,25][l-1]}%`,          type:'atk_squad',  vals:[5,10,15,20,25] },
+    // Subterfuge : 25% chance esquive complète
+    { nom:'Subterfuge',             desc:l=>`${[8,16,24,32,40][l-1]}% de chance d'esquiver toutes les attaques`,  type:'none',        vals:[8,16,24,32,40] },
+    // Sleight of Hand : chance 2ème attaque CAV
+    { nom:'Tour de Passe-Passe',    desc:l=>`${[8,16,24,32,40][l-1]}% de chance : 2ème attaque CAV (+100%)`,      type:'dmg_chance',  vals:[8,16,24,32,40], bonus:100 },
+  ], widget:{ nom:'Pugiliste', desc:l=>`Létalité troupes défenseurs +${[5,7.5,10,12.5,15][l-1]}%`, type:'none', vals:[5,7.5,10,12.5,15] }},
+
+  'rosa': { name:'Rosa', gen:4, 'class':'arc', skills:[
+    // Concentration (widget expedition) : Rally LET +15%
+    { nom:'Concentration',  desc:l=>`Létalité troupes ralliées +${[5,10,15,20,25][l-1]}%`,                        type:'let_rally',  vals:[5,10,15,20,25] },
+    // Golden Rhythm : Archer ATK +30%
+    { nom:'Rythme Doré',    desc:l=>`Attaque des Archers +${[6,12,18,24,30][l-1]}%`,                              type:'atk_arc',    vals:[6,12,18,24,30] },
+    // Chaos Gambit : 40% chance +50% dégâts
+    { nom:'Chaos Gambit',   desc:l=>`${[8,16,24,32,40][l-1]}% de chance : dégâts +50% toutes escouades`,          type:'dmg_chance', vals:[8,16,24,32,40], bonus:50 },
+  ], widget:{ nom:'Focalisation Bataille', desc:l=>`Létalité troupes ralliées +${[5,7.5,10,12.5,15][l-1]}%`, type:'let_rally', vals:[5,7.5,10,12.5,15] }},
+
+  /* ── GEN 5 MYTHIQUES ── */
+  'long_fei': { name:'Long Fei', gen:5, 'class':'inf', skills:[
+    // Grande Muraille : défense globale
+    { nom:'Grande Muraille',    desc:l=>`Défense toutes escouades +${[5,10,15,20,25][l-1]}%`,                      type:'none',       vals:[5,10,15,20,25] },
+    // Art of War : 25% chance 200% dégâts
+    { nom:"Art de la Guerre",   desc:l=>`${[8,16,24,32,40][l-1]}% de chance : escouades font 200% dégâts`,        type:'dmg_chance', vals:[8,16,24,32,40], bonus:100 },
+    // Réduction dégâts subis
+    { nom:'Frappe Stratégique', desc:l=>`${[8,16,24,32,40][l-1]}% de chance : dégâts subis −50%`,                 type:'none',        vals:[8,16,24,32,40] },
+  ], widget:{ nom:'Frappe Stratégique', desc:l=>`Attaque troupes défenseurs +${[5,7.5,10,12.5,15][l-1]}%`, type:'none', vals:[5,7.5,10,12.5,15] }},
+
+  'thrud': { name:'Thrud', gen:5, 'class':'cav', skills:[
+    // Ancestral Guidance : toutes les 4 attaques CAV, dégâts +25% ET subis -25% (2 tours)
+    { nom:'Guidance Ancestrale', desc:l=>`Toutes les 4 att. CAV : dégâts +25% / subis −25% (2 tours)`,           type:'dmg_squad',    vals:[25,25,25,25,25] },
+    // Battle Hunger : INF+ARC dégâts +25%
+    { nom:'Faim de Bataille',    desc:l=>`Dégâts INF+ARC +${[5,10,15,20,25][l-1]}%`,                             type:'dmg_inf_arc',  vals:[5,10,15,20,25] },
+    // Rage Nordique : chance -50% dégâts subis
+    { nom:'Rage Nordique',       desc:l=>`${[8,16,24,32,40][l-1]}% de chance : dégâts subis −50%`,               type:'none',          vals:[8,16,24,32,40] },
+  ], widget:{ nom:'Wolf-Kissed', desc:l=>`Létalité troupes ralliées +${[5,7.5,10,12.5,15][l-1]}%`, type:'let_rally', vals:[5,7.5,10,12.5,15] }},
+
+  'vivian': { name:'Vivian', gen:5, 'class':'arc', skills:[
+    // Crouching Tiger : dégâts ennemis subis +25% (permanent)
+    { nom:'Tigre Tapi',       desc:l=>`Dégâts ennemis subis +${[5,10,15,20,25][l-1]}% (permanent)`,              type:'dmg_squad',  vals:[5,10,15,20,25] },
+    // Focus Fire : 40% chance tir supp. +100% dégâts
+    { nom:'Tir Concentré',    desc:l=>`${[8,16,24,32,40][l-1]}% de chance : tir supplémentaire (+100% dégâts)`,  type:'dmg_chance', vals:[8,16,24,32,40], bonus:100 },
+    // Money Driven (widget) : Defender DEF
+    { nom:'Argent Mené',      desc:l=>`Défense troupes défenseurs +${[5,7.5,10,12.5,15][l-1]}%`,                 type:'none',        vals:[5,7.5,10,12.5,15] },
+  ], widget:{ nom:'Tir Raffiné', desc:l=>`Défense troupes défenseurs +${[5,7.5,10,12.5,15][l-1]}%`, type:'none', vals:[5,7.5,10,12.5,15] }},
+
+  /* ── GEN 6 MYTHIQUES ── */
+  'triton': { name:'Triton', gen:6, 'class':'inf', skills:[
+    // Command of Power : Squad DEF +25%
+    { nom:'Commandement de Puissance', desc:l=>`Défense toutes escouades +${[5,10,15,20,25][l-1]}%`,             type:'none',      vals:[5,10,15,20,25] },
+    // Warfare of Power : dégâts compétences +30%
+    { nom:'Guerre de Puissance',       desc:l=>`Dégâts de compétences +${[6,12,18,24,30][l-1]}% toutes escouades`, type:'dmg_squad', vals:[6,12,18,24,30] },
+    // Oath of Power : HP INF+CAV+ARC
+    { nom:'Serment de Puissance',      desc:l=>`Santé INF +${[4,8,12,16,20][l-1]}%, CAV+ARC +${[6,12,18,24,30][l-1]}%`, type:'none', vals:[4,8,12,16,20] },
+  ], widget:{ nom:'Sceptre de Marée', desc:l=>`Défense troupes défenseurs +${[5,7.5,10,12.5,15][l-1]}%`, type:'none', vals:[5,7.5,10,12.5,15] }},
+
+  'sophia': { name:'Sophia', gen:6, 'class':'cav', skills:[
+    // Arcane Pact : 40% chance -50% dégâts subis
+    { nom:'Pacte Arcanique',   desc:l=>`${[8,16,24,32,40][l-1]}% de chance : dégâts subis −50%`,                 type:'none',      vals:[8,16,24,32,40] },
+    // Terror : dégâts ennemis +75% (cible terrorisée)
+    { nom:'Terreur',           desc:l=>`Dégâts ennemis subis +${[15,30,45,60,75][l-1]}% (cible terrorisée)`,     type:'dmg_squad', vals:[15,30,45,60,75] },
+    // Defender LET
+    { nom:'Létalité Défenseur',desc:l=>`Létalité troupes défenseurs +${[5,7.5,10,12.5,15][l-1]}%`,               type:'none',      vals:[5,7.5,10,12.5,15] },
+  ], widget:{ nom:'Rose Écarlate', desc:l=>`Létalité troupes défenseurs +${[5,7.5,10,12.5,15][l-1]}%`, type:'none', vals:[5,7.5,10,12.5,15] }},
+
+  'yang': { name:'Yang', gen:6, 'class':'arc', skills:[
+    // Avalanche : toutes les 4 attaques, frappe supp. 100% dégâts
+    { nom:'Avalanche',      desc:l=>`Toutes les 4 attaques : frappe supp. 100% dégâts (${l} passif)`,            type:'dmg_squad',  vals:[100,100,100,100,100] },
+    // Ambush : Rally LET +25%
+    { nom:'Embuscade',      desc:l=>`Létalité troupes ralliées +${[5,10,15,20,25][l-1]}%`,                        type:'let_rally',  vals:[5,10,15,20,25] },
+    // Ice Zone : 40% chance Archers +100% dégâts
+    { nom:'Zone de Glace',  desc:l=>`${[8,16,24,32,40][l-1]}% de chance : Archers +100% dégâts`,                 type:'dmg_chance', vals:[8,16,24,32,40], bonus:100 },
+  ], widget:{ nom:'Canon Tonnerre', desc:l=>`Létalité troupes ralliées +${[5,7.5,10,12.5,15][l-1]}%`, type:'let_rally', vals:[5,7.5,10,12.5,15] }},
+
+  /* ── SR / Épiques (1-2 skills d'expédition, pas de widget) ── */
+  'chenko':  { name:'Chenko',  gen:1, 'class':'cav', skills:[
+    { nom:'Stand of Arms',       desc:l=>`Létalité de toutes les escouades +${[5,10,15,20,25][l-1]}%`,           type:'let_squad', vals:[5,10,15,20,25] },
+    { nom:'Réduction Défense',   desc:l=>`Défense ennemie réduite de ${[4,8,12,16,20][l-1]}%`,                   type:'none',      vals:[4,8,12,16,20] },
+  ]},
+  'yeonwoo': { name:'Yeonwoo', gen:1, 'class':'arc', skills:[
+    { nom:'Stand of Arms',       desc:l=>`Létalité de toutes les escouades +${[5,10,15,20,25][l-1]}%`,           type:'let_squad', vals:[5,10,15,20,25] },
+    { nom:'Vitesse Recherche',   desc:l=>`Vitesse de recherche +${[3,6,9,12,15][l-1]}%`,                          type:'none',      vals:[3,6,9,12,15] },
+  ]},
+  'amane':   { name:'Amane',   gen:1, 'class':'inf', skills:[
+    { nom:'Mélodie Divine',      desc:l=>`Attaque de toutes les escouades +${[5,10,15,20,25][l-1]}%`,            type:'atk_squad', vals:[5,10,15,20,25] },
+    { nom:'Soin Infirmerie',     desc:l=>`Vitesse de soin +${[10,20,30,40,50][l-1]}%`,                            type:'none',      vals:[10,20,30,40,50] },
+  ]},
+  'howard':  { name:'Howard',  gen:1, 'class':'inf', skills:[
+    { nom:'Réduction Dégâts',    desc:l=>`Dégâts subis des escouades −${[4,8,12,16,20][l-1]}%`,                  type:'none',      vals:[4,8,12,16,20] },
+    { nom:'Santé Défenseur',     desc:l=>`Santé troupes défenseurs +${[4,8,12,16,20][l-1]}%`,                     type:'none',      vals:[4,8,12,16,20] },
+  ]},
+  'gordon':  { name:'Gordon',  gen:1, 'class':'cav', skills:[
+    { nom:'Santé de Rally',      desc:l=>`Santé de toutes les escouades +${[5,10,15,20,25][l-1]}%`,              type:'none',      vals:[5,10,15,20,25] },
+    { nom:'Bouclier Défenseur',  desc:l=>`Dégâts subis défenseurs −${[4,8,12,16,20][l-1]}%`,                     type:'none',      vals:[4,8,12,16,20] },
+  ]},
+  'quinn':   { name:'Quinn',   gen:1, 'class':'arc', skills:[
+    { nom:'Réduction Dégâts',    desc:l=>`${[8,16,24,32,40][l-1]}% de chance : dégâts subis −50%`,               type:'none',      vals:[8,16,24,32,40] },
+    { nom:'Défense Défenseur',   desc:l=>`Défense troupes défenseurs +${[4,8,12,16,20][l-1]}%`,                   type:'none',      vals:[4,8,12,16,20] },
+  ]},
+  'fahd':    { name:'Fahd',    gen:1, 'class':'cav', skills:[
+    { nom:'ATK Ennemie Réduite', desc:l=>`Attaque ennemie −${[4,8,12,16,20][l-1]}%`,                             type:'none',      vals:[4,8,12,16,20] },
+    { nom:'Vitesse de Marche',   desc:l=>`Vitesse de marche +${[4,8,12,16,20][l-1]}%`,                            type:'none',      vals:[4,8,12,16,20] },
+  ]},
+  'diana':   { name:'Diana',   gen:1, 'class':'arc', skills:[
+    { nom:'Réduction Stamina',   desc:l=>`Coût stamina −${[2,4,6,8,10][l-1]}%`,                                   type:'none',      vals:[2,4,6,8,10] },
+    { nom:'Vitesse de Marche',   desc:l=>`Vitesse de marche +${[20,40,60,80,100][l-1]}%`,                         type:'none',      vals:[20,40,60,80,100] },
+  ]},
+  'olive':   { name:'Olive',   gen:1, 'class':'inf', skills:[
+    { nom:'Collecte',            desc:l=>`Vitesse de collecte +${[4,8,12,16,20][l-1]}%`,                          type:'none',      vals:[4,8,12,16,20] },
+  ]},
+  'seth':    { name:'Seth',    gen:1, 'class':'cav', skills:[
+    { nom:'Collecte',            desc:l=>`Vitesse de collecte +${[4,8,12,16,20][l-1]}%`,                          type:'none',      vals:[4,8,12,16,20] },
+  ]},
+  'edwin':   { name:'Edwin',   gen:1, 'class':'inf', skills:[
+    { nom:'Construction',        desc:l=>`Vitesse de construction +${[4,8,12,16,20][l-1]}%`,                      type:'none',      vals:[4,8,12,16,20] },
+  ]},
+  'forrest': { name:'Forrest', gen:1, 'class':'arc', skills:[
+    { nom:'Entraînement',        desc:l=>`Vitesse d'entraînement +${[4,8,12,16,20][l-1]}%`,                       type:'none',      vals:[4,8,12,16,20] },
+  ]},
+};
+
+const HERO_LIST=[
+  /* ── Mythiques ── */
+  {key:'amadeus',  label:'Amadeus — Infanterie (Gén 1)'},
+  {key:'helga',    label:'Helga — Infanterie (Gén 1)'},
+  {key:'jabel',    label:'Jabel — Cavalerie (Gén 1)'},
+  {key:'saul',     label:'Saul — Archer (Gén 1)'},
+  {key:'zoe',      label:'Zoe — Infanterie (Gén 2)'},
+  {key:'hilde',    label:'Hilde — Cavalerie (Gén 2)'},
+  {key:'marlin',   label:'Marlin — Archer (Gén 2)'},
+  {key:'eric',     label:'Eric — Infanterie (Gén 3)'},
+  {key:'petra',    label:'Petra — Cavalerie (Gén 3)'},
+  {key:'jaeger',   label:'Jaeger — Archer (Gén 3)'},
+  {key:'alcar',    label:'Alcar — Infanterie (Gén 4)'},
+  {key:'margot',   label:'Margot — Cavalerie (Gén 4)'},
+  {key:'rosa',     label:'Rosa — Archer (Gén 4)'},
+  {key:'long_fei', label:'Long Fei — Infanterie (Gén 5)'},
+  {key:'thrud',    label:'Thrud — Cavalerie (Gén 5)'},
+  {key:'vivian',   label:'Vivian — Archer (Gén 5)'},
+  {key:'triton',   label:'Triton — Infanterie (Gén 6)'},
+  {key:'sophia',   label:'Sophia — Cavalerie (Gén 6)'},
+  {key:'yang',     label:'Yang — Archer (Gén 6)'},
+  /* ── SR / Épiques ── */
+  {key:'chenko',   label:'Chenko — Cavalerie (SR)'},
+  {key:'yeonwoo',  label:'Yeonwoo — Archer (SR)'},
+  {key:'amane',    label:'Amane — Infanterie (SR)'},
+  {key:'howard',   label:'Howard — Infanterie (SR)'},
+  {key:'gordon',   label:'Gordon — Cavalerie (SR)'},
+  {key:'quinn',    label:'Quinn — Archer (SR)'},
+  {key:'fahd',     label:'Fahd — Cavalerie (SR)'},
+  {key:'diana',    label:'Diana — Archer (SR)'},
+  {key:'olive',    label:'Olive — Infanterie (R)'},
+  {key:'seth',     label:'Seth — Cavalerie (R)'},
+  {key:'edwin',    label:'Edwin — Infanterie (R)'},
+  {key:'forrest',  label:'Forrest — Archer (R)'},
+];
+
+const CLASS_COLORS={inf:'hsc-inf',cav:'hsc-cav',arc:'hsc-arc'};
+const CLASS_LABELS={inf:'Infanterie',cav:'Cavalerie',arc:'Archer'};
+
+let heroSlots=[]; let heroSlotCount=0;
+
+function addHeroSlot(){
+  if(heroSlotCount>=3)return;
+  heroSlotCount++;
+  heroSlots.push({heroKey:'',skillLevels:[1,1,1],widgetLevel:0,heroStats:{atk:'',def:'',lth:'',hp:''}});
+  renderHeroSlot(heroSlotCount-1);
+  if(heroSlotCount>=3)document.getElementById('btnAddHero').disabled=true;
+}
+
+function removeHeroSlot(idx){
+  heroSlots.splice(idx,1); heroSlotCount--;
+  document.getElementById('btnAddHero').disabled=false;
+  document.getElementById('heroSlots').innerHTML='';
+  const saved=[...heroSlots]; heroSlots=[]; heroSlotCount=0;
+  saved.forEach(s=>{heroSlotCount++;heroSlots.push(s);renderHeroSlot(heroSlotCount-1);});
+  if(heroSlotCount>=3)document.getElementById('btnAddHero').disabled=true;
+  updateHeroSummary(); refreshAfterStatChange(); saveState();
+}
+
+function renderHeroSlot(idx){
+  const slot=heroSlots[idx], hero=slot.heroKey?HEROES_DB[slot.heroKey]:null;
+  const classTag=hero?`<span class="hero-slot-class ${CLASS_COLORS[hero['class']]}">${CLASS_LABELS[hero['class']]}</span>`:'';
+  const div=document.createElement('div'); div.className='hero-slot'; div.id=`heroSlot${idx}`;
+  div.innerHTML=`
+    <div class="hero-slot-header">
+      <span class="hero-slot-num">${idx+1}</span>
+      <span class="hero-slot-name">${hero?hero.name:'Sélectionne un héros'}</span>
+      ${classTag}
+      <button class="hero-remove-btn" onclick="removeHeroSlot(${idx})">✕</button>
+    </div>
+    <div class="hero-slot-body">
+      <div class="hero-select-wrap">
+        <div class="hero-select-label">Héros</div>
+        <select id="heroSel_${idx}" onchange="onHeroSelect(${idx})">
+          <option value="">— Choisir un héros —</option>
+          ${HERO_LIST.map(h=>`<option value="${h.key}" ${slot.heroKey===h.key?'selected':''}>${h.label}</option>`).join('')}
+        </select>
+      </div>
+      ${hero?buildSkillsHTML(idx,hero,slot):'<div class="field-sub" style="margin-top:6px">Sélectionne un héros pour voir ses compétences</div>'}
+    </div>`;
+  document.getElementById('heroSlots').appendChild(div);
+}
+
+function buildSkillsHTML(idx,hero,slot){
+  // Hero Stats (bonus spécifiques au héros)
+  const hs = slot.heroStats || {atk:'',def:'',lth:'',hp:''};
+  const heroStatsHTML = `
+    <div style="margin-bottom:14px">
+      <div class="hero-skills-title" style="margin-bottom:8px">Hero Stats — bonus de ce héros</div>
+      <div class="hero-stat-grid">
+        <div class="hero-stat-field">
+          <div class="hero-stat-label">Attack (%)</div>
+          <div class="hero-stat-input-wrap">
+            <input type="number" placeholder="ex : 166.52" value="${hs.atk}" min="0" step="0.01"
+              style="padding:8px 24px 8px 10px;font-size:.85rem;font-family:var(--f-mono)"
+              oninput="onHeroStat(${idx},'atk',this.value)">
+            <span class="hero-stat-pct">%</span>
+          </div>
+        </div>
+        <div class="hero-stat-field">
+          <div class="hero-stat-label">Defense (%)</div>
+          <div class="hero-stat-input-wrap">
+            <input type="number" placeholder="ex : 166.52" value="${hs.def}" min="0" step="0.01"
+              style="padding:8px 24px 8px 10px;font-size:.85rem;font-family:var(--f-mono)"
+              oninput="onHeroStat(${idx},'def',this.value)">
+            <span class="hero-stat-pct">%</span>
+          </div>
+        </div>
+        <div class="hero-stat-field">
+          <div class="hero-stat-label">Lethality (%)</div>
+          <div class="hero-stat-input-wrap">
+            <input type="number" placeholder="ex : 116.6" value="${hs.lth}" min="0" step="0.01"
+              style="padding:8px 24px 8px 10px;font-size:.85rem;font-family:var(--f-mono)"
+              oninput="onHeroStat(${idx},'lth',this.value)">
+            <span class="hero-stat-pct">%</span>
+          </div>
+        </div>
+        <div class="hero-stat-field">
+          <div class="hero-stat-label">Health (%)</div>
+          <div class="hero-stat-input-wrap">
+            <input type="number" placeholder="ex : 64" value="${hs.hp}" min="0" step="0.01"
+              style="padding:8px 24px 8px 10px;font-size:.85rem;font-family:var(--f-mono)"
+              oninput="onHeroStat(${idx},'hp',this.value)">
+            <span class="hero-stat-pct">%</span>
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+  const skills=hero.skills.map((sk,si)=>{
+    const lvl=slot.skillLevels[si]||1, val=sk.vals?.[lvl-1]||0;
+    return `<div class="hero-skill-row">
+      <div class="hero-skill-info">
+        <div class="hero-skill-name">${sk.nom}</div>
+        <div class="hero-skill-desc" id="hsdesc_${idx}_${si}">${sk.desc(lvl)}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+        <select style="width:70px;font-size:.75rem;padding:5px 4px" onchange="onSkillLevel(${idx},${si},this.value)">
+          ${[1,2,3,4,5].map(l=>`<option value="${l}" ${l===lvl?'selected':''}>Lvl ${l}</option>`).join('')}
+        </select>
+        <span class="hero-skill-val" id="hsval_${idx}_${si}">${val}%</span>
+      </div>
+    </div>`;
+  }).join('');
+  const w=hero.widget, wl=slot.widgetLevel||0, wval=getWidgetVal(w,wl);
+  const widget=w?`<div class="hero-widget-row">
+    <div class="hero-widget-label">⚡ Widget Exclusif</div>
+    <div class="hero-skill-row" style="padding-top:0">
+      <div class="hero-skill-info">
+        <div class="hero-skill-name">${w.nom}</div>
+        <div class="hero-skill-desc" id="hwdesc_${idx}">${wl>0?w.desc(wl):'Non débloqué'}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+        <select style="width:80px;font-size:.75rem;padding:5px 4px" onchange="onWidgetLevel(${idx},this.value)">
+          <option value="0" ${wl===0?'selected':''}>Inactif</option>
+          ${[1,2,3,4,5,6,7,8,9,10].map(l=>`<option value="${l}" ${l===wl?'selected':''}>Lvl ${l}</option>`).join('')}
+        </select>
+        <span class="hero-skill-val" id="hwval_${idx}" style="color:${wl>0?'var(--amber)':'var(--text-faint)'}">${wl>0?wval+'%':'—'}</span>
+      </div>
+    </div>
+  </div>`:'';
+  return `<div class="hero-skills">
+    ${heroStatsHTML}
+    <div class="hero-skills-title">Compétences d'Expédition</div>
+    ${skills}${widget}
+  </div>`;
+}
+
+function onHeroSelect(idx){
+  const key=document.getElementById(`heroSel_${idx}`)?.value||'';
+  heroSlots[idx]={heroKey:key,skillLevels:[1,1,1],widgetLevel:0,heroStats:{atk:'',def:'',lth:'',hp:''}};
+  const existing=document.getElementById(`heroSlot${idx}`); if(existing)existing.remove();
+  const hero=key?HEROES_DB[key]:null, classTag=hero?`<span class="hero-slot-class ${CLASS_COLORS[hero['class']]}">${CLASS_LABELS[hero['class']]}</span>`:'';
+  const div=document.createElement('div'); div.className='hero-slot'; div.id=`heroSlot${idx}`;
+  div.innerHTML=`
+    <div class="hero-slot-header">
+      <span class="hero-slot-num">${idx+1}</span>
+      <span class="hero-slot-name">${hero?hero.name:'Sélectionne un héros'}</span>
+      ${classTag}
+      <button class="hero-remove-btn" onclick="removeHeroSlot(${idx})">✕</button>
+    </div>
+    <div class="hero-slot-body">
+      <div class="hero-select-wrap">
+        <div class="hero-select-label">Héros</div>
+        <select id="heroSel_${idx}" onchange="onHeroSelect(${idx})">
+          <option value="">— Choisir un héros —</option>
+          ${HERO_LIST.map(h=>`<option value="${h.key}" ${key===h.key?'selected':''}>${h.label}</option>`).join('')}
+        </select>
+      </div>
+      ${hero?buildSkillsHTML(idx,hero,heroSlots[idx]):'<div class="field-sub" style="margin-top:6px">Sélectionne un héros pour voir ses compétences</div>'}
+    </div>`;
+  const c=document.getElementById('heroSlots'), s=c.children;
+  if(s[idx])c.insertBefore(div,s[idx]); else c.appendChild(div);
+  updateHeroSummary(); refreshAfterStatChange(); saveState();
+}
+
+function onSkillLevel(idx,si,val){
+  heroSlots[idx].skillLevels[si]=parseInt(val);
+  const hero=HEROES_DB[heroSlots[idx].heroKey]; if(!hero)return;
+  const sk=hero.skills[si], lvl=parseInt(val);
+  const desc=document.getElementById(`hsdesc_${idx}_${si}`); if(desc)desc.textContent=sk.desc(lvl);
+  const valEl=document.getElementById(`hsval_${idx}_${si}`); if(valEl)valEl.textContent=(sk.vals?.[lvl-1]||0)+'%';
+  updateHeroSummary(); refreshAfterStatChange(); saveState();
+}
+
+function onWidgetLevel(idx,val){
+  heroSlots[idx].widgetLevel=parseInt(val);
+  const hero=HEROES_DB[heroSlots[idx].heroKey]; if(!hero?.widget)return;
+  const wl=parseInt(val), w=hero.widget;
+  const desc=document.getElementById(`hwdesc_${idx}`); if(desc)desc.textContent=wl>0?w.desc(Math.min(wl,5)):'Non débloqué';
+  const wval=getWidgetVal(w,wl);
+  const valEl=document.getElementById(`hwval_${idx}`);
+  if(valEl){valEl.textContent=wl>0?wval+'%':'—';valEl.style.color=wl>0?'var(--amber)':'var(--text-faint)';}
+  updateHeroSummary(); refreshAfterStatChange(); saveState();
+}
+
+function onHeroStat(idx,stat,val){
+  if(!heroSlots[idx].heroStats) heroSlots[idx].heroStats={atk:'',def:'',lth:'',hp:''};
+  heroSlots[idx].heroStats[stat] = val;
+  updateHeroSummary(); refreshAfterStatChange(); saveState();
+}
+
+/* ── HÉROS JOINERS supprimés — poids leader utilisés comme fallback ── */
+const joinerHeroData = {};
+
+/* Valeur widget selon niveau 1-10
+   Niveaux 1-5 : vals[l-1], niveaux 6-10 : interpolation vers vals[4]*2 */
+function getWidgetVal(w, lvl) {
+  if(!w?.vals||lvl<=0)return 0;
+  if(lvl<=5)return w.vals[lvl-1]||0;
+  // Niveaux 6-10 : progression linéaire de vals[4] vers vals[4]*2
+  const base=w.vals[4]||0;
+  return parseFloat((base + (base/5)*(lvl-5)).toFixed(2));
+}
+
+/* Cache des bonus héros — recalculé seulement sur changement */
+let _heroBonusCache = null;
+function invalidateHeroCache(){ _heroBonusCache = null; }
+
+function calcHeroBonuses(){
+  if(_heroBonusCache) return _heroBonusCache;
+  // Bonus globaux (toutes troupes)
+  let totalAtk=0, totalLth=0, totalDmgEV=0, lthReduceEnemy=0;
+  // Bonus spécifiques par type
+  let atkInf=0, atkCav=0, atkArc=0;
+  let lthInf=0, lthCav=0, lthArc=0;
+
+  function applySkill(sk, lvl, directVal) {
+    const val = directVal !== undefined ? directVal : (sk.vals?.[lvl-1] || 0);
+    switch(sk.type) {
+      case 'atk_squad': case 'atk_rally': totalAtk+=val; break;
+      case 'let_squad': case 'let_rally': totalLth+=val; break;
+      case 'dmg_squad':   totalAtk+=val; break;
+      case 'dmg_chance':  totalDmgEV+=(val/100)*(sk.bonus||50)/100; break;
+      case 'let_reduce_enemy': lthReduceEnemy+=val; break;
+      // Bonus spécifiques par type
+      case 'atk_inf':  atkInf+=val; break;
+      case 'atk_cav':  atkCav+=val; break;
+      case 'atk_arc':  atkArc+=val; break;
+      case 'lth_inf':  lthInf+=val; break;
+      case 'lth_cav':  lthCav+=val; break;
+      case 'lth_arc':  lthArc+=val; break;
+      case 'atk_inf_arc':  atkInf+=val; atkArc+=val; break;
+      case 'atk_cav_arc':  atkCav+=val; atkArc+=val; break;
+      case 'dmg_inf_arc':  atkInf+=val; atkArc+=val; break;
+    }
+  }
+
+  // ── Héros LEADER ──
+  heroSlots.forEach(slot=>{
+    if(!slot.heroKey)return;
+    const hero=HEROES_DB[slot.heroKey]; if(!hero)return;
+    const hs=slot.heroStats||{};
+    const atkVal=parseFloat(hs.atk)||0, lthVal=parseFloat(hs.lth)||0;
+    // Hero Stats → assignées au type de troupe de la classe du héros
+    const hc=hero['class'];
+    if(hc==='inf'){atkInf+=atkVal;lthInf+=lthVal;}
+    else if(hc==='cav'){atkCav+=atkVal;lthCav+=lthVal;}
+    else if(hc==='arc'){atkArc+=atkVal;lthArc+=lthVal;}
+    hero.skills.forEach((sk,si)=> applySkill(sk, slot.skillLevels[si]||1));
+    const w=hero.widget, wl=slot.widgetLevel||0;
+    if(w&&wl>0){
+      const wval=getWidgetVal(w,wl);
+      applySkill({type:w.type}, 1, wval);
+    }
+  });
+
+  _heroBonusCache = { totalAtk, totalLth, totalDmgEV, lthReduceEnemy, atkInf, atkCav, atkArc, lthInf, lthCav, lthArc };
+  return _heroBonusCache;
+}
+
+function updateHeroSummary(){
+  const b=calcHeroBonuses();
+  const has=heroSlots.some(s=>s.heroKey);
+  if(!has){document.getElementById('heroSummary').textContent="Ajoute tes héros pour voir l'impact sur les ratios";return;}
+  const statsLines = heroSlots.filter(s=>s.heroKey&&s.heroStats).map(s=>{
+    const hs=s.heroStats, hero=HEROES_DB[s.heroKey]; const parts=[];
+    if(parseFloat(hs.atk))parts.push(`ATK +${parseFloat(hs.atk)}%`);
+    if(parseFloat(hs.lth))parts.push(`LET +${parseFloat(hs.lth)}%`);
+    if(parts.length) return `<span style="color:var(--text-faint)">${hero.name} : ${parts.join(' · ')}</span>`;
+    return null;
+  }).filter(Boolean);
+  document.getElementById('heroSummary').innerHTML=
+    `<strong>Bonus appliqués aux poids :</strong><br>`+
+    `ATK : <strong style="color:var(--amber)">+${b.totalAtk.toFixed(1)}%</strong> &nbsp;·&nbsp; `+
+    `LET : <strong style="color:var(--amber)">+${b.totalLth.toFixed(1)}%</strong>`+
+    (b.totalDmgEV>0?` &nbsp;·&nbsp; Dmg chance : <strong style="color:var(--green)">+${(b.totalDmgEV*100).toFixed(1)}%</strong>`:'')+
+    (b.lthReduceEnemy>0?` &nbsp;·&nbsp; LET ennemie : <strong style="color:var(--red)">−${b.lthReduceEnemy.toFixed(0)}%</strong>`:'')+
+    (statsLines.length?`<br><span style="font-size:10px">${statsLines.join(' | ')}</span>`:'');
+}
+
+syncJCtrl();
+buildTierOptions();
+loadState();
+window.addEventListener('beforeunload', saveState);
+</script>
+</body>
+</html>
