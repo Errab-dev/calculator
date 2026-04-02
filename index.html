@@ -7,25 +7,25 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600;700;800;900&family=Barlow:wght@300;400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:         #0a0b0d;
-  --bg2:        #0f1115;
-  --surface:    #13171e;
-  --surface2:   #191e27;
-  --border:     #252c38;
-  --border2:    #1e2530;
-  --amber:      #e8a020;
-  --amber-dim:  #8a5e12;
-  --amber-glow: rgba(232,160,32,.12);
-  --red:        #d94f3d;
-  --red-dim:    rgba(217,79,61,.15);
-  --green:      #3dbc7c;
-  --green-dim:  rgba(61,188,124,.12);
-  --inf:        #5ba3d4;
-  --cav:        #6abf7a;
-  --arc:        #d4a84b;
-  --text:       #cdd4de;
-  --text-dim:   #6b7785;
-  --text-faint: #3a4150;
+  --bg:         #f0f3f7;
+  --bg2:        #ffffff;
+  --surface:    #ffffff;
+  --surface2:   #edf0f5;
+  --border:     #ccd4e0;
+  --border2:    #dde3ec;
+  --amber:      #b86e00;
+  --amber-dim:  #d48820;
+  --amber-glow: rgba(184,110,0,.10);
+  --red:        #c0392b;
+  --red-dim:    rgba(192,57,43,.10);
+  --green:      #1a7a44;
+  --green-dim:  rgba(26,122,68,.10);
+  --inf:        #1a68aa;
+  --cav:        #1e8040;
+  --arc:        #8a5800;
+  --text:       #18202e;
+  --text-dim:   #445068;
+  --text-faint: #8090a8;
   --f-display:  'Barlow Condensed', sans-serif;
   --f-body:     'Barlow', sans-serif;
   --f-mono:     'Share Tech Mono', monospace;
@@ -38,19 +38,19 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--f-body);
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 15px;
+  line-height: 1.6;
   min-height: 100vh;
   padding: 0 0 80px;
   background-image:
-    linear-gradient(rgba(37,44,56,.35) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(37,44,56,.35) 1px, transparent 1px);
+    linear-gradient(rgba(180,195,215,.4) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(180,195,215,.4) 1px, transparent 1px);
   background-size: 40px 40px;
 }
 body::before {
   content: '';
   position: fixed; inset: 0;
-  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.025) 2px, rgba(0,0,0,.025) 4px);
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.008) 2px, rgba(0,0,0,.008) 4px);
   pointer-events: none; z-index: 1000;
 }
 
@@ -69,11 +69,11 @@ body::before {
   background: var(--amber); box-shadow: 0 0 12px var(--amber);
 }
 .hdr-top { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
-.hdr-label { font-family: var(--f-mono); font-size: 10px; color: var(--amber); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 4px; opacity: .8; }
-.hdr-title { font-family: var(--f-display); font-size: 3rem; font-weight: 900; line-height: .9; text-transform: uppercase; letter-spacing: -1px; color: #fff; }
+.hdr-label { font-family: var(--f-mono); font-size: 11px; color: var(--amber); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 6px; opacity: .9; }
+.hdr-title { font-family: var(--f-display); font-size: 3.2rem; font-weight: 900; line-height: .9; text-transform: uppercase; letter-spacing: -1px; color: var(--text); }
 .hdr-title span { color: var(--amber); }
-.hdr-sub { font-family: var(--f-mono); font-size: 10px; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; margin-top: 8px; }
-.hdr-badge { font-family: var(--f-mono); font-size: 9px; color: var(--text-faint); letter-spacing: 1.5px; text-align: right; line-height: 1.8; }
+.hdr-sub { font-family: var(--f-mono); font-size: 11px; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; margin-top: 10px; }
+.hdr-badge { font-family: var(--f-mono); font-size: 10px; color: var(--text-dim); letter-spacing: 1.5px; text-align: right; line-height: 2; }
 
 /* ── SECTION LABEL ── */
 .sec {
@@ -84,10 +84,10 @@ body::before {
 }
 .sec-num {
   font-family: var(--f-mono);
-  font-size: 9px;
-  color: var(--bg2);
+  font-size: 11px;
+  color: #ffffff;
   background: var(--amber);
-  padding: 3px 8px;
+  padding: 4px 10px;
   letter-spacing: 1px;
   font-weight: 700;
   flex-shrink: 0;
@@ -97,11 +97,11 @@ body::before {
   background: var(--surface);
   border: 1px solid var(--border);
   border-left: none;
-  padding: 10px 14px;
+  padding: 11px 16px;
 }
 .sec-title {
   font-family: var(--f-display);
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 800;
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -110,9 +110,9 @@ body::before {
 }
 .sec-desc {
   font-family: var(--f-body);
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-dim);
-  margin-top: 2px;
+  margin-top: 3px;
   font-weight: 400;
 }
 
@@ -159,52 +159,52 @@ body::before {
   border: 1px solid rgba(232,160,32,.15);
   border-left: 2px solid var(--amber);
 }
-.help-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
-.help-text { font-size: 12px; color: var(--text-dim); line-height: 1.55; }
+.help-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+.help-text { font-size: 13px; color: var(--text-dim); line-height: 1.65; }
 .help-text strong { color: var(--text); font-weight: 600; }
 
 /* ── FIELDS ── */
-.field { margin-bottom: 14px; }
+.field { margin-bottom: 16px; }
 .field:last-child { margin-bottom: 0; }
 .field-label {
   display: flex; align-items: center; gap: 8px;
-  font-family: var(--f-body); font-size: 13px; font-weight: 600;
-  color: var(--text); margin-bottom: 5px;
+  font-family: var(--f-body); font-size: 14px; font-weight: 600;
+  color: var(--text); margin-bottom: 6px;
 }
-.field-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.field-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 .fd-inf   { background: var(--inf);   box-shadow: 0 0 5px var(--inf); }
 .fd-cav   { background: var(--cav);   box-shadow: 0 0 5px var(--cav); }
 .fd-arc   { background: var(--arc);   box-shadow: 0 0 5px var(--arc); }
 .fd-amber { background: var(--amber); box-shadow: 0 0 5px var(--amber); }
 
 .field-sub {
-  font-size: 11px; color: var(--text-faint);
-  margin-top: 4px; font-style: italic;
+  font-size: 12px; color: var(--text-faint);
+  margin-top: 5px; font-style: italic;
 }
 
 input[type=number] {
   width: 100%; background: var(--bg2);
   border: 1px solid var(--border); color: var(--text);
-  font-family: var(--f-mono); font-size: 1rem; padding: 10px 14px; outline: none;
+  font-family: var(--f-mono); font-size: 1.05rem; padding: 11px 14px; outline: none;
   transition: border-color .15s, box-shadow .15s;
   -moz-appearance: textfield; appearance: textfield; letter-spacing: 1px;
 }
 input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
 input[type=number]:focus { border-color: var(--amber); box-shadow: 0 0 0 2px var(--amber-glow); }
-input[type=number]::placeholder { color: var(--text-faint); font-size: .85rem; }
+input[type=number]::placeholder { color: var(--text-faint); font-size: .88rem; }
 
 /* ── RATIO GRID ── */
 .ratio-section-label {
-  font-size: 12px; font-weight: 600; color: var(--text-dim);
-  margin: 16px 0 8px; padding-bottom: 6px;
+  font-size: 13px; font-weight: 600; color: var(--text-dim);
+  margin: 18px 0 10px; padding-bottom: 7px;
   border-bottom: 1px solid var(--border2);
 }
-.ratio-section-label span { color: var(--text-faint); font-weight: 400; font-size: 11px; margin-left: 4px; }
+.ratio-section-label span { color: var(--text-faint); font-weight: 400; font-size: 12px; margin-left: 4px; }
 
 .ratio-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px; }
 .ratio-cell-label {
-  font-size: 11px; font-weight: 600; color: var(--text-dim);
-  margin-bottom: 5px; display: flex; align-items: center; gap: 5px;
+  font-size: 12px; font-weight: 600; color: var(--text-dim);
+  margin-bottom: 6px; display: flex; align-items: center; gap: 5px;
 }
 .ratio-input-wrap { position: relative; }
 .ratio-inp {
@@ -224,54 +224,54 @@ input[type=number]::placeholder { color: var(--text-faint); font-size: .85rem; }
 
 .ratio-total {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 7px 10px; background: var(--bg2); border: 1px solid var(--border2); margin-top: 4px;
+  padding: 8px 12px; background: var(--bg2); border: 1px solid var(--border2); margin-top: 4px;
 }
-.ratio-total-lbl { font-size: 11px; color: var(--text-faint); }
-.ratio-total-val { font-family: var(--f-mono); font-size: .9rem; }
+.ratio-total-lbl { font-size: 12px; color: var(--text-dim); }
+.ratio-total-val { font-family: var(--f-mono); font-size: .95rem; font-weight: 600; }
 .rv-ok { color: var(--green); } .rv-warn { color: var(--red); }
 
 .ratio-warn {
-  font-size: 11px; color: var(--red); margin-top: 6px; padding: 5px 10px;
+  font-size: 12px; color: var(--red); margin-top: 6px; padding: 6px 12px;
   background: var(--red-dim); border-left: 2px solid var(--red); display: none;
 }
 
 /* ── TROOP BAR ── */
-.tbar-wrap { margin: 14px 0 10px; }
-.tbar-labels { display: flex; justify-content: space-between; margin-bottom: 4px; }
-.tbar-lbl { font-size: 10px; color: var(--text-faint); font-family: var(--f-mono); letter-spacing: .5px; }
-.tbar { height: 6px; display: flex; overflow: hidden; background: var(--border2); border: 1px solid var(--border); }
+.tbar-wrap { margin: 16px 0 10px; }
+.tbar-labels { display: flex; justify-content: space-between; margin-bottom: 5px; }
+.tbar-lbl { font-size: 11px; color: var(--text-dim); font-family: var(--f-mono); letter-spacing: .5px; font-weight: 600; }
+.tbar { height: 7px; display: flex; overflow: hidden; background: var(--border2); border: 1px solid var(--border); }
 .tbar-i { background: var(--inf); transition: width .3s ease; }
 .tbar-c { background: var(--cav); transition: width .3s ease; }
 .tbar-a { background: var(--arc); transition: width .3s ease; }
 
 /* ── COUNT GRID ── */
 .count-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-top: 10px; }
-.cg-cell { background: var(--bg2); border: 1px solid var(--border2); padding: 10px 8px; text-align: center; }
-.cg-lbl { font-size: 10px; color: var(--text-faint); margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 4px; }
-.cg-val { font-family: var(--f-display); font-size: 1.1rem; font-weight: 700; }
-.cg-pct { font-family: var(--f-mono); font-size: 10px; color: var(--text-faint); margin-top: 2px; }
+.cg-cell { background: var(--bg2); border: 1px solid var(--border2); padding: 11px 8px; text-align: center; }
+.cg-lbl { font-size: 11px; color: var(--text-dim); margin-bottom: 5px; display: flex; align-items: center; justify-content: center; gap: 4px; font-weight: 500; }
+.cg-val { font-family: var(--f-display); font-size: 1.15rem; font-weight: 700; }
+.cg-pct { font-family: var(--f-mono); font-size: 11px; color: var(--text-dim); margin-top: 2px; }
 .cv-inf { color: var(--inf); } .cv-cav { color: var(--cav); } .cv-arc { color: var(--arc); }
 
 /* ── STATUS CHIP ── */
 .chip {
   display: flex; align-items: flex-start; gap: 8px;
-  padding: 9px 12px; margin-top: 12px;
-  font-size: 12px; font-weight: 500; border-left: 2px solid; line-height: 1.4;
+  padding: 10px 14px; margin-top: 12px;
+  font-size: 13px; font-weight: 500; border-left: 2px solid; line-height: 1.5;
 }
-.chip-icon { font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+.chip-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
 .chip.ok   { background: var(--green-dim); border-color: var(--green); color: var(--green); }
-.chip.err  { background: var(--red-dim);   border-color: var(--red);   color: #f08080; }
-.chip.idle { background: var(--bg2);       border-color: var(--border); color: var(--text-faint); }
+.chip.err  { background: var(--red-dim);   border-color: var(--red);   color: #ff9090; }
+.chip.idle { background: var(--bg2);       border-color: var(--border); color: var(--text-dim); }
 
 /* ── SCORE PANEL ── */
 .score-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 14px; }
-.score-cell { background: var(--surface2); padding: 14px 16px; }
-.score-lbl { font-size: 11px; color: var(--text-faint); margin-bottom: 6px; }
-.score-val { font-family: var(--f-display); font-size: 1.8rem; font-weight: 900; color: var(--amber); line-height: 1; }
-.score-sub { font-size: 11px; color: var(--text-faint); margin-top: 4px; }
+.score-cell { background: var(--surface2); padding: 16px; }
+.score-lbl { font-size: 12px; color: var(--text-dim); margin-bottom: 7px; font-weight: 500; }
+.score-val { font-family: var(--f-display); font-size: 1.9rem; font-weight: 900; color: var(--amber); line-height: 1; }
+.score-sub { font-size: 12px; color: var(--text-dim); margin-top: 5px; }
 .eff-bar { height: 3px; background: var(--border2); margin: 8px 0 4px; overflow: hidden; }
 .eff-fill { height: 100%; background: linear-gradient(90deg, var(--amber-dim), var(--amber)); transition: width .4s ease; }
-.eff-val { font-family: var(--f-mono); font-size: 10px; color: var(--text-faint); }
+.eff-val { font-family: var(--f-mono); font-size: 11px; color: var(--text-dim); }
 
 /* ── JOINER TABS ── */
 .jctrl { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px; margin-bottom: 12px; }
@@ -284,18 +284,18 @@ input[type=number]::placeholder { color: var(--text-faint); font-size: .85rem; }
 .jbtn-rem { background: var(--red-dim); border-color: var(--red); color: var(--red); }
 .jbtn-rem:hover:not(:disabled) { background: rgba(217,79,61,.22); }
 .jbtn:disabled { opacity: .25; cursor: not-allowed; }
-.jcount-lbl { font-family: var(--f-mono); font-size: 10px; color: var(--text-faint); letter-spacing: 1px; margin-left: auto; }
+.jcount-lbl { font-family: var(--f-mono); font-size: 11px; color: var(--text-dim); letter-spacing: 1px; margin-left: auto; }
 
 .jtabs { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 10px; }
 .jtab {
-  padding: 5px 14px; border: 1px solid var(--border); background: var(--bg2);
-  color: var(--text-faint); font-family: var(--f-display); font-size: .85rem; font-weight: 700;
+  padding: 6px 16px; border: 1px solid var(--border); background: var(--bg2);
+  color: var(--text-dim); font-family: var(--f-display); font-size: .9rem; font-weight: 700;
   letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; transition: all .15s; position: relative;
 }
-.jtab.act { background: rgba(91,163,212,.08); border-color: var(--inf); color: var(--inf); }
+.jtab.act { background: rgba(106,184,232,.1); border-color: var(--inf); color: var(--inf); }
 .tbadge {
   display: none; position: absolute; top: -8px; right: -6px;
-  background: var(--green); color: var(--bg);
+  background: var(--green); color: #ffffff;
   font-family: var(--f-mono); font-size: 8px; padding: 1px 5px; letter-spacing: .5px;
 }
 .tbadge.vis { display: block; }
@@ -308,22 +308,22 @@ input[type=number]::placeholder { color: var(--text-faint); font-size: .85rem; }
 .auto-btn {
   display: flex; align-items: center; justify-content: center; gap: 12px;
   width: 100%; padding: 16px 24px;
-  background: var(--amber-glow); border: 1px solid var(--amber-dim);
+  background: var(--amber-glow); border: 2px solid var(--amber);
   color: var(--amber); font-family: var(--f-display); font-size: 1.1rem; font-weight: 800;
   letter-spacing: 3px; text-transform: uppercase; cursor: pointer; transition: all .2s; position: relative; overflow: hidden;
 }
-.auto-btn::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, transparent 30%, rgba(232,160,32,.05)); pointer-events: none; }
-.auto-btn:hover:not(:disabled) { background: rgba(232,160,32,.18); border-color: var(--amber); box-shadow: 0 0 24px rgba(232,160,32,.15); }
+.auto-btn::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, transparent 30%, rgba(184,110,0,.05)); pointer-events: none; }
+.auto-btn:hover:not(:disabled) { background: rgba(184,110,0,.12); border-color: var(--amber); box-shadow: 0 2px 16px rgba(184,110,0,.18); }
 .auto-btn:disabled { opacity: .4; cursor: not-allowed; }
 
 .auto-desc {
   margin-top: 10px;
-  padding: 10px 14px;
-  background: rgba(232,160,32,.04);
-  border: 1px solid rgba(232,160,32,.1);
-  font-size: 12px;
+  padding: 12px 16px;
+  background: rgba(240,168,48,.05);
+  border: 1px solid rgba(240,168,48,.12);
+  font-size: 13px;
   color: var(--text-dim);
-  line-height: 1.55;
+  line-height: 1.65;
 }
 .auto-desc strong { color: var(--text); font-weight: 600; }
 
@@ -333,9 +333,9 @@ input[type=number]::placeholder { color: var(--text-faint); font-size: .85rem; }
 .load-fill { height: 100%; width: 0%; background: var(--amber); transition: width .2s; }
 
 .idle-msg {
-  display: flex; align-items: flex-start; gap: 10px; padding: 11px 14px;
-  background: rgba(91,163,212,.05); border: 1px solid rgba(91,163,212,.15); border-left: 2px solid var(--inf);
-  font-size: 12px; color: var(--text-dim); margin-bottom: 12px; line-height: 1.5;
+  display: flex; align-items: flex-start; gap: 10px; padding: 13px 16px;
+  background: rgba(106,184,232,.06); border: 1px solid rgba(106,184,232,.18); border-left: 2px solid var(--inf);
+  font-size: 13px; color: var(--text-dim); margin-bottom: 12px; line-height: 1.6;
 }
 
 /* ── SUMMARY ── */
@@ -345,23 +345,23 @@ input[type=number]::placeholder { color: var(--text-faint); font-size: .85rem; }
   display: grid; grid-template-columns: 1fr 1fr 1fr;
   gap: 1px; background: var(--border); border: 1px solid var(--border); margin-bottom: 14px;
 }
-.kpi-cell { background: var(--surface); padding: 14px 10px; text-align: center; }
-.kpi-lbl { font-size: 10px; color: var(--text-faint); margin-bottom: 6px; line-height: 1.3; }
-.kpi-val { font-family: var(--f-display); font-size: 1.25rem; font-weight: 900; line-height: 1; }
-.kpi-sub { font-family: var(--f-mono); font-size: 9px; color: var(--text-faint); margin-top: 3px; }
+.kpi-cell { background: var(--surface); padding: 16px 10px; text-align: center; }
+.kpi-lbl { font-size: 11px; color: var(--text-dim); margin-bottom: 7px; line-height: 1.4; font-weight: 500; }
+.kpi-val { font-family: var(--f-display); font-size: 1.3rem; font-weight: 900; line-height: 1; }
+.kpi-sub { font-family: var(--f-mono); font-size: 10px; color: var(--text-dim); margin-top: 4px; }
 
 .prog-wrap { margin: 14px 0; }
-.prog-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-faint); margin-bottom: 5px; }
-.prog-track { height: 8px; background: var(--bg2); border: 1px solid var(--border2); display: flex; overflow: hidden; }
-.prog-used { background: linear-gradient(90deg, rgba(232,160,32,.6), rgba(232,160,32,.3)); transition: width .5s; }
+.prog-labels { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-dim); margin-bottom: 5px; }
+.prog-track { height: 9px; background: var(--bg2); border: 1px solid var(--border2); display: flex; overflow: hidden; }
+.prog-used { background: linear-gradient(90deg, rgba(240,168,48,.6), rgba(240,168,48,.3)); transition: width .5s; }
 
 .rem-strip { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 8px; }
-.rem-cell { background: var(--surface2); padding: 10px; text-align: center; }
-.rem-lbl { font-size: 10px; color: var(--text-faint); margin-bottom: 4px; }
-.rem-val { font-family: var(--f-display); font-size: 1rem; font-weight: 700; }
+.rem-cell { background: var(--surface2); padding: 12px; text-align: center; }
+.rem-lbl { font-size: 11px; color: var(--text-dim); margin-bottom: 5px; font-weight: 500; }
+.rem-val { font-family: var(--f-display); font-size: 1.05rem; font-weight: 700; }
 
-.alert { display: flex; align-items: flex-start; gap: 10px; padding: 10px 14px; margin-top: 10px; font-size: 12px; line-height: 1.5; border-left: 2px solid; }
-.alert.warn { background: var(--red-dim); border-color: var(--red); color: #f08080; }
+.alert { display: flex; align-items: flex-start; gap: 10px; padding: 11px 14px; margin-top: 10px; font-size: 13px; line-height: 1.55; border-left: 2px solid; }
+.alert.warn { background: var(--red-dim); border-color: var(--red); color: #ff9090; }
 .alert.ok   { background: var(--green-dim); border-color: var(--green); color: var(--green); }
 
 /* ── EXPORT / RESET ── */
@@ -441,7 +441,7 @@ select {
   text-align: center;
 }
 select:focus { border-color: var(--amber); }
-select option { background: #13171e; }
+select option { background: #ffffff; color: var(--text); }
 
 /* ── HERO SLOTS ── */
 .hero-slot {
@@ -457,18 +457,18 @@ select option { background: #13171e; }
   cursor: pointer;
 }
 .hero-slot-num {
-  font-family: var(--f-mono); font-size: 9px;
+  font-family: var(--f-mono); font-size: 10px;
   color: var(--amber); background: var(--amber-glow);
   border: 1px solid var(--amber-dim);
-  padding: 2px 6px; letter-spacing: 1px; flex-shrink: 0;
+  padding: 2px 7px; letter-spacing: 1px; flex-shrink: 0;
 }
 .hero-slot-name {
-  font-family: var(--f-display); font-size: .95rem; font-weight: 700;
+  font-family: var(--f-display); font-size: 1rem; font-weight: 700;
   color: var(--text); flex: 1;
 }
 .hero-slot-class {
-  font-family: var(--f-mono); font-size: 9px; letter-spacing: 1px;
-  padding: 2px 7px; border: 1px solid; text-transform: uppercase;
+  font-family: var(--f-mono); font-size: 10px; letter-spacing: 1px;
+  padding: 2px 8px; border: 1px solid; text-transform: uppercase;
 }
 .hsc-inf { color: var(--inf); border-color: rgba(91,163,212,.3); }
 .hsc-cav { color: var(--cav); border-color: rgba(106,191,122,.3); }
@@ -573,6 +573,7 @@ select option { background: #13171e; }
       <div>S.1507</div>
       <div>by Errab</div>
       <div style="margin-top:4px;color:var(--amber);opacity:.5">v7.0</div>
+      <div id="saveIndicator" style="margin-top:6px;font-size:9px;color:var(--green);opacity:0;transition:opacity .4s;letter-spacing:1px">✓ SAUVEGARDÉ</div>
     </div>
   </div>
 </header>
@@ -677,14 +678,6 @@ select option { background: #13171e; }
         <div class="bonus-label"><span class="field-dot" style="background:var(--red);box-shadow:0 0 5px var(--red)"></span>LET Escouade globale (%)</div>
         <div class="bonus-input-wrap"><input type="number" id="bonusLthSquad" placeholder="0" min="0" oninput="onBonusChange()"><span class="bonus-pct">%</span></div>
       </div>
-      <div>
-        <div class="bonus-label"><span class="field-dot fd-inf"></span>Santé globale (%)</div>
-        <div class="bonus-input-wrap"><input type="number" id="bonusHp" placeholder="ex : 200" min="0" oninput="onBonusChange()"><span class="bonus-pct">%</span></div>
-      </div>
-      <div>
-        <div class="bonus-label"><span class="field-dot fd-cav"></span>Défense globale (%)</div>
-        <div class="bonus-input-wrap"><input type="number" id="bonusDef" placeholder="ex : 120" min="0" oninput="onBonusChange()"><span class="bonus-pct">%</span></div>
-      </div>
     </div>
     <div class="bonus-summary" id="bonusSummary">
       Remplis tes bonus pour voir l'impact sur les poids de calcul
@@ -749,18 +742,19 @@ select option { background: #13171e; }
     <div class="help-box">
       <span class="help-icon">📖</span>
       <div class="help-text">
-        Pour trouver ta <strong>capacité de marche</strong> : lance un rally contre une <strong>Terreur</strong> et regarde le nombre maximum de troupes que tu peux envoyer — c'est ta capacité. Les <strong>ratios</strong> indiquent le % de chaque type de troupe dans cette marche. Laisse les valeurs par défaut si tu débutes.
+        Pour trouver ta <strong>capacité de marche</strong> : va dans ta <strong>photo de profil</strong> → <strong>Escouade</strong> → <strong>Formation de troupe</strong>. La première team affichée correspond à ta capacité maximale avec tes meilleurs héros — c'est ce nombre qu'il faut entrer ici.
       </div>
     </div>
 
     <div class="field">
       <div class="field-label"><span class="field-dot fd-amber"></span>Capacité de Marche</div>
       <input type="number" id="leadCap" placeholder="ex : 110 810" min="1" oninput="_clearExact('lead');updateLeader()">
-      <div class="field-sub">Visible dans ton profil chef → "Capacité de Marche"</div>
+      <div class="field-sub">Photo de profil → Escouade → Formation de troupe → 1ère team</div>
     </div>
 
-    <div class="ratio-section-label">
+    <div class="ratio-section-label" style="display:flex;align-items:center;gap:8px">
       Répartition des troupes <span>— modifie si tu veux ajuster, sinon laisse tel quel</span>
+      <span id="lockBadgeLead" style="display:none;align-items:center;gap:4px;font-family:var(--f-mono);font-size:10px;color:var(--amber);background:var(--amber-glow);border:1px solid var(--amber-dim);padding:2px 8px;cursor:pointer" onclick="unlockRatio('lead');_clearExact('lead');updateLeader()" title="Ratio verrouillé — clique pour déverrouiller">🔒 VERROUILLÉ</span>
     </div>
     <div class="ratio-grid">
       <div class="ratio-cell">
@@ -1195,19 +1189,77 @@ function runAutoOptimize(){
   const btn=document.getElementById('autoBtn'),wrap=document.getElementById('loadingWrap');
   const bar=document.getElementById('loadingBar'),pctEl=document.getElementById('loadingPct');
   const lbl=document.getElementById('loadingLabel'),hint=document.getElementById('autoBtnLabel');
-  const s=stock(),leadCap=gv('leadCap');
+  const s=stock(), leadCap=gv('leadCap');
   if(s.inf+s.cav+s.arc<=0){alert('⚠️ Entre tes stocks de troupes (Étape 1) !');return;}
   if(leadCap<=0){alert('⚠️ Entre ta capacité de marche (Étape 2) !');return;}
-  btn.disabled=true;hint.textContent='CALCUL EN COURS…';wrap.style.display='block';
+  btn.disabled=true; hint.textContent='CALCUL EN COURS…'; wrap.style.display='block';
   function setP(p,label){bar.style.width=p+'%';pctEl.textContent=p+'%';if(label)lbl.textContent=label;}
   setP(0,'Initialisation…');
-  const forcedCapsSnap=[];for(let i=1;i<=jCount;i++){const cap=gv(`j${i}_cap`);if(cap>0)forcedCapsSnap.push(cap);}
-  const nForced=forcedCapsSnap.length,slotsAuto=JMAX-nForced;let bestScore=-1,bestAlloc=null;
-  const nAutoValues=Array.from({length:slotsAuto+1},(_,i)=>i);
+
+  // ── 1. Calculer les troupes réservées par les ratios verrouillés ──
+  const lockedJoinerAllocs={};
+  let resI=0, resC=0, resA=0;
+
+  // Lead verrouillé → calculer ses troupes avec son ratio manuel
+  if(isRatioLocked('lead')){
+    const ip=parseFloat(document.getElementById('lInf')?.value)||10;
+    const cp=parseFloat(document.getElementById('lCav')?.value)||10;
+    const tot=ip+cp+(parseFloat(document.getElementById('lArc')?.value)||80);
+    const nI=Math.round(leadCap*ip/tot), nC=Math.round(leadCap*cp/tot);
+    resI+=nI; resC+=nC; resA+=leadCap-nI-nC;
+  }
+
+  // Joiners verrouillés → calculer leurs troupes avec leur ratio manuel
+  for(let i=1;i<=jCount;i++){
+    if(!isRatioLocked(`j${i}`))continue;
+    const cap=gv(`j${i}_cap`); if(!cap)continue;
+    const ip=parseFloat(document.getElementById(`j${i}_inf`)?.value)||10;
+    const cp=parseFloat(document.getElementById(`j${i}_cav`)?.value)||10;
+    const tot=ip+cp+(parseFloat(document.getElementById(`j${i}_arc`)?.value)||80);
+    const nI=Math.round(cap*ip/tot), nC=Math.round(cap*cp/tot), nA=cap-nI-nC;
+    resI+=nI; resC+=nC; resA+=nA;
+    lockedJoinerAllocs[i]={i:nI,c:nC,a:nA};
+  }
+
+  // ── 2. Stock résiduel pour l'optimiseur ──
+  const sOpt={inf:Math.max(0,s.inf-resI), cav:Math.max(0,s.cav-resC), arc:Math.max(0,s.arc-resA)};
+  // Si le lead est verrouillé, l'optimiseur n'a pas à optimiser la lead → on passe cap=0
+  // _computeNAuto gère cap=0 en sautant l'itération lead
+  const leadCapOpt = isRatioLocked('lead') ? 0 : leadCap;
+
+  // ── 3. Joiners libres avec capacité forcée (non verrouillés mais cap déjà saisie) ──
+  const forcedCapsSnap=[];
+  for(let i=1;i<=jCount;i++){
+    if(isRatioLocked(`j${i}`))continue;
+    const cap=gv(`j${i}_cap`); if(cap>0)forcedCapsSnap.push(cap);
+  }
+  const nForced=forcedCapsSnap.length;
+  const slotsAuto=JMAX-nForced-Object.keys(lockedJoinerAllocs).length;
+  let bestScore=-1, bestAlloc=null;
+  const nAutoValues=Array.from({length:Math.max(1,slotsAuto+1)},(_,i)=>i);
+
   function processChunk(idx){
-    if(idx>=nAutoValues.length){setP(95,'Application…');setTimeout(()=>{_applyOptimResult(bestAlloc,nForced,forcedCapsSnap);setP(100,'Terminé !');hint.textContent='OPTIMISATION AUTOMATIQUE';btn.disabled=false;setTimeout(()=>{wrap.style.display='none';},1200);},20);return;}
-    const nAuto=nAutoValues[idx];setP(Math.round(idx/nAutoValues.length*90),`Test ${nAuto} joiner${nAuto>1?'s':''}…`);
-    setTimeout(()=>{_computeNAuto(nAuto,s,leadCap,forcedCapsSnap,slotsAuto,(score,alloc)=>{if(score>bestScore){bestScore=score;bestAlloc=alloc;}});processChunk(idx+1);},10);
+    if(idx>=nAutoValues.length){
+      setP(95,'Application…');
+      setTimeout(()=>{
+        _applyOptimResult(bestAlloc, nForced, forcedCapsSnap, lockedJoinerAllocs, leadCap);
+        setP(100,'Terminé !'); hint.textContent='OPTIMISATION AUTOMATIQUE'; btn.disabled=false;
+        setTimeout(()=>{wrap.style.display='none';},1200);
+      },20);
+      return;
+    }
+    const nAuto=nAutoValues[idx];
+    setP(Math.round(idx/nAutoValues.length*90),`Test ${nAuto} joiner${nAuto>1?'s':''}…`);
+    setTimeout(()=>{
+      // Si lead verrouillé ET pas de joiners libres à optimiser → score fixe = 0, alloc vide
+      if(leadCapOpt<=0 && forcedCapsSnap.length===0 && nAuto===0){
+        if(0>bestScore){bestScore=0; bestAlloc=[];}
+      } else {
+        _computeNAuto(nAuto, sOpt, leadCapOpt, forcedCapsSnap, slotsAuto,
+          (score,alloc)=>{if(score>bestScore){bestScore=score;bestAlloc=alloc;}});
+      }
+      processChunk(idx+1);
+    },10);
   }
   setTimeout(()=>processChunk(0),30);
 }
@@ -1217,33 +1269,29 @@ function _computeNAuto(nAuto,s,leadCap,forcedCapsList,slotsAuto,callback){
   const wL=calcWeights();
   const wJForced=forcedCapsList.map((_,fi)=>calcWeightsJoiner(fi+1));
   const wJAuto=calcWeightsFor({});
+  const STEPS=30;
 
-  // Itérer en nombre de troupes réel — seule contrainte : INF >= TROOP_MIN, CAV >= 1, ARC >= 1
-  // On teste ~30 valeurs pour INF et ~30 pour CAV → ~900 combinaisons par cap
-  const STEPS = 30;
-  function iterCap(cap, maxI, maxC, maxA, fn) {
-    // INF : de TROOP_MIN à min(maxI, cap - TROOP_MIN - 1)
-    const iMin = TROOP_MIN, iMax = Math.min(maxI, cap - TROOP_MIN - 1);
-    if(iMin > iMax) return;
-    const iStep = Math.max(1, Math.floor((iMax - iMin) / STEPS));
-    for(let nI = iMin; nI <= iMax; nI += iStep) {
-      // CAV : de TROOP_MIN à min(maxC, cap - nI - 1)
-      const cMin = TROOP_MIN, cMax = Math.min(maxC, cap - nI - 1);
-      if(cMax < cMin) continue;
-      const cStep = Math.max(1, Math.floor((cMax - cMin) / STEPS));
-      for(let nC = cMin; nC <= cMax; nC += cStep) {
-        const nA = cap - nI - nC;
-        if(nA < 1 || nA > maxA) continue;
-        fn(nI, nC, nA);
+  function iterCap(cap,maxI,maxC,maxA,fn){
+    const iMin=TROOP_MIN,iMax=Math.min(maxI,cap-TROOP_MIN-1);
+    if(iMin>iMax)return;
+    const iStep=Math.max(1,Math.floor((iMax-iMin)/STEPS));
+    for(let nI=iMin;nI<=iMax;nI+=iStep){
+      const cMin=TROOP_MIN,cMax=Math.min(maxC,cap-nI-1);
+      if(cMax<cMin)continue;
+      const cStep=Math.max(1,Math.floor((cMax-cMin)/STEPS));
+      for(let nC=cMin;nC<=cMax;nC+=cStep){
+        const nA=cap-nI-nC;
+        if(nA<1||nA>maxA)continue;
+        fn(nI,nC,nA);
       }
     }
   }
 
-  iterCap(leadCap, s.inf, s.cav, s.arc, (lI, lC, lA) => {
-    const rI=s.inf-lI, rC=s.cav-lC, rA=s.arc-lA, rTot=rI+rC+rA;
+  function evalJoiners(lI,lC,lA,rI,rC,rA){
+    const rTot=rI+rC+rA;
     if(nAuto===0&&forcedCapsList.length===0){
       const score=dmg(lI,lC,lA,wL);
-      if(score>bestScore){bestScore=score;bestAlloc=[{i:lI,c:lC,a:lA}];}
+      if(score>bestScore){bestScore=score;bestAlloc=lI>=0?[{i:lI,c:lC,a:lA}]:[];}
       return;
     }
     const jCapAutoRange=nAuto===0?[null]:(()=>{
@@ -1256,39 +1304,117 @@ function _computeNAuto(nAuto,s,leadCap,forcedCapsList,slotsAuto,callback){
     for(const jCapAuto of jCapAutoRange){
       const allJoinCaps=jCapAuto===null?forcedCapsList:[...forcedCapsList,...Array(nAuto).fill(jCapAuto)];
       if(!allJoinCaps.length)continue;
-      // Pour les joiners, même logique : on itère en troupes réelles
       const jCap0=allJoinCaps[0];
-      iterCap(jCap0, rI, rC, rA, (jI0, jC0, jA0) => {
-        // Si plusieurs joiners on applique le même ratio à tous (approximation)
-        let ok=true, remI=rI, remC=rC, remA=rA; const jAllocs=[];
+      iterCap(jCap0,rI,rC,rA,(jI0,jC0,jA0)=>{
+        let ok=true,remI=rI,remC=rC,remA=rA;const jAllocs=[];
         for(let jIdx=0;jIdx<allJoinCaps.length;jIdx++){
-          const jCap=allJoinCaps[jIdx];
-          const ratio=jCap/jCap0;
+          const jCap=allJoinCaps[jIdx],ratio=jCap/jCap0;
           const jI=Math.round(jI0*ratio),jC=Math.round(jC0*ratio),jA=jCap-jI-jC;
           if(jI<TROOP_MIN||jC<1||jA<1){ok=false;break;}
           if(jI>remI||jC>remC||jA>remA){ok=false;break;}
           remI-=jI;remC-=jC;remA-=jA;jAllocs.push({i:jI,c:jC,a:jA});
         }
         if(!ok)return;
-        let score=dmg(lI,lC,lA,wL);
+        let score=lI>=0?dmg(lI,lC,lA,wL):0;
         for(let jIdx=0;jIdx<jAllocs.length;jIdx++){
           const wJ=jIdx<wJForced.length?wJForced[jIdx]:wJAuto;
           score+=dmg(jAllocs[jIdx].i,jAllocs[jIdx].c,jAllocs[jIdx].a,wJ);
         }
-        if(score>bestScore){bestScore=score;bestAlloc=[{i:lI,c:lC,a:lA},...jAllocs];}
+        const alloc=lI>=0?[{i:lI,c:lC,a:lA},...jAllocs]:jAllocs;
+        if(score>bestScore){bestScore=score;bestAlloc=alloc;}
       });
     }
-  });
+  }
+
+  if(leadCap>0){
+    // Lead libre → on itère sur les combos lead + joiners
+    iterCap(leadCap,s.inf,s.cav,s.arc,(lI,lC,lA)=>{
+      evalJoiners(lI,lC,lA, s.inf-lI, s.cav-lC, s.arc-lA);
+    });
+  } else {
+    // Lead verrouillé → stock résiduel = s, on optimise uniquement les joiners
+    evalJoiners(-1,-1,-1, s.inf, s.cav, s.arc);
+  }
   callback(bestScore,bestAlloc);
 }
 
-function _applyOptimResult(bestAlloc,nForced,forcedCapsList){
+function _applyOptimResult(bestAlloc, nForced, forcedCapsList, lockedJoinerAllocs, origLeadCap){
+  lockedJoinerAllocs = lockedJoinerAllocs || {};
   if(!bestAlloc){const s=stock(),lo=solveOptimal(gv('leadCap'),s.inf,s.cav,s.arc);bestAlloc=[{i:lo.i,c:lo.c,a:lo.a}];}
+
+  // Sauvegarder les ratios verrouillés AVANT destruction des panels
+  const savedRatios={};
+  for(let ji=1;ji<=jCount;ji++){
+    const jkey=`j${ji}`;
+    if(isRatioLocked(jkey)){
+      savedRatios[jkey]={
+        inf: parseFloat(document.getElementById(`j${ji}_inf`)?.value)||10,
+        cav: parseFloat(document.getElementById(`j${ji}_cav`)?.value)||10,
+        arc: parseFloat(document.getElementById(`j${ji}_arc`)?.value)||80,
+      };
+    }
+  }
+
   while(jCount>0){document.getElementById(`jtab${jCount}`)?.remove();document.getElementById(`jpanel${jCount}`)?.remove();jCount--;}
-  const la=bestAlloc[0];_setMarchExact('lead',la.i,la.c,la.a);
-  for(let ji=1;ji<bestAlloc.length;ji++){jCount=ji;buildJoinerTab(ji,ji<=nForced);buildJoinerPanel(ji);_setMarchExact(`j${ji}`,bestAlloc[ji].i,bestAlloc[ji].c,bestAlloc[ji].a);updateJoiner(ji);}
+
+  // ── Leader ──
+  if(isRatioLocked('lead')){
+    document.getElementById('leadCap').value=origLeadCap||gv('leadCap');
+    _clearExact('lead');
+    updateLeader();
+  } else {
+    const la=bestAlloc[0]||{i:0,c:0,a:0};
+    _setMarchExact('lead',la.i,la.c,la.a);
+  }
+
+  // ── Joiners ──
+  // Quand lead verrouillé : bestAlloc = [joiner1, joiner2, ...]  (pas d'entrée lead)
+  // Quand lead libre     : bestAlloc = [lead, joiner1, joiner2, ...]
+  const leadIsLocked = isRatioLocked('lead');
+  const freeStartIdx = leadIsLocked ? 0 : 1; // index dans bestAlloc du 1er joiner libre
+  const freeCount = bestAlloc.length - freeStartIdx;
+  const lockedNums = Object.keys(lockedJoinerAllocs).map(Number).sort((a,b)=>a-b);
+  const nextNum = lockedNums.length > 0 ? Math.max(...lockedNums) + 1 : 1;
+  const allJoinerNums = [];
+  for(const n of lockedNums) allJoinerNums.push({num:n, locked:true});
+  for(let f=0;f<freeCount;f++) allJoinerNums.push({num:nextNum+f, locked:false});
+
+  let freeAllocIdx = freeStartIdx;
+  for(const {num, locked} of allJoinerNums){
+    jCount++;
+    buildJoinerTab(jCount, jCount<=nForced);
+    buildJoinerPanel(jCount);
+    const jkey=`j${num}`;
+    const panelNum=jCount;
+    if(locked && lockedJoinerAllocs[num]){
+      const r=savedRatios[jkey]||savedRatios[`j${panelNum}`]||{inf:10,cav:10,arc:80};
+      const alloc=lockedJoinerAllocs[num];
+      const cap=alloc.i+alloc.c+alloc.a;
+      document.getElementById(`j${panelNum}_inf`).value=r.inf;
+      document.getElementById(`j${panelNum}_cav`).value=r.cav;
+      document.getElementById(`j${panelNum}_arc`).value=r.arc;
+      document.getElementById(`j${panelNum}_cap`).value=cap;
+      _clearExact(`j${panelNum}`);
+      updateJoiner(panelNum);
+      manualRatios.add(`j${panelNum}`);
+      _showLockBadge(`j${panelNum}`,true);
+    } else {
+      const alloc=bestAlloc[freeAllocIdx++]||{i:0,c:0,a:0};
+      _setMarchExact(`j${panelNum}`,alloc.i,alloc.c,alloc.a);
+      updateJoiner(panelNum);
+    }
+  }
+
   const s=stock(),usedI=bestAlloc.reduce((s,a)=>s+a.i,0),usedC=bestAlloc.reduce((s,a)=>s+a.c,0),usedA=bestAlloc.reduce((s,a)=>s+a.a,0);
-  const fI=s.inf-usedI,fC=s.cav-usedC,fA=s.arc-usedA,fR=fI+fC+fA;
+  const lkI=Object.values(lockedJoinerAllocs).reduce((s,a)=>s+a.i,0);
+  const lkC=Object.values(lockedJoinerAllocs).reduce((s,a)=>s+a.c,0);
+  const lkA=Object.values(lockedJoinerAllocs).reduce((s,a)=>s+a.a,0);
+  const leadAlloc=isRatioLocked('lead')?_getMarchCounts('lead'):(bestAlloc[0]||{i:0,c:0,a:0});
+  const totalI=leadAlloc.i+usedI-( bestAlloc[0]?bestAlloc[0].i:0 )+lkI;
+  const totalC=leadAlloc.c+usedC-(bestAlloc[0]?bestAlloc[0].c:0)+lkC;
+  const totalA=leadAlloc.a+usedA-(bestAlloc[0]?bestAlloc[0].a:0)+lkA;
+  const fI=s.inf-totalI,fC=s.cav-totalC,fA=s.arc-totalA,fR=fI+fC+fA;
+
   document.getElementById('jIdleMsg').style.display=jCount>0?'none':'flex';
   if(fR>0&&!canMarch(fI,fC,fA)){const msg=document.getElementById('jIdleMsg');msg.style.display='flex';const which=[];if(fI<TROOP_MIN)which.push(`pas assez d'Infanterie (min 5 000, reste ${fmt(fI)})`);if(fC<TROOP_MIN)which.push(`pas assez de Cavalerie (min 5 000, reste ${fmt(fC)})`);if(fA<=0)which.push("pas d'Archers");msg.innerHTML=`<span>◈</span><span><strong>${fmt(fR)} troupes non déployées</strong> — impossible de créer d'autres marches : ${which.join(' · ')}</span>`;}
   switchJoiner(jCount);syncJCtrl();refreshSummary();saveState();
@@ -1325,12 +1451,26 @@ function onStockChange(){
   updateLeader();for(let i=1;i<=jCount;i++)updateJoiner(i);refreshSummary();saveState();
 }
 
+/* ── VERROUILLAGE RATIO MANUEL ── */
+const manualRatios = new Set();
+function lockRatio(pfx){
+  const key = pfx==='l'?'lead':`j${pfx}`;
+  if(manualRatios.has(key))return;
+  manualRatios.add(key);
+  _showLockBadge(key,true);
+}
+function unlockRatio(key){ manualRatios.delete(key); _showLockBadge(key,false); }
+function isRatioLocked(key){ return manualRatios.has(key); }
+function _showLockBadge(key,locked){
+  const id=key==='lead'?'lockBadgeLead':`lockBadge${key}`;
+  const el=document.getElementById(id); if(el)el.style.display=locked?'inline-flex':'none';
+}
+
 function snapRatio(pfx,changed){
-  const keys=['Inf','Cav','Arc'],getId=k=>pfx==='l'?`l${k}`:`j${pfx}_${k.toLowerCase()}`;
-  let vals={};keys.forEach(k=>vals[k]=parseFloat(document.getElementById(getId(k))?.value)||0);
-  const fixed=Math.max(0,Math.min(100,vals[changed]));document.getElementById(getId(changed)).value=fixed;
-  const others=keys.filter(k=>k!==changed),sumO=others.reduce((s,k)=>s+vals[k],0),rem=100-fixed;
-  if(sumO>0&&rem>=0){let leftover=rem;others.forEach((k,idx)=>{if(idx===others.length-1){document.getElementById(getId(k)).value=leftover;}else{const v=Math.round(vals[k]/sumO*rem);document.getElementById(getId(k)).value=v;leftover-=v;}});}
+  const getId=k=>pfx==='l'?`l${k}`:`j${pfx}_${k.toLowerCase()}`;
+  const el=document.getElementById(getId(changed));
+  if(el) el.value=Math.max(0,Math.min(100,parseFloat(el.value)||0));
+  lockRatio(pfx);
 }
 
 function ratioSum(pfx){const getId=k=>pfx==='l'?`l${k}`:`j${pfx}_${k.toLowerCase()}`;return['Inf','Cav','Arc'].reduce((s,k)=>s+(parseFloat(document.getElementById(getId(k))?.value)||0),0);}
@@ -1394,7 +1534,9 @@ function buildJoinerPanel(i){
         <input type="number" id="j${i}_cap" placeholder="ex : 70 000" min="0" oninput="_clearExact('j${i}');updateJoiner(${i})">
         <div class="field-sub">La capacité de marche du rally que tu vas rejoindre</div>
       </div>
-      <div class="ratio-section-label">Répartition des troupes <span>— modifie si besoin</span></div>
+      <div class="ratio-section-label" style="display:flex;align-items:center;gap:8px">Répartition des troupes <span>— modifie si besoin</span>
+        <span id="lockBadgej${i}" style="display:none;align-items:center;gap:4px;font-family:var(--f-mono);font-size:10px;color:var(--amber);background:var(--amber-glow);border:1px solid var(--amber-dim);padding:2px 8px;cursor:pointer" onclick="unlockRatio('j${i}');_clearExact('j${i}');updateJoiner(${i})" title="Ratio verrouillé — clique pour déverrouiller">🔒 VERROUILLÉ</span>
+      </div>
       <div class="ratio-grid">
         <div class="ratio-cell">
           <div class="ratio-cell-label"><span class="field-dot fd-inf"></span>Infanterie</div>
@@ -1500,6 +1642,7 @@ function resetAll(){
   while(jCount>0){document.getElementById(`jtab${jCount}`)?.remove();document.getElementById(`jpanel${jCount}`)?.remove();jCount--;}
   document.getElementById('jIdleMsg').style.display='flex';document.getElementById('summary').style.display='none';
   syncJCtrl();updateLeader();localStorage.removeItem('bearCalcState');
+  manualRatios.clear();
   // Reset tiers et bonus
   buildTierOptions();
   ['bonusAtkInf','bonusAtkCav','bonusAtkArc','bonusLthInf','bonusLthCav','bonusLthArc','bonusAtkSquad','bonusLthSquad','bonusHp','bonusDef'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
@@ -1530,11 +1673,11 @@ function saveState(){
       bonusLthArc: document.getElementById('bonusLthArc')?.value,
       bonusAtkSquad: document.getElementById('bonusAtkSquad')?.value,
       bonusLthSquad: document.getElementById('bonusLthSquad')?.value,
-      bonusHp:  document.getElementById('bonusHp')?.value,
-      bonusDef: document.getElementById('bonusDef')?.value,
       heroes: heroSlots.map(s=>({heroKey:s.heroKey,skillLevels:s.skillLevels,widgetLevel:s.widgetLevel,heroStats:s.heroStats||{atk:'',def:'',lth:'',hp:''}})),
       inf:gv('tInf'),cav:gv('tCav'),arc:gv('tArc'),leadCap:gv('leadCap'),lInf:parseFloat(document.getElementById('lInf')?.value)||10,lCav:parseFloat(document.getElementById('lCav')?.value)||10,lArc:parseFloat(document.getElementById('lArc')?.value)||80,leadExactI:document.getElementById('leadCap')?.dataset.exactI,leadExactC:document.getElementById('leadCap')?.dataset.exactC,leadExactA:document.getElementById('leadCap')?.dataset.exactA,joiners}));
   }catch(e){}
+  const ind=document.getElementById('saveIndicator');
+  if(ind){ind.style.opacity='1';clearTimeout(ind._t);ind._t=setTimeout(()=>ind.style.opacity='0',1500);}
 }
 
 function loadState(){
@@ -1547,7 +1690,7 @@ function loadState(){
     });
     if(st.tierInfT||st.tierCavT||st.tierArcT) onTierChange();
     // Bonus par type
-    const bids=['bonusAtkInf','bonusAtkCav','bonusAtkArc','bonusLthInf','bonusLthCav','bonusLthArc','bonusAtkSquad','bonusLthSquad','bonusHp','bonusDef'];
+    const bids=['bonusAtkInf','bonusAtkCav','bonusAtkArc','bonusLthInf','bonusLthCav','bonusLthArc','bonusAtkSquad','bonusLthSquad'];
     bids.forEach(id=>{if(st[id]!==undefined){const el=document.getElementById(id);if(el)el.value=st[id]||'';}});
     if(bids.some(id=>st[id])) onBonusChange();
     // Héros
