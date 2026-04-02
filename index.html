@@ -1683,22 +1683,33 @@ function saveState(){
 function loadState(){
   try{
     const raw=localStorage.getItem('bearCalcState');if(!raw)return;const st=JSON.parse(raw);
-    // Tiers
+    // Tiers — forcer la valeur après que les options soient bien créées
     ['InfT','InfG','CavT','CavG','ArcT','ArcG'].forEach(k => {
       const key = 'tier'+k;
-      if(st[key] !== undefined){ const el=document.getElementById(key); if(el) el.value=st[key]; }
+      if(st[key] !== undefined){
+        const el=document.getElementById(key);
+        if(el){
+          el.value = String(st[key]);
+          // Si la valeur n'a pas pris (option absente), forcer via selectedIndex
+          if(el.value !== String(st[key])){
+            for(let i=0;i<el.options.length;i++){
+              if(String(el.options[i].value)===String(st[key])){el.selectedIndex=i;break;}
+            }
+          }
+        }
+      }
     });
-    if(st.tierInfT||st.tierCavT||st.tierArcT) onTierChange();
-    // Bonus par type
+    onTierChange(); // toujours recalculer après restauration
+    // Bonus par type — st[id] peut valoir "0" (falsy) donc on vérifie !== undefined
     const bids=['bonusAtkInf','bonusAtkCav','bonusAtkArc','bonusLthInf','bonusLthCav','bonusLthArc','bonusAtkSquad','bonusLthSquad'];
-    bids.forEach(id=>{if(st[id]!==undefined){const el=document.getElementById(id);if(el)el.value=st[id]||'';}});
-    if(bids.some(id=>st[id])) onBonusChange();
+    bids.forEach(id=>{if(st[id]!==undefined){const el=document.getElementById(id);if(el)el.value=(st[id]!==''?st[id]:'');}});
+    onBonusChange(); // toujours recalculer, même si tout est à 0
     // Héros
     if(st.heroes?.length){
       st.heroes.forEach(h=>{
         if(!h.heroKey)return;
-        heroSlotCount++;
         heroSlots.push({heroKey:h.heroKey,skillLevels:h.skillLevels||[1,1,1],widgetLevel:h.widgetLevel||0,heroStats:h.heroStats||{atk:'',def:'',lth:'',hp:''}});
+        heroSlotCount++;
         renderHeroSlot(heroSlotCount-1);
       });
       if(heroSlotCount>=3)document.getElementById('btnAddHero').disabled=true;
