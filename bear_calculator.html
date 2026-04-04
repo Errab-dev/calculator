@@ -848,8 +848,6 @@ select option { background: #ffffff; color: var(--text); }
       <span>Entre ta capacité de marche pour voir le résultat</span>
     </div>
 
-
-
     <!-- ── HÉROS ── -->
     <div style="height:1px;background:var(--border);margin:18px 0 14px"></div>
     <div style="font-family:var(--f-display);font-size:.85rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px" data-i18n="heroes_title">
@@ -915,7 +913,7 @@ select option { background: #ffffff; color: var(--text); }
     <span style="font-size:1rem;opacity:.7">⚡</span>
   </button>
   <div class="auto-desc" data-i18n="auto_desc">
-    <strong>Comment ça marche ?</strong> Une fois tes stocks et ta capacité leader renseignés, clique ici. Le calculateur va prendre tes troupes restantes après ton rally leader et calculer automatiquement <strong>combien de rallies joiners tu peux faire</strong>, leur taille, et la meilleure répartition INF/CAV/ARC pour un maximum de dégâts.
+    <strong>Comment ça marche ?</strong> Une fois tes stocks et ta capacité leader renseignés, clique ici. Le calculateur va tester <strong>toutes les combinaisons de ratio possibles</strong> (≈5 000 combos INF/CAV/ARC), trouver la formation optimale en tenant compte de ton stock réel, et proposer un <strong>top 5</strong> à appliquer en un clic.
   </div>
   <div id="loadingWrap" class="load-wrap">
     <div class="load-hdr">
@@ -923,6 +921,14 @@ select option { background: #ffffff; color: var(--text); }
       <span id="loadingPct">0%</span>
     </div>
     <div class="load-track"><div class="load-fill" id="loadingBar"></div></div>
+  </div>
+
+  <!-- Top 5 résultats -->
+  <div id="autoTop5" style="display:none;margin-top:16px">
+    <div style="font-family:var(--f-mono);font-size:10px;color:var(--amber);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border2)">
+      ◆ TOP 5 FORMATIONS OPTIMALES
+    </div>
+    <div id="autoTop5List"></div>
   </div>
 </div>
 
@@ -1728,83 +1734,308 @@ function solveOptimal(cap,maxI,maxC,maxA,w){
   return{i:Math.max(0,ni),c:Math.max(0,nc),a:Math.max(0,na)};
 }
 
+/* ══════════════════════════════════════════════════════════════
+   OPTIMISATION GLOBALE — bruteforce ratio + joiners séquentiels
+   Algorithme :
+   1. Bruteforce ratio leader (4851 combos) → meilleur ratio avec stock réel
+   2. Avec troupes restantes → teste 1 à JMAX joiners, chacun avec
+      son propre bruteforce ratio indépendant sur le stock résiduel
+   3. Score = lead + Σ joiners → on garde le top 5 global
+══════════════════════════════════════════════════════════════ */
+
+// Génère tous les ratios possibles 1% par 1%
+function _allRatios(){
+  const r=[];
+  for(let ri=1;ri<=98;ri++)
+    for(let rc=1;rc<=99-ri;rc++){const ra=100-ri-rc;if(ra>=1)r.push([ri,rc,ra]);}
+  return r;
+}
+
+// Trouve le meilleur ratio pour une capacité donnée et un stock disponible
+// Retourne {ri,rc,ra,nI,nC,nA,score} ou null si impossible
+function _bestRatioForCap(cap, stockI, stockC, stockA, wts, allRatios){
+  let best=null;
+  for(let k=0;k<allRatios.length;k++){
+    const [ri,rc,ra]=allRatios[k];
+    const nI=Math.min(Math.round(cap*ri/100),stockI);
+    const nC=Math.min(Math.round(cap*rc/100),stockC);
+    const nA=Math.min(cap-nI-nC,stockA);
+    if(nI<1||nC<1||nA<1)continue;
+    if(nI+nC+nA>stockI+stockC+stockA)continue;
+    const s=dmg(nI,nC,nA,wts);
+    if(!best||s>best.score) best={ri,rc,ra,nI,nC,nA,score:s};
+  }
+  return best;
+}
+
 function runAutoOptimize(){
   const btn=document.getElementById('autoBtn'),wrap=document.getElementById('loadingWrap');
   const bar=document.getElementById('loadingBar'),pctEl=document.getElementById('loadingPct');
   const lbl=document.getElementById('loadingLabel'),hint=document.getElementById('autoBtnLabel');
+  const top5Div=document.getElementById('autoTop5');
   const s=stock(), leadCap=gv('leadCap');
   if(s.inf+s.cav+s.arc<=0){alert('⚠️ Entre tes stocks de troupes (Étape 1) !');return;}
   if(leadCap<=0){alert('⚠️ Entre ta capacité de marche (Étape 2) !');return;}
   btn.disabled=true; hint.textContent='CALCUL EN COURS…'; wrap.style.display='block';
+  top5Div.style.display='none';
   function setP(p,label){bar.style.width=p+'%';pctEl.textContent=p+'%';if(label)lbl.textContent=label;}
   setP(0,'Initialisation…');
 
-  // ── 1. Calculer les troupes réservées par les ratios verrouillés ──
-  const lockedJoinerAllocs={};
-  let resI=0, resC=0, resA=0;
+  const allRatios=_allRatios(); // ~4851 combos
+  const wL=calcWeights();
 
-  // Lead verrouillé → calculer ses troupes avec son ratio manuel
-  if(isRatioLocked('lead')){
-    const ip=parseFloat(document.getElementById('lInf')?.value)||10;
-    const cp=parseFloat(document.getElementById('lCav')?.value)||10;
-    const tot=ip+cp+(parseFloat(document.getElementById('lArc')?.value)||80);
-    const nI=Math.round(leadCap*ip/tot), nC=Math.round(leadCap*cp/tot);
-    resI+=nI; resC+=nC; resA+=leadCap-nI-nC;
-  }
-
-  // Joiners verrouillés → calculer leurs troupes avec leur ratio manuel
+  // Caps joiner saisies manuellement par l'utilisateur (dans l'ordre des panels)
+  // Si une cap est saisie → taille fixe pour ce joiner
+  // Si pas de cap → taille libre optimisée automatiquement
+  const manualJoinerCaps=[];
   for(let i=1;i<=jCount;i++){
-    if(!isRatioLocked(`j${i}`))continue;
-    const cap=gv(`j${i}_cap`); if(!cap)continue;
-    const ip=parseFloat(document.getElementById(`j${i}_inf`)?.value)||10;
-    const cp=parseFloat(document.getElementById(`j${i}_cav`)?.value)||10;
-    const tot=ip+cp+(parseFloat(document.getElementById(`j${i}_arc`)?.value)||80);
-    const nI=Math.round(cap*ip/tot), nC=Math.round(cap*cp/tot), nA=cap-nI-nC;
-    resI+=nI; resC+=nC; resA+=nA;
-    lockedJoinerAllocs[i]={i:nI,c:nC,a:nA};
+    const cap=gv(`j${i}_cap`);
+    if(cap>0) manualJoinerCaps.push(cap);
   }
 
-  // ── 2. Stock résiduel pour l'optimiseur ──
-  const sOpt={inf:Math.max(0,s.inf-resI), cav:Math.max(0,s.cav-resC), arc:Math.max(0,s.arc-resA)};
-  // Si le lead est verrouillé, l'optimiseur n'a pas à optimiser la lead → on passe cap=0
-  // _computeNAuto gère cap=0 en sautant l'itération lead
-  const leadCapOpt = isRatioLocked('lead') ? 0 : leadCap;
+  const TOP_N=5;
+  const top5=[]; // [{totalScore, leadAlloc, joiners:[{nJ,alloc:[{ri,rc,ra,nI,nC,nA,score}]}]}]
 
-  // ── 3. Joiners libres avec capacité forcée (non verrouillés mais cap déjà saisie) ──
-  const forcedCapsSnap=[];
-  for(let i=1;i<=jCount;i++){
-    if(isRatioLocked(`j${i}`))continue;
-    const cap=gv(`j${i}_cap`); if(cap>0)forcedCapsSnap.push(cap);
+  function pushTop5(entry){
+    top5.push(entry);
+    top5.sort((a,b)=>b.totalScore-a.totalScore);
+    if(top5.length>TOP_N)top5.pop();
   }
-  const nForced=forcedCapsSnap.length;
-  const slotsAuto=JMAX-nForced-Object.keys(lockedJoinerAllocs).length;
-  let bestScore=-1, bestAlloc=null;
-  const nAutoValues=Array.from({length:Math.max(1,slotsAuto+1)},(_,i)=>i);
 
-  function processChunk(idx){
-    if(idx>=nAutoValues.length){
-      setP(95,t('applying'));
-      setTimeout(()=>{
-        _applyOptimResult(bestAlloc, nForced, forcedCapsSnap, lockedJoinerAllocs, leadCap);
-        setP(100,t('done')); hint.textContent=t('auto_btn'); btn.disabled=false;
-        setTimeout(()=>{wrap.style.display='none';},1200);
-      },20);
-      return;
+  // ── PHASE 1 : Bruteforce ratio leader ──
+  setP(2,'Phase 1 — Bruteforce ratio leader…');
+
+  // On teste chaque ratio leader en chunk async
+  let rIdx=0;
+  const CHUNK=250;
+
+  // Pour chaque ratio leader on stocke {ri,rc,ra,nI,nC,nA,score,remI,remC,remA}
+  // On garde les top 20 ratios leader pour ensuite optimiser les joiners dessus
+  const TOP_LEAD=20;
+  const topLeadRatios=[];
+  function pushTopLead(e){
+    topLeadRatios.push(e);
+    topLeadRatios.sort((a,b)=>b.score-a.score);
+    if(topLeadRatios.length>TOP_LEAD)topLeadRatios.pop();
+  }
+
+  function phase1Chunk(){
+    const end=Math.min(rIdx+CHUNK,allRatios.length);
+    for(let k=rIdx;k<end;k++){
+      const [ri,rc,ra]=allRatios[k];
+      const nI=Math.min(Math.round(leadCap*ri/100),s.inf);
+      const nC=Math.min(Math.round(leadCap*rc/100),s.cav);
+      const nA=Math.min(leadCap-nI-nC,s.arc);
+      if(nI<1||nC<1||nA<1)continue;
+      const sc=dmg(nI,nC,nA,wL);
+      pushTopLead({ri,rc,ra,nI,nC,nA,score:sc,
+        remI:s.inf-nI, remC:s.cav-nC, remA:s.arc-nA});
     }
-    const nAuto=nAutoValues[idx];
-    setP(Math.round(idx/nAutoValues.length*90),`Test ${nAuto} joiner${nAuto>1?'s':''}…`);
-    setTimeout(()=>{
-      // Si lead verrouillé ET pas de joiners libres à optimiser → score fixe = 0, alloc vide
-      if(leadCapOpt<=0 && forcedCapsSnap.length===0 && nAuto===0){
-        if(0>bestScore){bestScore=0; bestAlloc=[];}
-      } else {
-        _computeNAuto(nAuto, sOpt, leadCapOpt, forcedCapsSnap, slotsAuto,
-          (score,alloc)=>{if(score>bestScore){bestScore=score;bestAlloc=alloc;}});
+    rIdx=end;
+    setP(2+Math.round(rIdx/allRatios.length*38),`Phase 1 — ${rIdx}/${allRatios.length} ratios leader…`);
+    if(rIdx<allRatios.length){setTimeout(phase1Chunk,0);return;}
+
+    // ── PHASE 2 : Pour chaque top ratio leader, optimiser les joiners ──
+    // Caps manuelles saisies par l'user (indexées par position 0,1,2…)
+    // Si pas de cap saisie → on teste différentes tailles entre CAP_MIN et stock/nJ
+    const CAP_MIN = 1000; // taille de marche minimale testée
+    const CAP_STEPS = 15; // nb de tailles à tester en mode auto
+
+    // Génère une liste de caps à tester pour un stock donné et un nombre de joiners
+    function _capRange(stockTot, nJ){
+      const maxCap = Math.floor(stockTot / nJ);
+      if(maxCap < CAP_MIN) return [];
+      const caps = [];
+      const step = Math.max(CAP_MIN, Math.floor((maxCap - CAP_MIN) / CAP_STEPS));
+      for(let c = CAP_MIN; c <= maxCap; c += step) caps.push(c);
+      if(!caps.length || caps[caps.length-1] !== maxCap) caps.push(maxCap);
+      return caps;
+    }
+
+    setP(40,'Phase 2 — Optimisation joiners…');
+    let lIdx=0;
+
+    function phase2Step(){
+      if(lIdx>=topLeadRatios.length){ finalize(); return; }
+      const lead=topLeadRatios[lIdx];
+      setP(40+Math.round(lIdx/topLeadRatios.length*55),
+        `Phase 2 — Ratio leader #${lIdx+1}/${topLeadRatios.length} → test joiners…`);
+
+      // Sans joiners : juste le leader
+      pushTop5({totalScore:lead.score, leadAlloc:lead, joiners:[],
+        remI:lead.remI, remC:lead.remC, remA:lead.remA});
+
+      // Teste 1 à JMAX joiners séquentiels
+      for(let nJ=1; nJ<=JMAX; nJ++){
+        const remTot=lead.remI+lead.remC+lead.remA;
+        // Caps à tester pour ce nombre de joiners
+        // Pour chaque joiner : si cap manuelle saisie → fixe, sinon → range auto
+        const hasManualsForAll = nJ <= manualJoinerCaps.length;
+
+        if(hasManualsForAll){
+          // Toutes les caps sont fixes → une seule combinaison à tester
+          let remI=lead.remI, remC=lead.remC, remA=lead.remA;
+          let totalScore=lead.score;
+          const joinerAllocs=[];
+          let ok=true;
+          for(let j=0;j<nJ;j++){
+            const jCap=manualJoinerCaps[j];
+            if(jCap>remI+remC+remA){ok=false;break;}
+            const best=_bestRatioForCap(jCap,remI,remC,remA,wL,allRatios);
+            if(!best){ok=false;break;}
+            joinerAllocs.push({jNum:j+1,cap:jCap,...best});
+            remI-=best.nI; remC-=best.nC; remA-=best.nA;
+            totalScore+=best.score;
+          }
+          if(ok) pushTop5({totalScore, leadAlloc:lead, joiners:joinerAllocs, remI, remC, remA});
+        } else {
+          // Au moins un joiner sans cap manuelle → on teste différentes tailles
+          // Stratégie : les joiners manuels gardent leur cap fixe,
+          // les joiners auto partagent le stock restant après les manuels
+          let remAfterManual=remTot;
+          let manualScore=0; const manualAllocs=[];
+          let manualOk=true;
+          let mRemI=lead.remI, mRemC=lead.remC, mRemA=lead.remA;
+          for(let j=0;j<manualJoinerCaps.length&&j<nJ;j++){
+            const jCap=manualJoinerCaps[j];
+            if(jCap>mRemI+mRemC+mRemA){manualOk=false;break;}
+            const best=_bestRatioForCap(jCap,mRemI,mRemC,mRemA,wL,allRatios);
+            if(!best){manualOk=false;break;}
+            manualAllocs.push({jNum:j+1,cap:jCap,...best});
+            mRemI-=best.nI; mRemC-=best.nC; mRemA-=best.nA;
+            manualScore+=best.score; remAfterManual-=jCap;
+          }
+          if(!manualOk) continue;
+
+          const nAuto=nJ-manualJoinerCaps.length;
+          const capsAuto=_capRange(mRemI+mRemC+mRemA, nAuto);
+          for(const capAuto of capsAuto){
+            let remI=mRemI, remC=mRemC, remA=mRemA;
+            let totalScore=lead.score+manualScore;
+            const joinerAllocs=[...manualAllocs];
+            let ok=true;
+            for(let j=0;j<nAuto;j++){
+              if(capAuto>remI+remC+remA){ok=false;break;}
+              const best=_bestRatioForCap(capAuto,remI,remC,remA,wL,allRatios);
+              if(!best){ok=false;break;}
+              joinerAllocs.push({jNum:manualJoinerCaps.length+j+1,cap:capAuto,...best});
+              remI-=best.nI; remC-=best.nC; remA-=best.nA;
+              totalScore+=best.score;
+            }
+            if(ok) pushTop5({totalScore, leadAlloc:lead, joiners:joinerAllocs, remI, remC, remA});
+          }
+        }
       }
-      processChunk(idx+1);
-    },10);
+      lIdx++;
+      setTimeout(phase2Step,0);
+    }
+    phase2Step();
   }
-  setTimeout(()=>processChunk(0),30);
+
+  function finalize(){
+    setP(97,'Application…');
+    setTimeout(()=>{
+      renderTop5(top5, leadCap);
+      // Auto-appliquer le #1
+      if(top5.length>0) applyTop5Formation(top5[0]);
+      setP(100,t('done')); hint.textContent=t('auto_btn'); btn.disabled=false;
+      setTimeout(()=>{wrap.style.display='none';},1200);
+    },20);
+  }
+
+  setTimeout(phase1Chunk,30);
+}
+
+function renderTop5(top5, leadCap){
+  const top5Div=document.getElementById('autoTop5');
+  const listDiv=document.getElementById('autoTop5List');
+  if(!top5.length){top5Div.style.display='none';return;}
+  const best=top5[0].totalScore;
+  listDiv.innerHTML=top5.map((r,rank)=>{
+    const isTop=rank===0;
+    const pct=best>0?(r.totalScore/best*100).toFixed(1):'0';
+    const la=r.leadAlloc;
+    const leadLine=`<span style="color:var(--inf)">INF ${la.ri}%</span> · <span style="color:var(--cav)">CAV ${la.rc}%</span> · <span style="color:var(--arc)">ARC ${la.ra}%</span>`;
+    const joinerLines=r.joiners.map((j,ji)=>`
+      <div style="display:flex;align-items:center;gap:6px;margin-top:4px;padding:4px 8px;background:rgba(91,163,212,.05);border-left:2px solid var(--inf)">
+        <span style="font-family:var(--f-mono);font-size:9px;color:var(--inf)">J${j.jNum}</span>
+        <span style="font-size:11px;color:var(--text-dim)">${fmt(j.cap)} troupes</span>
+        <span style="font-size:11px;margin-left:4px">
+          <span style="color:var(--inf)">${j.ri}%</span>·<span style="color:var(--cav)">${j.rc}%</span>·<span style="color:var(--arc)">${j.ra}%</span>
+        </span>
+        <span style="font-family:var(--f-mono);font-size:10px;color:var(--amber);margin-left:auto">${fmt(Math.round(j.score))}</span>
+      </div>`).join('');
+    const joinerSummary=r.joiners.length>0
+      ?`<div style="margin-top:8px;font-size:11px;color:var(--text-dim)">${r.joiners.length} joiner${r.joiners.length>1?'s':''} · Troupes restantes : INF ${fmt(r.remI)} · CAV ${fmt(r.remC)} · ARC ${fmt(r.remA)}</div>`
+      :`<div style="margin-top:6px;font-size:11px;color:var(--text-faint)">Aucun joiner</div>`;
+    return `<div style="border:${isTop?'2px solid var(--amber)':'1px solid var(--border)'};background:${isTop?'var(--amber-glow)':'var(--bg2)'};padding:12px 14px;margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <span style="font-family:var(--f-mono);font-size:10px;background:${isTop?'var(--amber)':'var(--border2)'};color:${isTop?'#fff':'var(--text-dim)'};padding:2px 8px">#${rank+1}</span>
+        <div>
+          <div style="font-size:10px;color:var(--text-faint);font-family:var(--f-mono);letter-spacing:1px;margin-bottom:2px">LEADER</div>
+          <span style="font-family:var(--f-display);font-size:1rem;font-weight:800">${leadLine}</span>
+        </div>
+        ${isTop?'<span style="font-family:var(--f-mono);font-size:9px;color:var(--amber);margin-left:auto">★ OPTIMAL</span>':`<span style="font-family:var(--f-mono);font-size:9px;color:var(--text-faint);margin-left:auto">${pct}%</span>`}
+      </div>
+      ${joinerLines}
+      ${joinerSummary}
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:8px;border-top:1px solid var(--border2)">
+        <div style="font-family:var(--f-mono);font-size:11px;color:var(--amber)">
+          Total : <strong>${fmt(Math.round(r.totalScore))}</strong>
+          <span style="color:var(--text-faint);font-size:10px;margin-left:6px">(lead : ${fmt(Math.round(la.score))})</span>
+        </div>
+        <button onclick="applyTop5Formation(top5GlobalRef[${rank}])"
+          style="padding:7px 14px;background:${isTop?'var(--amber-glow)':'var(--bg2)'};border:1px solid ${isTop?'var(--amber)':'var(--border)'};color:${isTop?'var(--amber)':'var(--text-dim)'};font-family:var(--f-display);font-size:.8rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer">
+          ✓ Appliquer
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+  // Exposer le top5 globalement pour le bouton Appliquer
+  window.top5GlobalRef=top5;
+  top5Div.style.display='block';
+  setTimeout(()=>top5Div.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+}
+
+function applyTop5Formation(r){
+  if(!r)return;
+  const la=r.leadAlloc;
+  // Appliquer ratio leader
+  if(!isRatioLocked('lead')){
+    document.getElementById('lInf').value=la.ri;
+    document.getElementById('lCav').value=la.rc;
+    document.getElementById('lArc').value=la.ra;
+    _clearExact('lead'); unlockRatio('lead'); updateLeader();
+  }
+  // Supprimer les anciens panels joiner et reconstruire
+  while(jCount>0){
+    document.getElementById(`jtab${jCount}`)?.remove();
+    document.getElementById(`jpanel${jCount}`)?.remove();
+    jCount--;
+  }
+  document.getElementById('jIdleMsg').style.display=r.joiners.length>0?'none':'flex';
+  // Créer un panel par joiner avec le ratio optimal
+  r.joiners.forEach((j,ji)=>{
+    jCount++;
+    buildJoinerTab(jCount,false);
+    buildJoinerPanel(jCount);
+    const capEl=document.getElementById(`j${jCount}_cap`);
+    if(capEl) capEl.value=j.cap;
+    const inf=document.getElementById(`j${jCount}_inf`);
+    const cav=document.getElementById(`j${jCount}_cav`);
+    const arc=document.getElementById(`j${jCount}_arc`);
+    if(inf&&cav&&arc){inf.value=j.ri;cav.value=j.rc;arc.value=j.ra;}
+    _clearExact(`j${jCount}`); unlockRatio(`j${jCount}`);
+    updateJoiner(jCount);
+  });
+  if(r.joiners.length>0) switchJoiner(1);
+  syncJCtrl();
+  refreshSummary();
+  saveState();
+  // Feedback
+  document.querySelectorAll('#autoTop5List button').forEach(b=>{
+    b.textContent='✓ Appliqué';b.style.borderColor='var(--green)';b.style.color='var(--green)';
+  });
 }
 
 function _computeNAuto(nAuto,s,leadCap,forcedCapsList,slotsAuto,callback){
@@ -2815,6 +3046,7 @@ syncJCtrl();
 buildTierOptions();
 loadState();
 window.addEventListener('beforeunload', saveState);
+
 </script>
 </body>
 </html>
