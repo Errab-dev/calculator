@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mystic Trial — Guide Stratégique | Kingshot Help</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600;700;800;900&family=Barlow:wght@300;400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:         #f0f3f7;
+  --bg2:        #ffffff;
+  --surface:    #ffffff;
+  --surface2:   #edf0f5;
+  --border:     #ccd4e0;
+  --border2:    #dde3ec;
+  --amber:      #b86e00;
+  --amber-dim:  #d48820;
+  --amber-glow: rgba(184,110,0,.10);
+  --red:        #c0392b;
+  --red-dim:    rgba(192,57,43,.10);
+  --green:      #1a7a44;
+  --green-dim:  rgba(26,122,68,.10);
+  --inf:        #1a68aa;
+  --inf-dim:    rgba(26,104,170,.10);
+  --cav:        #1e8040;
+  --arc:        #8a5800;
+  --purple:     #6d3db5;
+  --purple-dim: rgba(109,61,181,.10);
+  --text:       #18202e;
+  --text-dim:   #445068;
+  --text-faint: #8090a8;
+  --f-display:  'Barlow Condensed', sans-serif;
+  --f-body:     'Barlow', sans-serif;
+  --f-mono:     'Share Tech Mono', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--f-body);
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+  padding: 0 0 80px;
+  background-image:
+    linear-gradient(rgba(180,195,215,.4) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(180,195,215,.4) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.008) 2px, rgba(0,0,0,.008) 4px);
+  pointer-events: none; z-index: 1000;
+}
+
+.page { max-width: 560px; margin: 0 auto; padding: 0 16px; }
+
+/* ── HEADER ── */
+.hdr {
+  padding: 32px 0 20px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 28px;
+  position: relative;
+}
+.hdr::after {
+  content: ''; position: absolute; bottom: -1px; left: 0;
+  width: 80px; height: 2px;
+  background: var(--purple); box-shadow: 0 0 12px var(--purple);
+}
+.hdr-top { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.hdr-label { font-family: var(--f-mono); font-size: 11px; color: var(--amber); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 6px; opacity: .9; }
+.hdr-title { font-family: var(--f-display); font-size: 3.2rem; font-weight: 900; line-height: .9; text-transform: uppercase; letter-spacing: -1px; color: var(--text); }
+.hdr-title span { color: var(--purple); }
+.hdr-sub { font-family: var(--f-mono); font-size: 11px; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; margin-top: 10px; }
+.hdr-back {
+  font-family: var(--f-mono); font-size: 10px; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--text-faint);
+  text-decoration: none; display: flex; align-items: center; gap: 5px;
+  transition: color .15s; white-space: nowrap; padding-bottom: 4px;
+}
+.hdr-back:hover { color: var(--amber); }
+
+/* ── SECTION ── */
+.sec {
+  display: flex; align-items: center; gap: 0;
+  margin: 28px 0 0;
+}
+.sec-num {
+  font-family: var(--f-mono); font-size: 11px; color: #fff;
+  background: var(--amber); padding: 4px 10px;
+  letter-spacing: 1px; font-weight: 700; flex-shrink: 0;
+}
+.sec-num.purple { background: var(--purple); }
+.sec-num.blue   { background: var(--inf); }
+.sec-num.red    { background: var(--red); }
+.sec-num.green  { background: var(--green); }
+
+.sec-body {
+  flex: 1; background: var(--surface);
+  border: 1px solid var(--border); border-left: none;
+  padding: 11px 16px;
+}
+.sec-title {
+  font-family: var(--f-display); font-size: 1.05rem; font-weight: 800;
+  letter-spacing: 2px; text-transform: uppercase; color: var(--text); line-height: 1.1;
+}
+.sec-desc { font-size: 13px; color: var(--text-dim); margin-top: 3px; }
+
+/* ── PANEL ── */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  margin-top: 8px; margin-bottom: 4px;
+  position: relative; overflow: hidden;
+  animation: fadeUp .2s ease both;
+}
+.panel-accent { position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+.pa-amber  { background: linear-gradient(90deg, var(--amber),  transparent 70%); }
+.pa-purple { background: linear-gradient(90deg, var(--purple), transparent 70%); }
+.pa-blue   { background: linear-gradient(90deg, var(--inf),    transparent 70%); }
+.pa-red    { background: linear-gradient(90deg, var(--red),    transparent 70%); }
+.pa-green  { background: linear-gradient(90deg, var(--green),  transparent 70%); }
+
+.panel-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px; border-bottom: 1px solid var(--border2);
+}
+.ph-title { font-family: var(--f-display); font-size: .95rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+.ph-tag {
+  margin-left: auto; font-family: var(--f-mono); font-size: 9px;
+  letter-spacing: 1.5px; padding: 2px 8px; border: 1px solid; text-transform: uppercase;
+}
+.tag-amber  { color: var(--amber);  border-color: var(--amber-dim);  background: var(--amber-glow); }
+.tag-purple { color: var(--purple); border-color: rgba(109,61,181,.3); background: var(--purple-dim); }
+.tag-blue   { color: var(--inf);    border-color: rgba(26,104,170,.3); background: var(--inf-dim); }
+.tag-red    { color: var(--red);    border-color: rgba(192,57,43,.3);  background: var(--red-dim); }
+.tag-green  { color: var(--green);  border-color: rgba(26,122,68,.3);  background: var(--green-dim); }
+.tag-faint  { color: var(--text-faint); border-color: var(--border2);  background: var(--surface2); }
+
+.panel-body { padding: 16px; }
+
+/* ── ZONE CARDS ── */
+.zone-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+}
+@media (max-width: 420px) { .zone-grid { grid-template-columns: 1fr; } }
+
+.zone-card {
+  background: var(--bg2); border: 1px solid var(--border2);
+  padding: 14px; position: relative; overflow: hidden;
+}
+.zone-card::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; bottom: 0; width: 3px;
+}
+.zc-coliseum::before  { background: var(--amber); }
+.zc-forest::before    { background: var(--green); }
+.zc-crystal::before   { background: var(--inf); }
+.zc-knowledge::before { background: var(--purple); }
+.zc-molten::before    { background: var(--red); }
+.zc-spire::before     { background: #c0860a; }
+
+.zone-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.zone-name {
+  font-family: var(--f-display); font-size: .9rem; font-weight: 800;
+  letter-spacing: 1px; text-transform: uppercase;
+}
+.zc-coliseum  .zone-name { color: var(--amber); }
+.zc-forest    .zone-name { color: var(--green); }
+.zc-crystal   .zone-name { color: var(--inf); }
+.zc-knowledge .zone-name { color: var(--purple); }
+.zc-molten    .zone-name { color: var(--red); }
+.zc-spire     .zone-name { color: #c0860a; }
+
+.zone-days {
+  font-family: var(--f-mono); font-size: 9px; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--text-faint);
+  border: 1px solid var(--border2); padding: 1px 6px;
+}
+
+.zone-source {
+  font-size: 12px; color: var(--text-dim); line-height: 1.5;
+  margin-bottom: 10px;
+}
+.zone-source strong { color: var(--text); font-weight: 600; }
+
+/* ── RATIO BAR ── */
+.ratio-wrap { margin-top: 6px; }
+.ratio-label {
+  font-family: var(--f-mono); font-size: 10px; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--text-faint); margin-bottom: 5px;
+  display: flex; justify-content: space-between;
+}
+.ratio-label span { color: var(--text-dim); }
+.ratio-bar {
+  height: 6px; display: flex; overflow: hidden;
+  background: var(--border2); border: 1px solid var(--border);
+}
+.rb-inf { background: var(--inf);  transition: width .3s ease; }
+.rb-cav { background: var(--cav);  transition: width .3s ease; }
+.rb-arc { background: var(--arc);  transition: width .3s ease; }
+.ratio-nums {
+  display: flex; justify-content: space-between; margin-top: 4px;
+}
+.ratio-num {
+  font-family: var(--f-mono); font-size: 10px; font-weight: 700;
+}
+.rn-inf { color: var(--inf); }
+.rn-cav { color: var(--cav); }
+.rn-arc { color: var(--arc); }
+
+.unlock-badge {
+  font-family: var(--f-mono); font-size: 9px; letter-spacing: 1px;
+  text-transform: uppercase; padding: 2px 7px; border: 1px solid;
+  display: inline-block; margin-top: 8px;
+}
+.ub-now    { color: var(--green); border-color: rgba(26,122,68,.3); background: var(--green-dim); }
+.ub-tc25   { color: var(--inf);   border-color: rgba(26,104,170,.3); background: var(--inf-dim); }
+.ub-tc22   { color: var(--amber); border-color: var(--amber-dim); background: var(--amber-glow); }
+.ub-pets   { color: var(--green); border-color: rgba(26,122,68,.3); background: var(--green-dim); }
+
+/* ── SCHEDULE TABLE ── */
+.schedule {
+  width: 100%; border-collapse: collapse;
+  font-size: 13px;
+}
+.schedule th {
+  font-family: var(--f-mono); font-size: 10px; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--text-faint);
+  padding: 8px 10px; text-align: left;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface2);
+}
+.schedule td {
+  padding: 10px 10px; border-bottom: 1px solid var(--border2);
+  color: var(--text-dim); vertical-align: middle;
+}
+.schedule tr:last-child td { border-bottom: none; }
+.schedule td:first-child {
+  font-family: var(--f-mono); font-size: 10px; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--text-faint); white-space: nowrap;
+}
+.zone-dot {
+  display: inline-block; width: 8px; height: 8px;
+  border-radius: 50%; margin-right: 6px; vertical-align: middle;
+}
+
+/* ── REWARDS GRID ── */
+.reward-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+@media (max-width: 420px) { .reward-grid { grid-template-columns: 1fr; } }
+
+.reward-cell {
+  background: var(--bg2); border: 1px solid var(--border2);
+  padding: 12px; text-align: center;
+}
+.reward-icon { font-size: 1.5rem; display: block; margin-bottom: 6px; }
+.reward-name {
+  font-family: var(--f-display); font-size: .8rem; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase; color: var(--text);
+  margin-bottom: 4px;
+}
+.reward-desc { font-size: 11px; color: var(--text-dim); line-height: 1.45; }
+
+/* ── SHOP PRIORITY ── */
+.shop-list { list-style: none; }
+.shop-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 0; border-bottom: 1px solid var(--border2);
+}
+.shop-item:last-child { border-bottom: none; }
+.shop-rank {
+  font-family: var(--f-mono); font-size: .95rem; font-weight: 700;
+  color: var(--amber); min-width: 24px;
+}
+.shop-name {
+  font-family: var(--f-display); font-size: .9rem; font-weight: 700;
+  letter-spacing: .5px; text-transform: uppercase; color: var(--text);
+}
+.shop-note { font-size: 12px; color: var(--text-dim); margin-top: 1px; }
+
+/* ── HELP BOX ── */
+.help-box {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 14px; margin-bottom: 8px;
+  background: var(--amber-glow);
+  border: 1px solid rgba(232,160,32,.15);
+  border-left: 2px solid var(--amber);
+}
+.help-box.blue   { background: var(--inf-dim);    border: 1px solid rgba(26,104,170,.2); border-left: 2px solid var(--inf); }
+.help-box.red    { background: var(--red-dim);    border: 1px solid rgba(192,57,43,.2);  border-left: 2px solid var(--red); }
+.help-box.purple { background: var(--purple-dim); border: 1px solid rgba(109,61,181,.2); border-left: 2px solid var(--purple); }
+.help-box:last-child { margin-bottom: 0; }
+.help-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+.help-text { font-size: 13px; color: var(--text-dim); line-height: 1.65; }
+.help-text strong { color: var(--text); font-weight: 600; }
+
+/* ── FOOTER ── */
+footer {
+  text-align: center; margin-top: 48px;
+  padding-top: 20px; border-top: 1px solid var(--border2);
+  font-family: var(--f-mono); font-size: 10px;
+  letter-spacing: 1.5px; color: var(--text-faint);
+  text-transform: uppercase;
+}
+footer a { color: var(--amber); text-decoration: none; }
+footer a:hover { text-decoration: underline; }
+
+/* ── ANIM ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hdr   { animation: fadeUp .3s ease both; }
+.sec   { animation: fadeUp .3s ease both .1s; }
+.panel { animation: fadeUp .25s ease both .15s; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-top">
+      <div>
+        <div class="hdr-label">// Guide Stratégique</div>
+        <div class="hdr-title">Mystic <span>Trial</span></div>
+        <div class="hdr-sub">Zones · Formations · Récompenses</div>
+      </div>
+      <a href="index.html" class="hdr-back">← Accueil</a>
+    </div>
+  </div>
+
+  <!-- PRÉSENTATION -->
+  <div class="sec">
+    <div class="sec-num">01</div>
+    <div class="sec-body">
+      <div class="sec-title">Présentation</div>
+      <div class="sec-desc">Mode PvE permanent — débloqué à TC19</div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-accent pa-amber"></div>
+    <div class="panel-body">
+      <div class="help-box">
+        <span class="help-icon">🔓</span>
+        <div class="help-text">Le Mystic Trial se débloque dès le <strong>Town Center niveau 19</strong>. Il est accessible via le Command Center. Sur les nouveaux serveurs, il s'ouvre 2 semaines après le lancement (ou 3 jours après la première bataille du Château).</div>
+      </div>
+      <div class="help-box blue">
+        <span class="help-icon">⚔️</span>
+        <div class="help-text"><strong>La puissance totale ne compte pas ici.</strong> Les troupes fournies sont en T10 pour tout le monde (sauf la Flèche Éclatante). Seuls tes stats d'Expédition issus de sources spécifiques à chaque zone font la différence.</div>
+      </div>
+      <div class="help-box purple">
+        <span class="help-icon">🎯</span>
+        <div class="help-text"><strong>5 tentatives par jour.</strong> Les stages réinitialisent chaque semaine. Une fois le stage 10 franchi, la fonction <strong>Raid</strong> se débloque — elle te permet de récupérer tes récompenses en un clic quand la zone rouvre.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLANNING -->
+  <div class="sec">
+    <div class="sec-num purple">02</div>
+    <div class="sec-body">
+      <div class="sec-title">Planning Hebdomadaire</div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-accent pa-purple"></div>
+    <div class="panel-body">
+      <table class="schedule">
+        <thead>
+          <tr>
+            <th>Jours</th>
+            <th>Zone active</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Lun · Mar</td>
+            <td><span class="zone-dot" style="background:var(--amber)"></span><strong>Colisée</strong> — Héros &amp; Équipement</td>
+          </tr>
+          <tr>
+            <td>Mer · Jeu</td>
+            <td>
+              <span class="zone-dot" style="background:var(--green)"></span><strong>Forêt de la Vie</strong> — Pets<br>
+              <span class="zone-dot" style="background:var(--inf)"></span><strong>Caverne de Cristal</strong> — Charmes
+            </td>
+          </tr>
+          <tr>
+            <td>Ven · Sam</td>
+            <td>
+              <span class="zone-dot" style="background:var(--purple)"></span><strong>Nexus du Savoir</strong> — Recherche<br>
+              <span class="zone-dot" style="background:var(--red)"></span><strong>Fort en Fusion</strong> — Équipement Gouverneur
+            </td>
+          </tr>
+          <tr>
+            <td>Dimanche</td>
+            <td><span class="zone-dot" style="background:#c0860a"></span><strong>Flèche Éclatante</strong> — Tout + tes propres troupes</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ZONES & FORMATIONS -->
+  <div class="sec">
+    <div class="sec-num">03</div>
+    <div class="sec-body">
+      <div class="sec-title">Zones &amp; Formations</div>
+      <div class="sec-desc">Ratio recommandé : INF % / CAV % / ARC %</div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-accent pa-amber"></div>
+    <div class="panel-body">
+      <div class="zone-grid">
+
+        <!-- COLISÉE -->
+        <div class="zone-card zc-coliseum">
+          <div class="zone-header">
+            <div class="zone-name">⚔️ Colisée</div>
+            <div class="zone-days">Lun · Mar</div>
+          </div>
+          <div class="zone-source"><strong>Stats actives :</strong> Héros, équipement héros, widget exclusif</div>
+          <div class="ratio-wrap">
+            <div class="ratio-label">Formation <span>50 / 10 / 40</span></div>
+            <div class="ratio-bar">
+              <div class="rb-inf" style="width:50%"></div>
+              <div class="rb-cav" style="width:10%"></div>
+              <div class="rb-arc" style="width:40%"></div>
+            </div>
+            <div class="ratio-nums">
+              <span class="ratio-num rn-inf">INF 50%</span>
+              <span class="ratio-num rn-cav">CAV 10%</span>
+              <span class="ratio-num rn-arc">ARC 40%</span>
+            </div>
+          </div>
+          <span class="unlock-badge ub-now">Dispo dès TC19</span>
+        </div>
+
+        <!-- FORÊT DE LA VIE -->
+        <div class="zone-card zc-forest">
+          <div class="zone-header">
+            <div class="zone-name">🌿 Forêt de la Vie</div>
+            <div class="zone-days">Mer · Jeu</div>
+          </div>
+          <div class="zone-source"><strong>Stats actives :</strong> Pets, compétences de pets (activées auto)</div>
+          <div class="ratio-wrap">
+            <div class="ratio-label">Formation <span>50 / 15 / 35</span></div>
+            <div class="ratio-bar">
+              <div class="rb-inf" style="width:50%"></div>
+              <div class="rb-cav" style="width:15%"></div>
+              <div class="rb-arc" style="width:35%"></div>
+            </div>
+            <div class="ratio-nums">
+              <span class="ratio-num rn-inf">INF 50%</span>
+              <span class="ratio-num rn-cav">CAV 15%</span>
+              <span class="ratio-num rn-arc">ARC 35%</span>
+            </div>
+          </div>
+          <span class="unlock-badge ub-pets">Dès Génération 1 (~54j)</span>
+        </div>
+
+        <!-- CAVERNE DE CRISTAL -->
+        <div class="zone-card zc-crystal">
+          <div class="zone-header">
+            <div class="zone-name">💎 Caverne de Cristal</div>
+            <div class="zone-days">Mer · Jeu</div>
+          </div>
+          <div class="zone-source"><strong>Stats actives :</strong> Charmes de Gouverneur uniquement</div>
+          <div class="ratio-wrap">
+            <div class="ratio-label">Formation <span>60 / 20 / 20</span></div>
+            <div class="ratio-bar">
+              <div class="rb-inf" style="width:60%"></div>
+              <div class="rb-cav" style="width:20%"></div>
+              <div class="rb-arc" style="width:20%"></div>
+            </div>
+            <div class="ratio-nums">
+              <span class="ratio-num rn-inf">INF 60%</span>
+              <span class="ratio-num rn-cav">CAV 20%</span>
+              <span class="ratio-num rn-arc">ARC 20%</span>
+            </div>
+          </div>
+          <span class="unlock-badge ub-tc25">TC25 requis</span>
+        </div>
+
+        <!-- NEXUS DU SAVOIR -->
+        <div class="zone-card zc-knowledge">
+          <div class="zone-header">
+            <div class="zone-name">📚 Nexus du Savoir</div>
+            <div class="zone-days">Ven · Sam</div>
+          </div>
+          <div class="zone-source"><strong>Stats actives :</strong> Recherche Académie &amp; Académie de Guerre</div>
+          <div class="ratio-wrap">
+            <div class="ratio-label">Formation <span>50 / 20 / 30</span></div>
+            <div class="ratio-bar">
+              <div class="rb-inf" style="width:50%"></div>
+              <div class="rb-cav" style="width:20%"></div>
+              <div class="rb-arc" style="width:30%"></div>
+            </div>
+            <div class="ratio-nums">
+              <span class="ratio-num rn-inf">INF 50%</span>
+              <span class="ratio-num rn-cav">CAV 20%</span>
+              <span class="ratio-num rn-arc">ARC 30%</span>
+            </div>
+          </div>
+          <span class="unlock-badge ub-now">Dispo dès TC19</span>
+        </div>
+
+        <!-- FORT EN FUSION -->
+        <div class="zone-card zc-molten">
+          <div class="zone-header">
+            <div class="zone-name">🔥 Fort en Fusion</div>
+            <div class="zone-days">Ven · Sam</div>
+          </div>
+          <div class="zone-source"><strong>Stats actives :</strong> Équipement Gouverneur uniquement</div>
+          <div class="ratio-wrap">
+            <div class="ratio-label">Formation <span>60 / 15 / 25</span></div>
+            <div class="ratio-bar">
+              <div class="rb-inf" style="width:60%"></div>
+              <div class="rb-cav" style="width:15%"></div>
+              <div class="rb-arc" style="width:25%"></div>
+            </div>
+            <div class="ratio-nums">
+              <span class="ratio-num rn-inf">INF 60%</span>
+              <span class="ratio-num rn-cav">CAV 15%</span>
+              <span class="ratio-num rn-arc">ARC 25%</span>
+            </div>
+          </div>
+          <span class="unlock-badge ub-tc22">TC22 requis</span>
+        </div>
+
+        <!-- FLÈCHE ÉCLATANTE -->
+        <div class="zone-card zc-spire">
+          <div class="zone-header">
+            <div class="zone-name">✨ Flèche Éclatante</div>
+            <div class="zone-days">Dimanche</div>
+          </div>
+          <div class="zone-source"><strong>Stats actives :</strong> Tout — tes propres troupes (pas de T10 fourni)</div>
+          <div class="ratio-wrap">
+            <div class="ratio-label">Formation <span>50 / 15 / 35</span></div>
+            <div class="ratio-bar">
+              <div class="rb-inf" style="width:50%"></div>
+              <div class="rb-cav" style="width:15%"></div>
+              <div class="rb-arc" style="width:35%"></div>
+            </div>
+            <div class="ratio-nums">
+              <span class="ratio-num rn-inf">INF 50%</span>
+              <span class="ratio-num rn-cav">CAV 15%</span>
+              <span class="ratio-num rn-arc">ARC 35%</span>
+            </div>
+          </div>
+          <span class="unlock-badge ub-now">Dispo dès TC19</span>
+        </div>
+
+      </div><!-- /zone-grid -->
+    </div>
+  </div>
+
+  <!-- ASTUCES FORMATIONS -->
+  <div class="sec">
+    <div class="sec-num blue">04</div>
+    <div class="sec-body">
+      <div class="sec-title">Astuces Formations</div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-accent pa-blue"></div>
+    <div class="panel-body">
+      <div class="help-box">
+        <span class="help-icon">⚠️</span>
+        <div class="help-text"><strong>Ne jamais cliquer Déployer</strong> après avoir modifié ta formation. Utilise la flèche retour en haut à gauche — sinon tu consommes une tentative.</div>
+      </div>
+      <div class="help-box blue">
+        <span class="help-icon">→</span>
+        <div class="help-text"><strong>L'IA utilise 33/33/33</strong> pour les stages normaux et <strong>53/27/20</strong> pour le stage 10.</strong> Adapte ta formation en conséquence si tu bloques sur le dernier stage.</div>
+      </div>
+      <div class="help-box blue">
+        <span class="help-icon">→</span>
+        <div class="help-text"><strong>La stratégie "bait"</strong> : envoie une marche faible en premier pour absorber la meilleure armée de l'IA. Tes 2ème et 3ème marches avec tes meilleurs héros affrontent alors les armées affaiblies de l'IA.</div>
+      </div>
+      <div class="help-box">
+        <span class="help-icon">→</span>
+        <div class="help-text"><strong>RNG :</strong> si tu échoues un stage, relance. Les compétences de héros et les critiques varient. Utilise tes 5 tentatives quotidiennes pour tester et optimiser.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RÉCOMPENSES -->
+  <div class="sec">
+    <div class="sec-num green">05</div>
+    <div class="sec-body">
+      <div class="sec-title">Récompenses</div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-accent pa-green"></div>
+    <div class="panel-body">
+      <div class="reward-grid">
+        <div class="reward-cell">
+          <span class="reward-icon">🥇</span>
+          <div class="reward-name">1ère Victoire</div>
+          <div class="reward-desc">Coffres d'équipement, XP, Cristaux Brumeux, Shards héros Mythique</div>
+        </div>
+        <div class="reward-cell">
+          <span class="reward-icon">⚡</span>
+          <div class="reward-name">Raid</div>
+          <div class="reward-desc">10 Cristaux Brumeux par stage débloqué. Récupérables instantanément chaque semaine.</div>
+        </div>
+        <div class="reward-cell">
+          <span class="reward-icon">🏆</span>
+          <div class="reward-name">Jalons</div>
+          <div class="reward-desc">Mithril, Shards Mythiques, Coffres d'équipement Custom, bonus défense permanents</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;">
+        <div class="help-box blue">
+          <span class="help-icon">💡</span>
+          <div class="help-text">Calcul rapide de tes revenus hebdomadaires : <strong>nombre total de stages débloqués × 10 = Cristaux Brumeux / semaine</strong>.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOUTIQUE -->
+  <div class="sec">
+    <div class="sec-num purple">06</div>
+    <div class="sec-body">
+      <div class="sec-title">Boutique — Priorités d'Achat</div>
+      <div class="sec-desc">Stock réinitialisé chaque semaine</div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-accent pa-purple"></div>
+    <div class="panel-body">
+      <ul class="shop-list">
+        <li class="shop-item">
+          <div class="shop-rank">01</div>
+          <div>
+            <div class="shop-name">Mithril</div>
+            <div class="shop-note">Ressource la plus rare. Indispensable pour l'équipement Mythique. Disponible après sortie Génération 2 (~40j serveur).</div>
+          </div>
+        </li>
+        <li class="shop-item">
+          <div class="shop-rank">02</div>
+          <div>
+            <div class="shop-name">Poussière de Truegold</div>
+            <div class="shop-note">Critique pour les upgrades post-TC30. Disponible après déblocage Académie de Guerre (~220j serveur).</div>
+          </div>
+        </li>
+        <li class="shop-item">
+          <div class="shop-rank">03</div>
+          <div>
+            <div class="shop-name">Coffres d'Équipement Héros</div>
+            <div class="shop-note">Pour renforcer l'équipement de tes héros prioritaires (rally leader en premier).</div>
+          </div>
+        </li>
+        <li class="shop-item">
+          <div class="shop-rank">04</div>
+          <div>
+            <div class="shop-name">Shards Héros Mythiques</div>
+            <div class="shop-note">Pour progresser vers les étoiles 4★ et 5★ de tes héros principaux.</div>
+          </div>
+        </li>
+        <li class="shop-item">
+          <div class="shop-rank">05</div>
+          <div>
+            <div class="shop-name">Accélérateurs / Gems</div>
+            <div class="shop-note">En dernier recours si les items prioritaires sont épuisés.</div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <footer>
+    <a href="index.html">← Kingshot Help</a> · Guide Mystic Trial · Non affilié à Century Games
+  </footer>
+
+</div>
+</body>
+</html>
