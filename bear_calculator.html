@@ -595,9 +595,8 @@ select option { background: #ffffff; color: var(--text); }
       <div class="hdr-sub" data-i18n="hdr_sub">Composition des Escouades · Optimisation Globale</div>
     </div>
     <div class="hdr-badge">
-      <div>S.1507</div>
-      <div>by Errab</div>
-      <div style="margin-top:4px;color:var(--amber);opacity:.5">v7.0</div>
+      <a href="index.html" style="font-family:var(--f-mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-faint);text-decoration:none;display:flex;align-items:center;gap:5px;transition:color .15s;justify-content:flex-end;" onmouseover="this.style.color='var(--amber)'" onmouseout="this.style.color='var(--text-faint)'">← Accueil</a>
+      <div style="margin-top:4px;color:var(--amber);opacity:.5">v8.1</div>
       <div id="saveIndicator" style="margin-top:6px;font-size:9px;color:var(--green);opacity:0;transition:opacity .4s;letter-spacing:1px" data-i18n="saved">✓ SAUVEGARDÉ</div>
     </div>
   </div>
@@ -955,7 +954,7 @@ select option { background: #ffffff; color: var(--text); }
 
 <footer>
   <div class="footer-title">Bear Hunt Calculator</div>
-  <div class="footer-sub">S.1507 · by Errab</div>
+  <div class="footer-sub"><a href="index.html" style="color:var(--amber);text-decoration:none;">← Kingshot Help</a> · v8.1 · Non affilié à Century Games</div>
 </footer>
 
 <script>
@@ -2169,12 +2168,12 @@ function refreshSummary(){
 
 function exportToClipboard(){
   const s=stock(),le=_getMarchCounts('lead');let lines=[];
-  lines.push(`🐻 **Bear Hunt** · S.1507`);
+  lines.push(`🐻 **Bear Hunt**`);
   lines.push(t('export_stocks')(fmt(s.inf),fmt(s.cav),fmt(s.arc)));
   lines.push('');
   lines.push(t('export_leader')(fmt(le.i+le.c+le.a),fmt(le.i),fmt(le.c),fmt(le.a)));
   for(let i=1;i<=jCount;i++){const jcap=gv(`j${i}_cap`);if(jcap>0){const je=_getMarchCounts(`j${i}`);lines.push(t('export_joiner')(i,fmt(je.i+je.c+je.a),fmt(je.i),fmt(je.c),fmt(je.a)));}}
-  lines.push('');lines.push(`_Bear Hunt Calculator · by Errab_`);
+  lines.push('');lines.push(`_Bear Hunt Calculator · Kingshot Help_`);
   navigator.clipboard.writeText(lines.join('\n')).then(()=>{const btn=document.getElementById('exportBtn');btn.classList.add('copied');btn.textContent=t('copied');setTimeout(()=>{btn.classList.remove('copied');btn.innerHTML=t('export_btn');},2500);}).catch(()=>alert(t('copy_err')));
 }
 
