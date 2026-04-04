@@ -262,10 +262,16 @@
 
       if (members.length === 0) { list.innerHTML = 'Aucun membre trouvé.'; return; }
 
+      // Récupérer calc_state depuis profiles pour tous les membres
+      var usernames = members.map(function(m) { return m.username; });
+      var profilesRes = await sb.from('profiles').select('username, calc_state').in('username', usernames);
+      var profilesMap = {};
+      (profilesRes.data || []).forEach(function(p) { profilesMap[p.username] = p.calc_state || {}; });
+
       var html = '<div style="font-family:var(--f-mono,monospace);font-size:10px;color:#8090a8;margin-bottom:8px">' + members.length + ' MEMBRE(S)</div>';
       for (var i = 0; i < members.length; i++) {
         var m = members[i];
-        var cs = m.calc_state || {};
+        var cs = profilesMap[m.username] || m.calc_state || {};
 
         // Données de base
         var inf  = Number(cs.inf  || m.stock_inf  || 0);
