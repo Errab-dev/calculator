@@ -15,8 +15,8 @@
   'use strict';
 
   // ── CONFIG — À REMPLIR ──
-  const SUPABASE_URL = https://ndusomdjunpvabmwvuqr.supabase.co 'https://XXXXXXX.supabase.co';
-  const SUPABASE_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5kdXNvbWRqdW5wdmFibXd2dXFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMzcwNjYsImV4cCI6MjA5MDkxMzA2Nn0.5AD_2hvmJQlPQnum75R1-vrFgxpQXqYBAgHKwuFApsc'eyJhb.....';
+  const SUPABASE_URL =  'https://ndusomdjunpvabmwvuqr.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5kdXNvbWRqdW5wdmFibXd2dXFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMzcwNjYsImV4cCI6MjA5MDkxMzA2Nn0.5AD_2hvmJQlPQnum75R1-vrFgxpQXqYBAgHKwuFApsc';
 
   // ── DÉTECTION PAGE ──
   const IS_CALC = location.pathname.includes('bear_calculator');
