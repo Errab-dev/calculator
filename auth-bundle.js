@@ -463,7 +463,7 @@
         + '</div>'
         + '<div style="display:flex;gap:6px;flex-wrap:wrap">'
         + cloudBtns + allyBtn
-        + '<button onclick="window._auth.openEditProfile()" class="auth-btn">⚙ Profil</button>'
+        + '<a href="profile.html" class="auth-btn" style="text-decoration:none">👤 Mon profil</a>'
         + '<button onclick="window._auth.doLogout()" class="auth-btn" style="border-color:#c0392b;color:#c0392b">Déco</button>'
         + '</div></div>';
     } else {
