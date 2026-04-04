@@ -181,63 +181,87 @@
     return v.toLocaleString('fr-FR');
   }
 
-  // ── HELPER : génère le texte Discord d'un membre à partir de calc_state ──
-  function buildDiscordText(m) {
-    var cs = m.calc_state || {};
-    var lines = [];
-    lines.push('🐻 **Bear Hunt** — ' + m.username);
+  // ── HELPER : calcule les quantités INF/CAV/ARC d'une team depuis calc_state ──
+  // Retourne { i, c, a, ri, rc, ra } (quantités + ratios en %)
+  function getTeamCounts(cap, exactI, exactC, exactA, ratioI, ratioC, ratioA, stockInf, stockCav, stockArc) {
+    cap    = Number(cap    || 0);
+    if (cap <= 0) return null;
+    exactI = exactI !== undefined && exactI !== '' ? Number(exactI) : undefined;
+    exactC = exactC !== undefined && exactC !== '' ? Number(exactC) : undefined;
+    exactA = exactA !== undefined && exactA !== '' ? Number(exactA) : undefined;
+    ratioI = Number(ratioI || 10);
+    ratioC = Number(ratioC || 10);
+    ratioA = Number(ratioA || 80);
+    var i, c, a;
+    if (exactI !== undefined) {
+      i = exactI; c = exactC; a = exactA;
+    } else {
+      i = Math.min(Math.round(cap * ratioI / 100), stockInf || Infinity);
+      c = Math.min(Math.round(cap * ratioC / 100), stockCav || Infinity);
+      a = cap - i - c;
+    }
+    // Ratios réels
+    var tot = i + c + a;
+    var ri = tot > 0 ? Math.round(i / tot * 100) : ratioI;
+    var rc = tot > 0 ? Math.round(c / tot * 100) : ratioC;
+    var ra = 100 - ri - rc;
+    return { i: i, c: c, a: a, ri: ri, rc: rc, ra: ra };
+  }
 
-    // Stocks
-    var inf = Number(cs.inf || m.stock_inf || 0);
-    var cav = Number(cs.cav || m.stock_cav || 0);
-    var arc = Number(cs.arc || m.stock_arc || 0);
+  // ── HELPER : génère le texte brut pour Discord ──
+  function buildDiscordText(username, cs) {
+    var inf = Number(cs.inf || 0), cav = Number(cs.cav || 0), arc = Number(cs.arc || 0);
+    var lines = [];
+    lines.push('🐻 **Bear Hunt** — ' + username);
     if (inf || cav || arc) {
       lines.push('**Stocks** : INF ' + fmtN(inf) + ' | CAV ' + fmtN(cav) + ' | ARC ' + fmtN(arc));
     }
     lines.push('');
-
     // Leader
-    var leadCap = Number(cs.leadCap || m.lead_cap || 0);
-    if (leadCap > 0) {
-      var ri = Number(cs.lInf || 10), rc = Number(cs.lCav || 10), ra = Number(cs.lArc || 80);
-      var lI = Math.min(Math.round(leadCap * ri / 100), inf);
-      var lC = Math.min(Math.round(leadCap * rc / 100), cav);
-      var lA = leadCap - lI - lC;
-      lines.push('👑 **Leader** : ' + fmtN(lI + lC + lA) + ' troupes — INF ' + fmtN(lI) + ' · CAV ' + fmtN(lC) + ' · ARC ' + fmtN(lA));
+    var lTeam = getTeamCounts(cs.leadCap, cs.leadExactI, cs.leadExactC, cs.leadExactA, cs.lInf, cs.lCav, cs.lArc, inf, cav, arc);
+    if (lTeam) {
+      lines.push('👑 **Leader** : ' + fmtN(lTeam.i + lTeam.c + lTeam.a) + ' troupes'
+        + ' — INF ' + fmtN(lTeam.i) + ' (' + lTeam.ri + '%) · CAV ' + fmtN(lTeam.c) + ' (' + lTeam.rc + '%) · ARC ' + fmtN(lTeam.a) + ' (' + lTeam.ra + '%)');
     }
-
     // Joiners
     var joiners = cs.joiners || [];
+    var jNum = 0;
     for (var j = 0; j < joiners.length; j++) {
       var jd = joiners[j];
-      var jcap = Number(jd.cap || 0);
-      if (jcap <= 0) continue;
-      var ji = Number(jd.inf || 5), jc = Number(jd.cav || 5), ja = Number(jd.arc || 90);
-      // Si exactI/exactC/exactA sont présents dans le state, on les utilise directement
-      var jI = jd.exactI ? Number(jd.exactI) : Math.round(jcap * ji / 100);
-      var jC = jd.exactC ? Number(jd.exactC) : Math.round(jcap * jc / 100);
-      var jA = jd.exactA ? Number(jd.exactA) : (jcap - jI - jC);
-      lines.push('⚡ **Joiner ' + (j + 1) + '** : ' + fmtN(jI + jC + jA) + ' troupes — INF ' + fmtN(jI) + ' · CAV ' + fmtN(jC) + ' · ARC ' + fmtN(jA));
+      var jTeam = getTeamCounts(jd.cap, jd.exactI, jd.exactC, jd.exactA, jd.inf, jd.cav, jd.arc, inf, cav, arc);
+      if (!jTeam) continue;
+      jNum++;
+      lines.push('⚡ **Joiner ' + jNum + '** : ' + fmtN(jTeam.i + jTeam.c + jTeam.a) + ' troupes'
+        + ' — INF ' + fmtN(jTeam.i) + ' (' + jTeam.ri + '%) · CAV ' + fmtN(jTeam.c) + ' (' + jTeam.rc + '%) · ARC ' + fmtN(jTeam.a) + ' (' + jTeam.ra + '%)');
     }
-
     lines.push('');
     lines.push('_Bear Hunt Calculator · Kingshot Help_');
     return lines.join('\n');
   }
 
+  // ── HELPER : toggle détail d'un membre ──
+  function toggleMemberDetail(idx) {
+    var detail = document.getElementById('abDetail_' + idx);
+    var arrow  = document.getElementById('abArrow_'  + idx);
+    if (!detail) return;
+    var open = detail.style.display !== 'none';
+    detail.style.display = open ? 'none' : 'block';
+    if (arrow) arrow.textContent = open ? '▶' : '▼';
+  }
+  window._authToggleMember = toggleMemberDetail;
+
   // ── HELPER : copier le texte Discord d'un membre ──
   function copyMemberDiscord(idx) {
-    var btn = document.getElementById('abCopyBtn_' + idx);
-    var text = btn ? btn.getAttribute('data-text') : '';
+    var btn  = document.getElementById('abCopyBtn_' + idx);
+    var area = document.getElementById('abText_' + idx);
+    var text = area ? area.value : '';
     if (!text) return;
     navigator.clipboard.writeText(text).then(function() {
       if (btn) { btn.textContent = '✓ Copié !'; btn.style.borderColor = '#1a7a44'; btn.style.color = '#1a7a44'; }
       setTimeout(function() {
-        if (btn) { btn.innerHTML = '▣ Copier pour Discord'; btn.style.borderColor = ''; btn.style.color = ''; }
+        if (btn) { btn.textContent = '▣ Copier pour Discord'; btn.style.borderColor = ''; btn.style.color = ''; }
       }, 2000);
-    }).catch(function() {
-      if (btn) { btn.textContent = '✗ Erreur'; }
-    });
+    }).catch(function() { if (btn) btn.textContent = '✗ Erreur'; });
   }
   window._authCopyMember = copyMemberDiscord;
 
@@ -251,7 +275,15 @@
     var modal = document.createElement('div');
     modal.id = 'allianceModal';
     modal.onclick = function(e) { if (e.target === modal) modal.remove(); };
-    modal.innerHTML = '<div class="ab-modal-body"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div><div style="font-family:var(--f-mono,monospace);font-size:10px;color:#b86e00;letter-spacing:2px">ALLIANCE</div><div style="font-family:var(--f-display,sans-serif);font-size:1.4rem;font-weight:800;text-transform:uppercase">' + currentUser.alliance + '</div></div><button onclick="document.getElementById(\'allianceModal\').remove()" class="auth-btn">✕ Fermer</button></div><div id="allyList" style="font-size:13px;color:#445068">Chargement…</div></div>';
+    modal.innerHTML = ''
+      + '<div class="ab-modal-body">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">'
+      + '<div><div style="font-family:var(--f-mono,monospace);font-size:10px;color:#b86e00;letter-spacing:2px">ALLIANCE</div>'
+      + '<div style="font-family:var(--f-display,sans-serif);font-size:1.4rem;font-weight:800;text-transform:uppercase">' + currentUser.alliance + '</div></div>'
+      + '<button onclick="document.getElementById(\'allianceModal\').remove()" class="auth-btn">✕ Fermer</button>'
+      + '</div>'
+      + '<div id="allyList" style="font-size:13px;color:#445068">Chargement…</div>'
+      + '</div>';
     document.body.appendChild(modal);
 
     try {
@@ -259,68 +291,99 @@
       var members = res.data || [];
       var list = document.getElementById('allyList');
       if (!list) return;
-
       if (members.length === 0) { list.innerHTML = 'Aucun membre trouvé.'; return; }
 
-      // Récupérer calc_state depuis profiles pour tous les membres
+      // Récupérer calc_state depuis profiles
       var usernames = members.map(function(m) { return m.username; });
       var profilesRes = await sb.from('profiles').select('username, calc_state').in('username', usernames);
       var profilesMap = {};
       (profilesRes.data || []).forEach(function(p) { profilesMap[p.username] = p.calc_state || {}; });
 
-      var html = '<div style="font-family:var(--f-mono,monospace);font-size:10px;color:#8090a8;margin-bottom:8px">' + members.length + ' MEMBRE(S)</div>';
+      var html = '<div style="font-family:var(--f-mono,monospace);font-size:10px;color:#8090a8;margin-bottom:10px">' + members.length + ' MEMBRE(S) — clique sur un nom pour voir le détail</div>';
+
       for (var i = 0; i < members.length; i++) {
         var m = members[i];
-        var cs = profilesMap[m.username] || m.calc_state || {};
-
-        // Données de base
-        var inf  = Number(cs.inf  || m.stock_inf  || 0);
-        var cav  = Number(cs.cav  || m.stock_cav  || 0);
-        var arc  = Number(cs.arc  || m.stock_arc  || 0);
-        var lead = Number(cs.leadCap || m.lead_cap || 0);
-        var stocks = [inf ? 'INF ' + fmtN(inf) : null, cav ? 'CAV ' + fmtN(cav) : null, arc ? 'ARC ' + fmtN(arc) : null].filter(Boolean).join(' · ');
-        var leadStr = lead ? 'Lead ' + fmtN(lead) : '';
-        var heroes = (cs.heroes || m.heroes || []).map(function(h) { return h.heroKey; }).filter(Boolean).join(', ');
-        var updated = m.updated_at ? new Date(m.updated_at).toLocaleDateString('fr-FR', {day:'numeric',month:'short'}) : '';
+        var cs = profilesMap[m.username] || {};
         var isMe = m.username === currentUser.username;
 
-        // Joiners count
-        var joiners = cs.joiners || [];
-        var activeJoiners = joiners.filter(function(j) { return Number(j.cap || 0) > 0; });
-        var joinersStr = activeJoiners.length > 0 ? activeJoiners.length + ' joiner(s)' : '';
-
-        // Texte Discord
-        var discordText = buildDiscordText(m);
-        var hasCalc = lead > 0 || inf > 0 || cav > 0 || arc > 0;
-
-        // Bloc compte rendu Discord (pre-formatté)
-        var discordPreview = '';
-        if (hasCalc) {
-          var previewLines = discordText.split('\n').map(function(l) {
-            return '<div style="line-height:1.5">' + (l === '' ? '&nbsp;' : l.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/_(.*?)_/g, '<em>$1</em>')) + '</div>';
-          }).join('');
-          discordPreview = '<div style="margin-top:10px;background:#2f3136;border-radius:4px;padding:10px 12px;font-family:var(--f-mono,monospace);font-size:11px;color:#dcddde;line-height:1.4">'
-            + '<div style="font-size:9px;color:#72767d;letter-spacing:1.5px;margin-bottom:6px;text-transform:uppercase">Compte rendu Discord</div>'
-            + previewLines
-            + '</div>'
-            + '<button id="abCopyBtn_' + i + '" class="auth-btn" data-text="' + discordText.replace(/"/g, '&quot;') + '" onclick="window._authCopyMember(' + i + ')" style="margin-top:6px;width:100%;text-align:center;letter-spacing:1px">▣ Copier pour Discord</button>';
+        // Date/heure
+        var updatedStr = '';
+        if (m.updated_at) {
+          var d = new Date(m.updated_at);
+          updatedStr = d.toLocaleDateString('fr-FR', {day:'2-digit', month:'short'})
+                     + ' ' + d.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
         }
 
-        html += '<div class="ab-ally-card"' + (isMe ? ' style="border-left:3px solid #b86e00"' : '') + '>'
-          + '<div style="display:flex;justify-content:space-between;align-items:flex-start">'
-          + '<div><strong>' + m.username + (isMe ? ' <span style="font-size:10px;color:#b86e00">(toi)</span>' : '') + '</strong>'
-          + (m.server ? '<span style="font-family:var(--f-mono,monospace);font-size:9px;color:#8090a8;margin-left:6px">' + m.server + '</span>' : '') + '</div>'
-          + '<span style="font-size:9px;color:#8090a8">' + updated + '</span>'
+        // Résumé rapide
+        var inf = Number(cs.inf || 0), cav = Number(cs.cav || 0), arc = Number(cs.arc || 0);
+        var lead = Number(cs.leadCap || 0);
+        var joiners = cs.joiners || [];
+        var activeJ = joiners.filter(function(j) { return Number(j.cap || 0) > 0; }).length;
+        var quickInfo = [];
+        if (lead) quickInfo.push('Lead ' + fmtN(lead));
+        if (activeJ) quickInfo.push(activeJ + ' joiner' + (activeJ > 1 ? 's' : ''));
+        if (!lead && !activeJ && (inf || cav || arc)) quickInfo.push('Stocks renseignés');
+        if (!lead && !activeJ && !inf && !cav && !arc) quickInfo.push('Aucune donnée');
+
+        // Texte Discord complet
+        var discordText = buildDiscordText(m.username, cs);
+        var hasData = lead > 0 || inf > 0 || cav > 0 || arc > 0;
+
+        // Détail dépliable
+        var detailHtml = '';
+        if (hasData) {
+          // Rendu visuel du compte rendu
+          var visualLines = discordText.split('\n').map(function(l) {
+            if (l === '') return '<div style="height:6px"></div>';
+            var html2 = l
+              .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+              .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+              .replace(/_(.*?)_/g, '<em style="color:#72767d">$1</em>');
+            return '<div style="line-height:1.7">' + html2 + '</div>';
+          }).join('');
+
+          detailHtml = '<div id="abDetail_' + i + '" style="display:none;margin-top:10px">'
+            // Bloc style Discord
+            + '<div style="background:#2f3136;border-radius:4px;padding:12px 14px;font-family:var(--f-mono,monospace);font-size:11.5px;color:#dcddde">'
+            + '<div style="font-size:9px;color:#72767d;letter-spacing:1.5px;margin-bottom:8px;text-transform:uppercase">📋 Compte rendu</div>'
+            + visualLines
+            + '</div>'
+            // Textarea caché pour la copie
+            + '<textarea id="abText_' + i + '" style="position:absolute;opacity:0;pointer-events:none;height:0" readonly>' + discordText.replace(/</g, '&lt;') + '</textarea>'
+            // Bouton copier
+            + '<button id="abCopyBtn_' + i + '" onclick="window._authCopyMember(' + i + ')" class="auth-btn" style="margin-top:8px;width:100%;text-align:center;padding:8px">▣ Copier pour Discord</button>'
+            + '</div>';
+        } else {
+          detailHtml = '<div id="abDetail_' + i + '" style="display:none;margin-top:8px;font-size:12px;color:#8090a8;font-style:italic">Ce membre n\'a pas encore sauvegardé de calcul.</div>';
+        }
+
+        html += '<div class="ab-ally-card" style="' + (isMe ? 'border-left:3px solid #b86e00;' : '') + 'padding:0">'
+          // Ligne cliquable
+          + '<div onclick="window._authToggleMember(' + i + ')" style="display:flex;justify-content:space-between;align-items:center;padding:12px;cursor:pointer;user-select:none" onmouseover="this.style.background=\'#f5f7fa\'" onmouseout="this.style.background=\'\'">'
+          + '<div style="display:flex;align-items:center;gap:8px">'
+          + '<span id="abArrow_' + i + '" style="font-size:10px;color:#b86e00;width:12px">▶</span>'
+          + '<strong style="font-size:14px">' + m.username + (isMe ? ' <span style="font-size:10px;color:#b86e00;font-weight:normal">(toi)</span>' : '') + '</strong>'
+          + (quickInfo.length ? '<span style="font-family:var(--f-mono,monospace);font-size:10px;color:#8090a8">' + quickInfo.join(' · ') + '</span>' : '')
           + '</div>'
-          + (stocks ? '<div style="font-size:12px;margin-top:4px;color:#445068">' + stocks + (leadStr ? ' · ' + leadStr : '') + (joinersStr ? ' · ' + joinersStr : '') + '</div>' : '')
-          + (heroes ? '<div style="font-size:11px;color:#8090a8;margin-top:2px">Héros : ' + heroes + '</div>' : '')
-          + discordPreview
+          + '<span style="font-family:var(--f-mono,monospace);font-size:10px;color:#8090a8;white-space:nowrap">' + updatedStr + '</span>'
+          + '</div>'
+          // Détail dépliable
+          + '<div style="padding:0 12px 0">' + detailHtml + '</div>'
           + '</div>';
       }
+
       list.innerHTML = html;
+
+      // Fix : les textarea ont leur contenu encodé, il faut décoder
+      for (var k = 0; k < members.length; k++) {
+        var ta = document.getElementById('abText_' + k);
+        if (ta) ta.value = buildDiscordText(members[k].username, profilesMap[members[k].username] || {});
+      }
+
     } catch(e) {
+      console.error('Alliance modal error:', e);
       var l = document.getElementById('allyList');
-      if (l) l.innerHTML = 'Erreur de chargement.';
+      if (l) l.innerHTML = 'Erreur de chargement : ' + e.message;
     }
   }
 
