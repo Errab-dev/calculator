@@ -174,6 +174,73 @@
   //  ALLIANCE
   // ═══════════════════════════════════════════════════════
 
+  // ── HELPER : formate un nombre avec séparateur de milliers ──
+  function fmtN(n) {
+    var v = Number(n);
+    if (!v || isNaN(v)) return '0';
+    return v.toLocaleString('fr-FR');
+  }
+
+  // ── HELPER : génère le texte Discord d'un membre à partir de calc_state ──
+  function buildDiscordText(m) {
+    var cs = m.calc_state || {};
+    var lines = [];
+    lines.push('🐻 **Bear Hunt** — ' + m.username);
+
+    // Stocks
+    var inf = Number(cs.inf || m.stock_inf || 0);
+    var cav = Number(cs.cav || m.stock_cav || 0);
+    var arc = Number(cs.arc || m.stock_arc || 0);
+    if (inf || cav || arc) {
+      lines.push('**Stocks** : INF ' + fmtN(inf) + ' | CAV ' + fmtN(cav) + ' | ARC ' + fmtN(arc));
+    }
+    lines.push('');
+
+    // Leader
+    var leadCap = Number(cs.leadCap || m.lead_cap || 0);
+    if (leadCap > 0) {
+      var ri = Number(cs.lInf || 10), rc = Number(cs.lCav || 10), ra = Number(cs.lArc || 80);
+      var lI = Math.min(Math.round(leadCap * ri / 100), inf);
+      var lC = Math.min(Math.round(leadCap * rc / 100), cav);
+      var lA = leadCap - lI - lC;
+      lines.push('👑 **Leader** : ' + fmtN(lI + lC + lA) + ' troupes — INF ' + fmtN(lI) + ' · CAV ' + fmtN(lC) + ' · ARC ' + fmtN(lA));
+    }
+
+    // Joiners
+    var joiners = cs.joiners || [];
+    for (var j = 0; j < joiners.length; j++) {
+      var jd = joiners[j];
+      var jcap = Number(jd.cap || 0);
+      if (jcap <= 0) continue;
+      var ji = Number(jd.inf || 5), jc = Number(jd.cav || 5), ja = Number(jd.arc || 90);
+      // Si exactI/exactC/exactA sont présents dans le state, on les utilise directement
+      var jI = jd.exactI ? Number(jd.exactI) : Math.round(jcap * ji / 100);
+      var jC = jd.exactC ? Number(jd.exactC) : Math.round(jcap * jc / 100);
+      var jA = jd.exactA ? Number(jd.exactA) : (jcap - jI - jC);
+      lines.push('⚡ **Joiner ' + (j + 1) + '** : ' + fmtN(jI + jC + jA) + ' troupes — INF ' + fmtN(jI) + ' · CAV ' + fmtN(jC) + ' · ARC ' + fmtN(jA));
+    }
+
+    lines.push('');
+    lines.push('_Bear Hunt Calculator · Kingshot Help_');
+    return lines.join('\n');
+  }
+
+  // ── HELPER : copier le texte Discord d'un membre ──
+  function copyMemberDiscord(idx) {
+    var btn = document.getElementById('abCopyBtn_' + idx);
+    var text = btn ? btn.getAttribute('data-text') : '';
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(function() {
+      if (btn) { btn.textContent = '✓ Copié !'; btn.style.borderColor = '#1a7a44'; btn.style.color = '#1a7a44'; }
+      setTimeout(function() {
+        if (btn) { btn.innerHTML = '▣ Copier pour Discord'; btn.style.borderColor = ''; btn.style.color = ''; }
+      }, 2000);
+    }).catch(function() {
+      if (btn) { btn.textContent = '✗ Erreur'; }
+    });
+  }
+  window._authCopyMember = copyMemberDiscord;
+
   async function openAllianceModal() {
     var sb = getSb();
     if (!sb || !currentUser?.alliance) { showToast('Renseigne ton alliance dans le profil', 'info'); return; }
@@ -198,12 +265,51 @@
       var html = '<div style="font-family:var(--f-mono,monospace);font-size:10px;color:#8090a8;margin-bottom:8px">' + members.length + ' MEMBRE(S)</div>';
       for (var i = 0; i < members.length; i++) {
         var m = members[i];
-        var stocks = [m.stock_inf ? 'INF ' + Number(m.stock_inf).toLocaleString() : null, m.stock_cav ? 'CAV ' + Number(m.stock_cav).toLocaleString() : null, m.stock_arc ? 'ARC ' + Number(m.stock_arc).toLocaleString() : null].filter(Boolean).join(' · ');
-        var heroes = (m.heroes || []).map(function(h) { return h.heroKey; }).filter(Boolean).join(', ');
-        var lead = m.lead_cap ? 'Lead ' + Number(m.lead_cap).toLocaleString() : '';
+        var cs = m.calc_state || {};
+
+        // Données de base
+        var inf  = Number(cs.inf  || m.stock_inf  || 0);
+        var cav  = Number(cs.cav  || m.stock_cav  || 0);
+        var arc  = Number(cs.arc  || m.stock_arc  || 0);
+        var lead = Number(cs.leadCap || m.lead_cap || 0);
+        var stocks = [inf ? 'INF ' + fmtN(inf) : null, cav ? 'CAV ' + fmtN(cav) : null, arc ? 'ARC ' + fmtN(arc) : null].filter(Boolean).join(' · ');
+        var leadStr = lead ? 'Lead ' + fmtN(lead) : '';
+        var heroes = (cs.heroes || m.heroes || []).map(function(h) { return h.heroKey; }).filter(Boolean).join(', ');
         var updated = m.updated_at ? new Date(m.updated_at).toLocaleDateString('fr-FR', {day:'numeric',month:'short'}) : '';
         var isMe = m.username === currentUser.username;
-        html += '<div class="ab-ally-card"' + (isMe ? ' style="border-left:3px solid #b86e00"' : '') + '><div style="display:flex;justify-content:space-between"><strong>' + m.username + (isMe ? ' <span style="font-size:10px;color:#b86e00">(toi)</span>' : '') + '</strong><span style="font-size:9px;color:#8090a8">' + updated + '</span></div>' + (stocks ? '<div style="font-size:12px;margin-top:4px">' + stocks + (lead ? ' · ' + lead : '') + '</div>' : '') + (heroes ? '<div style="font-size:11px;color:#8090a8;margin-top:2px">Héros : ' + heroes + '</div>' : '') + '</div>';
+
+        // Joiners count
+        var joiners = cs.joiners || [];
+        var activeJoiners = joiners.filter(function(j) { return Number(j.cap || 0) > 0; });
+        var joinersStr = activeJoiners.length > 0 ? activeJoiners.length + ' joiner(s)' : '';
+
+        // Texte Discord
+        var discordText = buildDiscordText(m);
+        var hasCalc = lead > 0 || inf > 0 || cav > 0 || arc > 0;
+
+        // Bloc compte rendu Discord (pre-formatté)
+        var discordPreview = '';
+        if (hasCalc) {
+          var previewLines = discordText.split('\n').map(function(l) {
+            return '<div style="line-height:1.5">' + (l === '' ? '&nbsp;' : l.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/_(.*?)_/g, '<em>$1</em>')) + '</div>';
+          }).join('');
+          discordPreview = '<div style="margin-top:10px;background:#2f3136;border-radius:4px;padding:10px 12px;font-family:var(--f-mono,monospace);font-size:11px;color:#dcddde;line-height:1.4">'
+            + '<div style="font-size:9px;color:#72767d;letter-spacing:1.5px;margin-bottom:6px;text-transform:uppercase">Compte rendu Discord</div>'
+            + previewLines
+            + '</div>'
+            + '<button id="abCopyBtn_' + i + '" class="auth-btn" data-text="' + discordText.replace(/"/g, '&quot;') + '" onclick="window._authCopyMember(' + i + ')" style="margin-top:6px;width:100%;text-align:center;letter-spacing:1px">▣ Copier pour Discord</button>';
+        }
+
+        html += '<div class="ab-ally-card"' + (isMe ? ' style="border-left:3px solid #b86e00"' : '') + '>'
+          + '<div style="display:flex;justify-content:space-between;align-items:flex-start">'
+          + '<div><strong>' + m.username + (isMe ? ' <span style="font-size:10px;color:#b86e00">(toi)</span>' : '') + '</strong>'
+          + (m.server ? '<span style="font-family:var(--f-mono,monospace);font-size:9px;color:#8090a8;margin-left:6px">' + m.server + '</span>' : '') + '</div>'
+          + '<span style="font-size:9px;color:#8090a8">' + updated + '</span>'
+          + '</div>'
+          + (stocks ? '<div style="font-size:12px;margin-top:4px;color:#445068">' + stocks + (leadStr ? ' · ' + leadStr : '') + (joinersStr ? ' · ' + joinersStr : '') + '</div>' : '')
+          + (heroes ? '<div style="font-size:11px;color:#8090a8;margin-top:2px">Héros : ' + heroes + '</div>' : '')
+          + discordPreview
+          + '</div>';
       }
       list.innerHTML = html;
     } catch(e) {
@@ -248,8 +354,8 @@
 .ab-row{display:flex;gap:6px;flex-wrap:wrap;align-items:end}\
 .ab-field{flex:1;min-width:90px}\
 #allianceModal{position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center}\
-.ab-modal-body{background:var(--bg,#f0f3f7);border:1px solid var(--border,#ccd4e0);max-width:500px;width:90%;max-height:80vh;overflow-y:auto;padding:20px}\
-.ab-ally-card{background:var(--surface,#fff);border:1px solid var(--border,#ccd4e0);padding:12px;margin-bottom:8px}\
+.ab-modal-body{background:var(--bg,#f0f3f7);border:1px solid var(--border,#ccd4e0);max-width:600px;width:94%;max-height:85vh;overflow-y:auto;padding:20px}\
+.ab-ally-card{background:var(--surface,#fff);border:1px solid var(--border,#ccd4e0);padding:12px;margin-bottom:10px}\
 ';
     document.head.appendChild(s);
   }
