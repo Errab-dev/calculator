@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Île Oasis — Guide Stratégique | Kingshot Help</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600;700;800;900&family=Barlow:wght@300;400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:         #f0f3f7;
+  --bg2:        #ffffff;
+  --surface:    #ffffff;
+  --surface2:   #edf0f5;
+  --border:     #ccd4e0;
+  --border2:    #dde3ec;
+  --amber:      #b86e00;
+  --amber-dim:  #d48820;
+  --amber-glow: rgba(184,110,0,.10);
+  --red:        #c0392b;
+  --red-dim:    rgba(192,57,43,.10);
+  --green:      #1a7a44;
+  --green-dim:  rgba(26,122,68,.10);
+  --inf:        #1a68aa;
+  --inf-dim:    rgba(26,104,170,.10);
+  --cav:        #1e8040;
+  --arc:        #8a5800;
+  --text:       #18202e;
+  --text-dim:   #445068;
+  --text-faint: #8090a8;
+  --f-display:  'Barlow Condensed', sans-serif;
+  --f-body:     'Barlow', sans-serif;
+  --f-mono:     'Share Tech Mono', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--f-body);
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+  padding: 0 0 80px;
+  background-image:
+    linear-gradient(rgba(180,195,215,.4) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(180,195,215,.4) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.008) 2px, rgba(0,0,0,.008) 4px);
+  pointer-events: none; z-index: 1000;
+}
+
+.page { max-width: 560px; margin: 0 auto; padding: 0 16px; }
+
+/* ── HEADER ── */
+.hdr {
+  padding: 32px 0 20px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 28px;
+  position: relative;
+}
+.hdr::after {
+  content: ''; position: absolute; bottom: -1px; left: 0;
+  width: 80px; height: 2px;
+  background: var(--inf); box-shadow: 0 0 12px var(--inf);
+}
+.hdr-top { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.hdr-label { font-family: var(--f-mono); font-size: 11px; color: var(--amber); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 6px; opacity: .9; }
+.hdr-title { font-family: var(--f-display); font-size: 3.2rem; font-weight: 900; line-height: .9; text-transform: uppercase; letter-spacing: -1px; color: var(--text); }
+.hdr-title span { color: var(--inf); }
+.hdr-sub { font-family: var(--f-mono); font-size: 11px; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; margin-top: 10px; }
+.hdr-back {
+  font-family: var(--f-mono); font-size: 10px; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--text-faint);
+  text-decoration: none; display: flex; align-items: center; gap: 5px;
+  transition: color .15s; white-space: nowrap; padding-bottom: 4px;
+}
+.hdr-back:hover { color: var(--amber); }
+
+/* ── SECTION ── */
+.sec {
+  display: flex; align-items: center; gap: 0;
+  margin: 28px 0 0;
+}
+.sec-num {
+  font-family: var(--f-mono); font-size: 11px; color: #fff;
+  background: var(--amber); padding: 4px 10px;
+  letter-spacing: 1px; font-weight: 700; flex-shrink: 0;
+}
+.sec-num.blue { background: var(--inf); }
+.sec-num.red  { background: var(--red); }
+.sec-num.green{ background: var(--green); }
+
+.sec-body {
+  flex: 1; background: var(--surface);
+  border: 1px solid var(--border); border-left: none;
+  padding: 11px 16px;
+}
+.sec-title {
+  font-family: var(--f-display); font-size: 1.05rem; font-weight: 800;
+  letter-spacing: 2px; text-transform: uppercase; color: var(--text); line-height: 1.1;
+}
+.sec-desc { font-size: 13px; color: var(--text-dim); margin-top: 3px; }
+
+/* ── PANEL ── */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  margin-top: 8px; margin-bottom: 4px;
+  position: relative; overflow: hidden;
+  animation: fadeUp .2s ease both;
+}
+.panel-accent { position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+.pa-amber { background: linear-gradient(90deg, var(--amber), transparent 70%); }
+.pa-blue  { background: linear-gradient(90deg, var(--inf),   transparent 70%); }
+.pa-red   { background: linear-gradient(90deg, var(--red),   transparent 70%); }
+.pa-green { background: linear-gradient(90deg, var(--green), transparent 70%); }
+
+.panel-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border2);
+}
+.ph-icon { font-family: var(--f-mono); font-size: 11px; color: var(--amber); }
+.ph-title { font-family: var(--f-display); font-size: .95rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+.ph-tag {
+  margin-left: auto; font-family: var(--f-mono); font-size: 9px;
+  letter-spacing: 1.5px; padding: 2px 8px; border: 1px solid; text-transform: uppercase;
+}
+.tag-amber { color: var(--amber); border-color: var(--amber-dim); background: var(--amber-glow); }
+.tag-blue  { color: var(--inf);   border-color: rgba(26,104,170,.3); background: var(--inf-dim); }
+.tag-red   { color: var(--red);   border-color: rgba(192,57,43,.3);  background: var(--red-dim); }
+.tag-green { color: var(--green); border-color: rgba(26,122,68,.3);  background: var(--green-dim); }
+.tag-faint { color: var(--text-faint); border-color: var(--border2); background: var(--surface2); }
+
+.panel-body { padding: 16px; }
+
+/* ── RES GRID ── */
+.res-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+@media (max-width: 480px) { .res-grid { grid-template-columns: 1fr; } }
+
+.res-cell {
+  background: var(--bg2); border: 1px solid var(--border2);
+  padding: 14px 14px; position: relative; overflow: hidden;
+}
+.res-cell.amber { border-left: 2px solid var(--amber); }
+.res-cell.blue  { border-left: 2px solid var(--inf); }
+.res-cell h4 {
+  font-family: var(--f-display); font-size: .9rem; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px;
+}
+.res-cell.amber h4 { color: var(--amber); }
+.res-cell.blue  h4 { color: var(--inf); }
+.res-cell p { font-size: 13px; color: var(--text-dim); line-height: 1.55; }
+
+/* ── BUILDING GRID ── */
+.bld-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+}
+@media (max-width: 420px) { .bld-grid { grid-template-columns: 1fr; } }
+
+.bld-cell {
+  background: var(--bg2); border: 1px solid var(--border2);
+  padding: 12px 14px; display: flex; flex-direction: column; gap: 5px;
+}
+.bld-icon { font-size: 1.3rem; line-height: 1; }
+.bld-name {
+  font-family: var(--f-display); font-size: .88rem; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase; color: var(--text);
+}
+.bld-desc { font-size: 12px; color: var(--text-dim); line-height: 1.5; flex: 1; }
+.bld-tag {
+  font-family: var(--f-mono); font-size: 9px; letter-spacing: 1px;
+  text-transform: uppercase; padding: 2px 7px; border: 1px solid; width: fit-content;
+  margin-top: 2px;
+}
+
+/* ── MAP LAYOUT ── */
+.map-wrap {
+  background: var(--surface); border: 1px solid var(--border);
+  padding: 20px; margin-top: 8px;
+}
+.map-row { display: flex; gap: 8px; justify-content: center; margin-bottom: 0; }
+.map-arrow {
+  text-align: center; font-family: var(--f-mono); font-size: 13px;
+  color: var(--text-faint); padding: 4px 0;
+}
+.map-zone {
+  flex: 1; max-width: 280px; padding: 12px 14px;
+  border: 1px solid var(--border2); background: var(--surface2);
+  position: relative; overflow: hidden;
+}
+.mz-dock   { border-top: 2px solid var(--inf); }
+.mz-center { border-top: 2px solid var(--amber); max-width: 340px; }
+.mz-left   { border-top: 2px solid var(--inf); }
+.mz-right  { border-top: 1px dashed var(--border); }
+.mz-buffs  { border-top: 2px solid var(--red); max-width: 440px; }
+.mz-fill   { border-top: 1px dashed var(--border); max-width: 440px; }
+
+.mz-label {
+  font-family: var(--f-display); font-size: .8rem; font-weight: 800;
+  letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px;
+}
+.mz-dock .mz-label   { color: var(--inf); }
+.mz-center .mz-label { color: var(--amber); }
+.mz-left .mz-label   { color: var(--inf); }
+.mz-right .mz-label  { color: var(--text-dim); }
+.mz-buffs .mz-label  { color: var(--red); }
+.mz-fill .mz-label   { color: var(--text-faint); }
+
+.map-zone ul { list-style: none; }
+.map-zone ul li {
+  font-size: 12px; color: var(--text-dim); line-height: 1.7;
+  padding-left: 12px; position: relative;
+}
+.map-zone ul li::before {
+  content: '›'; position: absolute; left: 0;
+  color: var(--amber); font-weight: 700;
+}
+
+/* ── PRIORITY LIST ── */
+.prio-list { list-style: none; }
+.prio-item {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 12px 0; border-bottom: 1px solid var(--border2);
+}
+.prio-item:last-child { border-bottom: none; }
+.prio-num {
+  font-family: var(--f-mono); font-size: 1rem; font-weight: 700;
+  color: var(--amber); min-width: 26px; line-height: 1.4;
+}
+.prio-txt strong {
+  font-family: var(--f-display); font-size: .95rem; font-weight: 700;
+  letter-spacing: .5px; text-transform: uppercase;
+  color: var(--text); display: block; margin-bottom: 2px;
+}
+.prio-txt span { font-size: 13px; color: var(--text-dim); }
+
+/* ── HELP BOX ── */
+.help-box {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 14px; margin-bottom: 8px;
+  background: rgba(232,160,32,.05);
+  border: 1px solid rgba(232,160,32,.15);
+  border-left: 2px solid var(--amber);
+}
+.help-box.blue {
+  background: var(--inf-dim);
+  border: 1px solid rgba(26,104,170,.2);
+  border-left: 2px solid var(--inf);
+}
+.help-box.red {
+  background: var(--red-dim);
+  border: 1px solid rgba(192,57,43,.2);
+  border-left: 2px solid var(--red);
+}
+.help-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+.help-text { font-size: 13px; color: var(--text-dim); line-height: 1.65; }
+.help-text strong { color: var(--text); font-weight: 600; }
+
+/* ── FOOTER ── */
+footer {
+  text-align: center; margin-top: 48px;
+  padding-top: 20px; border-top: 1px solid var(--border2);
+  font-family: var(--f-mono); font-size: 10px;
+  letter-spacing: 1.5px; color: var(--text-faint);
+  text-transform: uppercase;
+}
+footer a { color: var(--amber); text-decoration: none; }
+footer a:hover { text-decoration: underline; }
+
+/* ── ANIM ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hdr   { animation: fadeUp .3s ease both; }
+.sec   { animation: fadeUp .3s ease both .1s; }
+.panel { animation: fadeUp .25s ease both .15s; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-top">
+      <div>
+        <div class="hdr-label">// Guide Stratégique</div>
+        <div class="hdr-title">Île <span>Oasis</span></div>
+        <div class="hdr-sub">Organisation · Bâtiments · Priorités</div>
+      </div>
+      <a href="index.html" class="hdr-back">← Accueil</a>
+    </div>
+  </div>
+
+  <!-- DÉVERROUILLAGE -->
+  <div class="sec">
+    <div class="sec-num">01</div>
+    <div class="sec-body">
+      <div class="sec-title">Déverrouillage</div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-accent pa-amber"></div>
+    <div class="panel-body">
+      <div class="help-box">
+        <span class="help-icon">🔓</span>
+        <div class="help-text">L'île Oasis se débloque dès que ton <strong>Town Center atteint le niveau 19</strong>. Appuie sur l'icône île depuis la carte principale pour y accéder.</div>
+      </div>
+      <div class="help-text" style="font-size:13px;color:var(--text-dim);">Une fois à l'intérieur, tu défriche les cactus avec le Réservoir, collectes l'Essence d'eau et construis des bâtiments qui génèrent des buffs permanents pour ta ville principale.</div>
+    </div>
+  </div>
+
+  <!-- RESSOURCES -->
+  <div class="sec">
+    <div class="sec-num blue">02</div>
+    <div class="sec-body">
+      <div class="sec-title">Les deux ressources</div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-accent pa-blue"></div>
+    <div class="panel-body">
+      <div class="res-grid">
+        <div class="res-cell amber">
+          <h4>💧 Essence d'Eau</h4>
+          <p>Monnaie de l'île. Générée par la Fontaine et les Réservoirs, et trouvée dans les coffres cachés dans les cactus. Sert à acheter et améliorer tous les bâtiments. Plafond de stockage : <strong>12h</strong>.</p>
+        </div>
+        <div class="res-cell blue">
+          <h4>⭐ Prospérité</h4>
+          <p>Score de développement permanent. Augmente en posant des bâtiments et décorations. Nécessaire pour franchir les paliers de la Fontaine de Vie — ne se consomme pas.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BÂTIMENTS -->
+  <div class="sec">
+    <div class="sec-num">03</div>
+    <div class="sec-body">
+      <div class="sec-title">Bâtiments & Décorations</div>
+      <div class="sec-desc">Chaque type a une limite de copies actives — les doublons ne donnent aucun bonus.</div>
+    </div>
+  </div>
+
+  <!-- Noyau -->
+  <div class="panel">
+    <div class="panel-accent pa-amber"></div>
+    <div class="panel-header">
+      <span class="ph-icon">◈</span>
+      <span class="ph-title">Noyau Central</span>
+      <span class="ph-tag tag-amber">Priorité absolue</span>
+    </div>
+    <div class="panel-body">
+      <div class="bld-grid">
+        <div class="bld-cell">
+          <div class="bld-icon">⛲</div>
+          <div class="bld-name">Fontaine de Vie</div>
+          <div class="bld-desc">Bâtiment central. Génère l'essence passivement. Chaque niveau augmente la production et débloque de nouveaux types de bâtiments.</div>
+          <span class="bld-tag tag-amber">Monter en priorité</span>
+        </div>
+        <div class="bld-cell">
+          <div class="bld-icon">🏺</div>
+          <div class="bld-name">Réservoir</div>
+          <div class="bld-desc">Envoie des workers couper les cactus. Niveau 4 = 2ème worker (vitesse doublée). À rusher dès le début.</div>
+          <span class="bld-tag tag-amber">Niv.4 en premier</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Développement -->
+  <div class="panel">
+    <div class="panel-accent pa-blue"></div>
+    <div class="panel-header">
+      <span class="ph-icon">◈</span>
+      <span class="ph-title">Développement</span>
+      <span class="ph-tag tag-blue">Priorité haute</span>
+    </div>
+    <div class="panel-body">
+      <div class="bld-grid">
+        <div class="bld-cell">
+          <div class="bld-icon">🔬</div>
+          <div class="bld-name">Recherche</div>
+          <div class="bld-desc">Booste la vitesse de recherche à l'Académie. Gains qui se compoundent sur le long terme.</div>
+          <span class="bld-tag tag-blue">Développement</span>
+        </div>
+        <div class="bld-cell">
+          <div class="bld-icon">🏗️</div>
+          <div class="bld-name">Construction</div>
+          <div class="bld-desc">Accélère la construction des bâtiments en ville. Très rentable en phase d'upgrade.</div>
+          <span class="bld-tag tag-blue">Développement</span>
+        </div>
+        <div class="bld-cell">
+          <div class="bld-icon">🌾</div>
+          <div class="bld-name">Collecte</div>
+          <div class="bld-desc">Améliore la vitesse et capacité de collecte sur la carte mondiale.</div>
+          <span class="bld-tag tag-blue">Développement</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Militaire -->
+  <div class="panel">
+    <div class="panel-accent pa-red"></div>
+    <div class="panel-header">
+      <span class="ph-icon">◈</span>
+      <span class="ph-title">Militaire</span>
+      <span class="ph-tag tag-red">Combat</span>
+    </div>
+    <div class="panel-body">
+      <div class="bld-grid">
+        <div class="bld-cell">
+          <div class="bld-icon">⚔️</div>
+          <div class="bld-name">Attaque</div>
+          <div class="bld-desc">Augmente l'attaque des troupes. Prioritaire pour les leaders de rally.</div>
+          <span class="bld-tag tag-red">Militaire</span>
+        </div>
+        <div class="bld-cell">
+          <div class="bld-icon">🛡️</div>
+          <div class="bld-name">Défense / Santé</div>
+          <div class="bld-desc">Booste la santé et la défense des troupes. Utile pour les joiners et la résistance PvP.</div>
+          <span class="bld-tag tag-red">Militaire</span>
+        </div>
+        <div class="bld-cell">
+          <div class="bld-icon">🏇</div>
+          <div class="bld-name">Vitesse de Marche</div>
+          <div class="bld-desc">Augmente la vitesse de déplacement. Pratique pour les events de collecte et rallyes rapides.</div>
+          <span class="bld-tag tag-red">Militaire</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Décorations -->
+  <div class="panel">
+    <div class="panel-accent pa-green"></div>
+    <div class="panel-header">
+      <span class="ph-icon">◈</span>
+      <span class="ph-title">Décorations</span>
+      <span class="ph-tag tag-green">Prospérité</span>
+    </div>
+    <div class="panel-body">
+      <div class="bld-grid">
+        <div class="bld-cell">
+          <div class="bld-icon">🧱</div>
+          <div class="bld-name">Grises / Vertes</div>
+          <div class="bld-desc">50–100 prospérité, 1 000–2 000 essence. Achète-en d'abord pour finir les quêtes "achat" et récupérer l'essence bonus.</div>
+          <span class="bld-tag tag-faint">Quêtes en premier</span>
+        </div>
+        <div class="bld-cell">
+          <div class="bld-icon">💎</div>
+          <div class="bld-name">Bleues / Rares</div>
+          <div class="bld-desc">Débloquées via la Fontaine avancée. Donnent de vrais buffs + prospérité. C'est là que va l'essence ensuite.</div>
+          <span class="bld-tag tag-blue">Buff + Prospérité</span>
+        </div>
+        <div class="bld-cell">
+          <div class="bld-icon">🌅</div>
+          <div class="bld-name">Phare Golden Sunset</div>
+          <div class="bld-desc">Disponible via blueprint à Fontaine Niv.10. Donne Santé + Létalité. Incontournable pour les leaders de rally.</div>
+          <span class="bld-tag tag-amber">Événementiel</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLAN -->
+  <div class="sec">
+    <div class="sec-num blue">04</div>
+    <div class="sec-body">
+      <div class="sec-title">Plan d'Organisation</div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-accent pa-blue"></div>
+    <div class="panel-body">
+      <div class="map-wrap">
+
+        <div class="map-row">
+          <div class="map-zone mz-dock">
+            <div class="mz-label">🚢 Entrée — Quai</div>
+            <ul>
+              <li>Allée de palmiers / bannières</li>
+              <li>Guide les visiteurs vers le centre</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="map-arrow">↓</div>
+
+        <div class="map-row">
+          <div class="map-zone mz-center">
+            <div class="mz-label">⛲ Hub Central — Fontaine de Vie</div>
+            <ul>
+              <li>Fontaine au centre absolu</li>
+              <li>Chemins dégagés autour</li>
+              <li>Décors rares en vitrine ici</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="map-arrow">↙ &nbsp;&nbsp; ↘</div>
+
+        <div class="map-row">
+          <div class="map-zone mz-left">
+            <div class="mz-label">🏺 Zone Gauche ★</div>
+            <ul>
+              <li>Réservoir n°1 ici en premier</li>
+              <li>Près des cactus avec coffres</li>
+              <li>Max essence en début de partie</li>
+            </ul>
+          </div>
+          <div class="map-zone mz-right">
+            <div class="mz-label">🏺 Zone Droite</div>
+            <ul>
+              <li>Réservoir n°2 (phase 2)</li>
+              <li>Expansion progressive</li>
+              <li>Une fois la gauche nettoyée</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="map-arrow">↓</div>
+
+        <div class="map-row">
+          <div class="map-zone mz-buffs">
+            <div class="mz-label">⚔️🔬 Zone Buffs</div>
+            <ul>
+              <li>1 seul exemplaire de chaque type !</li>
+              <li>Développement en priorité</li>
+              <li>Militaire ensuite</li>
+              <li>Phare Golden Sunset si dispo</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="map-arrow">↓</div>
+
+        <div class="map-row">
+          <div class="map-zone mz-fill">
+            <div class="mz-label">🧱 Zone Remplissage</div>
+            <ul>
+              <li>Décors gris / verts bon marché</li>
+              <li>Finir les quêtes achat vite</li>
+              <li>Espaces libres restants</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- PRIORITÉS -->
+  <div class="sec">
+    <div class="sec-num">05</div>
+    <div class="sec-body">
+      <div class="sec-title">Priorités dans l'Ordre</div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-accent pa-amber"></div>
+    <div class="panel-body">
+      <ol class="prio-list">
+        <li class="prio-item">
+          <div class="prio-num">01</div>
+          <div class="prio-txt">
+            <strong>Réservoir → Niveau 4 dès que possible</strong>
+            <span>Débloque le 2ème worker → vitesse de récolte doublée</span>
+          </div>
+        </li>
+        <li class="prio-item">
+          <div class="prio-num">02</div>
+          <div class="prio-txt">
+            <strong>Acheter d'abord les décors bon marché</strong>
+            <span>Compléter les quêtes "achat" pour récupérer l'essence bonus à réinvestir</span>
+          </div>
+        </li>
+        <li class="prio-item">
+          <div class="prio-num">03</div>
+          <div class="prio-txt">
+            <strong>Monter la Fontaine de Vie en continu</strong>
+            <span>Plus d'essence générée, nouveaux bâtiments rares débloqués à chaque niveau</span>
+          </div>
+        </li>
+        <li class="prio-item">
+          <div class="prio-num">04</div>
+          <div class="prio-txt">
+            <strong>Structures de Développement</strong>
+            <span>Recherche + Construction avant tout — gains qui se compoundent sur la durée</span>
+          </div>
+        </li>
+        <li class="prio-item">
+          <div class="prio-num">05</div>
+          <div class="prio-txt">
+            <strong>Structures Militaires</strong>
+            <span>Attaque, santé, létalité — surtout utile pour les leaders de rally</span>
+          </div>
+        </li>
+        <li class="prio-item">
+          <div class="prio-num">06</div>
+          <div class="prio-txt">
+            <strong>Phare Golden Sunset (Fontaine Niv.10)</strong>
+            <span>Santé + Létalité — à acquérir dès que le palier est atteint</span>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- ERREURS -->
+  <div class="sec">
+    <div class="sec-num red">06</div>
+    <div class="sec-body">
+      <div class="sec-title">Erreurs à Éviter</div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-accent pa-red"></div>
+    <div class="panel-body">
+      <div class="help-box red">
+        <span class="help-icon">✗</span>
+        <div class="help-text"><strong>Dupliquer les bâtiments</strong> — Chaque type a une limite active. Les copies supplémentaires ne donnent aucun bonus ni prospérité. De l'essence gaspillée.</div>
+      </div>
+      <div class="help-box red">
+        <span class="help-icon">✗</span>
+        <div class="help-text"><strong>Sur-décorer trop tôt</strong> — L'espace est limité et l'essence précieuse. Les décos esthétiques coûtent cher pour peu de valeur en début de partie.</div>
+      </div>
+      <div class="help-box red">
+        <span class="help-icon">✗</span>
+        <div class="help-text"><strong>Mal placer le Réservoir</strong> — Place-le toujours près des cactus qui contiennent des coffres. Les workers partent depuis le Réservoir — la distance compte.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ASTUCES -->
+  <div class="sec">
+    <div class="sec-num green">07</div>
+    <div class="sec-body">
+      <div class="sec-title">Astuces Pro</div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-accent pa-green"></div>
+    <div class="panel-body">
+      <div class="help-box blue">
+        <span class="help-icon">→</span>
+        <div class="help-text"><strong>Commence par la gauche</strong> — La zone gauche de l'île contient la plus forte densité de coffres et d'essence en début de partie.</div>
+      </div>
+      <div class="help-box">
+        <span class="help-icon">→</span>
+        <div class="help-text"><strong>Collecte toutes les 12h</strong> — La Fontaine de Vie a un plafond de stockage. Passe deux fois par jour pour ne pas perdre d'essence.</div>
+      </div>
+      <div class="help-box">
+        <span class="help-icon">→</span>
+        <div class="help-text"><strong>Guide les workers avec des décors</strong> — Tu peux bloquer certains chemins pour forcer les workers à aller vers les cactus prioritaires.</div>
+      </div>
+      <div class="help-box blue">
+        <span class="help-icon">→</span>
+        <div class="help-text"><strong>Aide tes alliés</strong> — Visite les îles de tes alliés pour les aider et gagner des ressources bonus. Chaque joueur peut recevoir de l'aide une fois toutes les 6h.</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <a href="index.html">← Kingshot Help</a> · Guide Île Oasis · Non affilié à Century Games
+  </footer>
+
+</div>
+</body>
+</html>
