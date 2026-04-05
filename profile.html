@@ -356,6 +356,20 @@ function getSb() {
 // ══════════════════════════════════════════════════
 //  RÉSUMÉ D'UNE COMPOSITION
 // ══════════════════════════════════════════════════
+function calcTroops(cap, exactI, exactC, exactA, ri, rc, ra) {
+  cap = Number(cap || 0);
+  if (cap <= 0) return null;
+  let i, c, a;
+  if (exactI !== undefined && exactI !== '' && exactI !== null) {
+    i = Number(exactI); c = Number(exactC); a = Number(exactA);
+  } else {
+    i = Math.round(cap * Number(ri || 10) / 100);
+    c = Math.round(cap * Number(rc || 10) / 100);
+    a = cap - i - c;
+  }
+  return { i, c, a };
+}
+
 function buildCompoSummary(cs) {
   const inf = Number(cs.inf || 0);
   const cav = Number(cs.cav || 0);
@@ -369,12 +383,14 @@ function buildCompoSummary(cs) {
     lines.push({ lbl: 'Stocks', val: `INF ${fmtN(inf)} · CAV ${fmtN(cav)} · ARC ${fmtN(arc)}` });
   }
   if (leadCap) {
-    const ri = cs.lInf || 10, rc = cs.lCav || 10, ra = cs.lArc || 80;
-    lines.push({ lbl: '👑 Lead', val: `${fmtN(leadCap)} · ${ri}/${rc}/${ra}` });
+    const t = calcTroops(leadCap, cs.leadExactI, cs.leadExactC, cs.leadExactA, cs.lInf, cs.lCav, cs.lArc);
+    if (t) lines.push({ lbl: '👑 Lead', val: `INF ${fmtN(t.i)} · CAV ${fmtN(t.c)} · ARC ${fmtN(t.a)}` });
+    else   lines.push({ lbl: '👑 Lead', val: fmtN(leadCap) + ' troupes' });
   }
-  joiners.forEach((j, i) => {
-    const ri = j.inf || 5, rc = j.cav || 5, ra = j.arc || 90;
-    lines.push({ lbl: `⚡ J${i + 1}`, val: `${fmtN(j.cap)} · ${ri}/${rc}/${ra}` });
+  joiners.forEach((j, idx) => {
+    const t = calcTroops(j.cap, j.exactI, j.exactC, j.exactA, j.inf, j.cav, j.arc);
+    if (t) lines.push({ lbl: `⚡ J${idx + 1}`, val: `INF ${fmtN(t.i)} · CAV ${fmtN(t.c)} · ARC ${fmtN(t.a)}` });
+    else   lines.push({ lbl: `⚡ J${idx + 1}`, val: fmtN(j.cap) + ' troupes' });
   });
 
   if (lines.length === 0) lines.push({ lbl: 'Stocks', val: 'Aucune donnée' });
@@ -508,7 +524,6 @@ async function loadCompos() {
     // Test 1 : requête sans filtre pour voir si la table est accessible
     const testRes = await client.from('compositions').select('id, user_id, name').limit(3);
     if (testRes.error) {
-      showDebug('Erreur accès table: ' + testRes.error.message + ' | code: ' + testRes.error.code);
       showLoading(false);
       renderCompos();
       return;
@@ -522,41 +537,18 @@ async function loadCompos() {
       .order('created_at', { ascending: false });
 
     if (res.error) {
-      showDebug('Erreur filtre user: ' + res.error.message + ' | user_id: ' + currentUser.id);
       showLoading(false);
       renderCompos();
       return;
     }
 
     compositions = res.data || [];
-    const debugInfo = compositions.map((c, i) => {
-      const cs = c.calc_state;
-      const csInfo = !cs ? 'NULL'
-        : (typeof cs === 'string') ? 'STRING:' + cs.substring(0, 50)
-        : (Object.keys(cs).length === 0) ? 'VIDE {}'
-        : 'OK — clés: ' + Object.keys(cs).join(', ');
-      return 'Compo ' + i + ': "' + c.name + '" | calc_state=' + csInfo;
-    }).join('\n');
-    showDebug('OK — ' + compositions.length + ' compo(s)\n' + debugInfo);
   } catch(e) {
-    showDebug('Exception: ' + e.message);
   }
   showLoading(false);
   renderCompos();
 }
 
-function showDebug(msg) {
-  let el = document.getElementById('debugBox');
-  if (!el) {
-    el = document.createElement('div');
-    el.id = 'debugBox';
-    el.style.cssText = 'background:#1a1a2e;color:#e0e0e0;font-family:monospace;font-size:12px;padding:12px;margin-bottom:12px;border:1px solid #b86e00;word-break:break-all;white-space:pre-wrap;';
-    const compoList = document.getElementById('compoList');
-    if (compoList) compoList.before(el);
-    else document.getElementById('mainContent').appendChild(el);
-  }
-  el.textContent = '🔍 DEBUG: ' + msg;
-}
 
 // ══════════════════════════════════════════════════
 //  SAUVEGARDER UNE COMPOSITION
