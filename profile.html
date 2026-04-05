@@ -608,7 +608,7 @@ function loadCompo(idx) {
   try {
     localStorage.setItem('bearCalcState', JSON.stringify(c.calc_state));
     toast('Config chargée ! Redirection…', 'ok');
-    setTimeout(() => window.location.href = 'bear_calculator.html', 900);
+    setTimeout(() => window.location.href = 'bear_calculator.html?fromProfile=1', 900);
   } catch(e) {
     toast('Erreur lors du chargement', 'err');
   }

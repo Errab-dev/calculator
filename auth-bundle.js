@@ -639,7 +639,8 @@
         if (ba) ba.disabled = false;
         if (typeof window.updateHeroSummary === 'function') window.updateHeroSummary();
       };
-      if (isLoggedIn()) setTimeout(loadFromCloud, 300);
+      var fromProfile = location.search.includes('fromProfile=1');
+      if (isLoggedIn() && !fromProfile) setTimeout(loadFromCloud, 300);
     }
 
     if (typeof supabase === 'undefined') {
