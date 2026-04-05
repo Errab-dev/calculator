@@ -529,7 +529,15 @@ async function loadCompos() {
     }
 
     compositions = res.data || [];
-    showDebug('OK — ' + compositions.length + ' compo(s) | user_id utilisé: ' + currentUser.id + ' | total visible sans filtre: ' + (testRes.data || []).length);
+    const debugInfo = compositions.map((c, i) => {
+      const cs = c.calc_state;
+      const csInfo = !cs ? 'NULL'
+        : (typeof cs === 'string') ? 'STRING:' + cs.substring(0, 50)
+        : (Object.keys(cs).length === 0) ? 'VIDE {}'
+        : 'OK — clés: ' + Object.keys(cs).join(', ');
+      return 'Compo ' + i + ': "' + c.name + '" | calc_state=' + csInfo;
+    }).join('\n');
+    showDebug('OK — ' + compositions.length + ' compo(s)\n' + debugInfo);
   } catch(e) {
     showDebug('Exception: ' + e.message);
   }
