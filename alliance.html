@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alliance — Kingshot Help</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600;700;800;900&family=Barlow:wght@300;400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:         #f0f3f7;
+  --surface:    #ffffff;
+  --surface2:   #edf0f5;
+  --border:     #ccd4e0;
+  --border2:    #dde3ec;
+  --amber:      #b86e00;
+  --amber-dim:  #d48820;
+  --amber-glow: rgba(184,110,0,.10);
+  --red:        #c0392b;
+  --green:      #1a7a44;
+  --green-dim:  rgba(26,122,68,.10);
+  --inf:        #1a68aa;
+  --cav:        #1e8040;
+  --arc:        #8a5800;
+  --text:       #18202e;
+  --text-dim:   #445068;
+  --text-faint: #8090a8;
+  --f-display:  'Barlow Condensed', sans-serif;
+  --f-body:     'Barlow', sans-serif;
+  --f-mono:     'Share Tech Mono', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--f-body);
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+  padding: 0 0 80px;
+  background-image:
+    linear-gradient(rgba(180,195,215,.4) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(180,195,215,.4) 1px, transparent 1px);
+  background-size: 40px 40px;
+  padding-top: 48px;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.008) 2px, rgba(0,0,0,.008) 4px);
+  pointer-events: none; z-index: 100;
+}
+
+.page { max-width: 720px; margin: 0 auto; padding: 0 16px; }
+
+/* ── PAGE HEADER ── */
+.page-hdr {
+  padding: 28px 0 18px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
+  position: relative;
+}
+.page-hdr::after {
+  content: ''; position: absolute; bottom: -1px; left: 0;
+  width: 80px; height: 2px;
+  background: var(--amber); box-shadow: 0 0 12px var(--amber);
+}
+.page-hdr-label { font-family: var(--f-mono); font-size: 11px; color: var(--amber); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 4px; }
+.page-hdr-title { font-family: var(--f-display); font-size: 2.6rem; font-weight: 900; line-height: .9; text-transform: uppercase; letter-spacing: -1px; }
+.page-hdr-title span { color: var(--amber); }
+.page-hdr-sub { font-family: var(--f-mono); font-size: 11px; color: var(--text-faint); letter-spacing: 2px; text-transform: uppercase; margin-top: 8px; }
+
+/* ── BARRE STATS ALLIANCE ── */
+.alliance-bar {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  display: flex;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 20px;
+}
+.alliance-bar::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--amber), var(--inf), var(--green));
+}
+.abar-item { flex: 1; text-align: center; padding: 16px 10px; border-right: 1px solid var(--border2); }
+.abar-item:last-child { border-right: none; }
+.abar-num { font-family: var(--f-display); font-size: 1.8rem; font-weight: 900; color: var(--amber); letter-spacing: -1px; display: block; line-height: 1; }
+.abar-lbl { font-family: var(--f-mono); font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-faint); margin-top: 4px; display: block; }
+
+/* ── BARRE RECHERCHE / FILTRE ── */
+.filter-bar {
+  display: flex; gap: 8px; margin-bottom: 16px; align-items: center;
+}
+.filter-input {
+  flex: 1; padding: 8px 12px;
+  background: var(--surface); border: 1px solid var(--border);
+  font-family: var(--f-body); font-size: 13px; color: var(--text);
+  outline: none; transition: border-color .2s;
+}
+.filter-input:focus { border-color: var(--amber); }
+.filter-input::placeholder { color: var(--text-faint); }
+.filter-sort {
+  padding: 8px 10px; background: var(--surface); border: 1px solid var(--border);
+  font-family: var(--f-mono); font-size: 11px; color: var(--text-dim);
+  outline: none; cursor: pointer; transition: border-color .2s;
+}
+.filter-sort:focus { border-color: var(--amber); }
+.refresh-btn {
+  padding: 8px 12px; background: transparent; border: 1px solid var(--border);
+  font-family: var(--f-mono); font-size: 11px; color: var(--text-faint);
+  cursor: pointer; transition: all .2s; white-space: nowrap;
+}
+.refresh-btn:hover { border-color: var(--amber); color: var(--amber); }
+
+/* ── MEMBRE CARD ── */
+.member-list { display: flex; flex-direction: column; gap: 8px; }
+
+.member-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  transition: box-shadow .2s;
+}
+.member-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+.member-card.is-me { border-left: 3px solid var(--amber); }
+
+/* Ligne principale cliquable */
+.member-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px; cursor: pointer;
+  user-select: none; transition: background .15s;
+}
+.member-row:hover { background: var(--surface2); }
+
+.member-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  transition: background .3s;
+}
+.member-dot.online  { background: #1a7a44; box-shadow: 0 0 6px rgba(26,122,68,.6); }
+.member-dot.offline { background: #8090a8; }
+
+.member-name {
+  font-family: var(--f-display); font-size: 1.1rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: .5px; flex-shrink: 0;
+}
+.member-me-badge {
+  font-family: var(--f-mono); font-size: 9px; color: var(--amber);
+  letter-spacing: 1px; font-weight: normal;
+}
+
+.member-meta {
+  font-family: var(--f-mono); font-size: 10px; color: var(--text-faint);
+  letter-spacing: .5px; flex: 1;
+  display: flex; flex-wrap: wrap; gap: 0 10px;
+}
+.member-meta .m-online-txt  { color: #1a7a44; }
+.member-meta .m-offline-txt { color: var(--text-faint); }
+
+.member-arrow {
+  font-size: 10px; color: var(--amber); flex-shrink: 0;
+  transition: transform .2s;
+}
+.member-arrow.open { transform: rotate(90deg); }
+
+/* Détail dépliable */
+.member-detail {
+  display: none;
+  border-top: 1px solid var(--border2);
+  padding: 14px;
+  background: var(--surface2);
+}
+.member-detail.open { display: block; }
+
+/* Grille stats */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.stat-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 10px 8px;
+  text-align: center;
+}
+.stat-box .stat-lbl {
+  font-family: var(--f-mono); font-size: 9px; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--text-faint); display: block; margin-bottom: 3px;
+}
+.stat-box .stat-val {
+  font-family: var(--f-display); font-size: 1.15rem; font-weight: 900;
+  letter-spacing: -.5px; display: block; line-height: 1;
+}
+.stat-box .stat-val.cv-inf { color: var(--inf); }
+.stat-box .stat-val.cv-cav { color: var(--cav); }
+.stat-box .stat-val.cv-arc { color: var(--arc); }
+.stat-box .stat-val.cv-amber { color: var(--amber); }
+.stat-box .stat-sub {
+  font-family: var(--f-mono); font-size: 9px; color: var(--text-faint); margin-top: 2px; display: block;
+}
+
+/* Section Bear Hunt */
+.bh-section { margin-top: 2px; }
+.bh-label {
+  font-family: var(--f-mono); font-size: 9px; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--text-faint); margin-bottom: 8px;
+  display: flex; align-items: center; gap: 6px;
+}
+.bh-label::after { content: ''; flex: 1; height: 1px; background: var(--border2); }
+
+/* Teams grid */
+.teams-grid { display: flex; flex-direction: column; gap: 5px; }
+.team-row {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface); border: 1px solid var(--border);
+  padding: 8px 10px;
+}
+.team-icon { font-size: 13px; flex-shrink: 0; width: 20px; }
+.team-name {
+  font-family: var(--f-mono); font-size: 10px; font-weight: 700;
+  color: var(--text-dim); letter-spacing: .5px; flex-shrink: 0; width: 60px;
+}
+.team-troops { display: flex; gap: 6px; flex: 1; flex-wrap: wrap; }
+.troop-chip {
+  font-family: var(--f-mono); font-size: 10px;
+  display: flex; align-items: center; gap: 3px;
+}
+.troop-chip .tc-lbl { color: var(--text-faint); font-size: 9px; }
+.troop-chip .tc-val { font-weight: 700; }
+.tc-inf { color: var(--inf); }
+.tc-cav { color: var(--cav); }
+.tc-arc { color: var(--arc); }
+.team-total {
+  font-family: var(--f-mono); font-size: 10px; color: var(--text-faint);
+  white-space: nowrap; flex-shrink: 0;
+}
+
+/* Bouton Discord */
+.discord-btn {
+  margin-top: 10px; width: 100%; padding: 8px;
+  background: transparent; border: 1px solid var(--border);
+  font-family: var(--f-mono); font-size: 11px; letter-spacing: 1px;
+  color: var(--text-dim); cursor: pointer; transition: all .2s;
+  text-align: center;
+}
+.discord-btn:hover { border-color: var(--amber); color: var(--amber); background: var(--amber-glow); }
+.discord-btn.copied { border-color: var(--green); color: var(--green); background: var(--green-dim); }
+
+/* ── ÉTATS ── */
+.state-box {
+  background: var(--surface); border: 1px solid var(--border);
+  padding: 40px 20px; text-align: center;
+}
+.state-icon { font-size: 2.5rem; margin-bottom: 12px; opacity: .5; }
+.state-title {
+  font-family: var(--f-display); font-size: 1.2rem; font-weight: 900;
+  text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim);
+}
+.state-sub { font-size: 13px; color: var(--text-faint); margin-top: 6px; }
+
+/* ── LOADING ── */
+.loading-bar { height: 2px; background: var(--border2); overflow: hidden; margin-bottom: 16px; }
+.loading-bar-inner {
+  height: 100%; background: var(--amber); width: 40%;
+  animation: loadAnim 1s ease-in-out infinite alternate;
+}
+@keyframes loadAnim { from { margin-left: 0 } to { margin-left: 60% } }
+
+/* ── TOAST ── */
+#allyToast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  padding: 10px 20px; font-family: var(--f-mono); font-size: 12px;
+  letter-spacing: 1px; z-index: 9999; transition: opacity .4s;
+  pointer-events: none; opacity: 0; color: #fff;
+}
+
+/* ── FOOTER ── */
+footer {
+  text-align: center; margin-top: 48px;
+  padding-top: 20px; border-top: 1px solid var(--border2);
+  font-family: var(--f-mono); font-size: 10px;
+  letter-spacing: 1.5px; color: var(--text-faint); text-transform: uppercase;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page-hdr { animation: fadeUp .3s ease both; }
+#allyContent { animation: fadeUp .3s ease both .1s; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="page-hdr">
+    <div class="page-hdr-label">// Kingshot Help</div>
+    <div class="page-hdr-title">Mon <span>Alliance</span></div>
+    <div class="page-hdr-sub" id="allianceName">Chargement…</div>
+  </div>
+
+  <div id="allyContent">
+    <!-- rempli par JS -->
+  </div>
+
+</div>
+
+<footer>Kingshot Help · Non affilié à Century Games</footer>
+<div id="allyToast"></div>
+
+<script>
+// ══════════════════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════════════════
+const SUPA_URL = 'https://ndusomdjunpvabmwvuqr.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5kdXNvbWRqdW5wdmFibXd2dXFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMzcwNjYsImV4cCI6MjA5MDkxMzA2Nn0.5AD_2hvmJQlPQnum75R1-vrFgxpQXqYBAgHKwuFApsc';
+const ONLINE_MINUTES = 5; // seuil "en ligne"
+
+let sb = null;
+let currentUser = null;
+let allMembers = [];
+let profilesMap = {};
+let sortMode = 'name'; // 'name' | 'online' | 'lead'
+let searchQuery = '';
+let refreshTimer = null;
+
+try { currentUser = JSON.parse(localStorage.getItem('ksUser') || 'null'); } catch(e) {}
+
+// ══════════════════════════════════════════════════
+//  UTILS
+// ══════════════════════════════════════════════════
+function fmtN(n) {
+  const v = Number(n);
+  if (!v || isNaN(v)) return '—';
+  return v.toLocaleString('fr-FR');
+}
+
+function toast(msg, type = 'info') {
+  const t = document.getElementById('allyToast');
+  const colors = { ok: '#1a7a44', err: '#c0392b', info: '#b86e00' };
+  t.textContent = msg;
+  t.style.background = colors[type] || colors.info;
+  t.style.opacity = '1';
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.style.opacity = '0', 2500);
+}
+
+function getSb() {
+  if (!sb && typeof supabase !== 'undefined') {
+    sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+  }
+  return sb;
+}
+
+function isOnline(updatedAt) {
+  if (!updatedAt) return false;
+  const diff = (Date.now() - new Date(updatedAt).getTime()) / 60000;
+  return diff <= ONLINE_MINUTES;
+}
+
+function timeAgo(updatedAt) {
+  if (!updatedAt) return '';
+  const diff = Math.floor((Date.now() - new Date(updatedAt).getTime()) / 1000);
+  if (diff < 60)  return 'il y a ' + diff + 's';
+  if (diff < 3600) return 'il y a ' + Math.floor(diff/60) + 'min';
+  if (diff < 86400) return 'il y a ' + Math.floor(diff/3600) + 'h';
+  return new Date(updatedAt).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' });
+}
+
+// ══════════════════════════════════════════════════
+//  CALCUL TEAMS
+// ══════════════════════════════════════════════════
+function getTeamCounts(cap, exactI, exactC, exactA, ri, rc, ra, maxI, maxC, maxA) {
+  cap = Number(cap || 0);
+  if (cap <= 0) return null;
+  let i, c, a;
+  if (exactI !== undefined && exactI !== '' && exactI !== null) {
+    i = Number(exactI); c = Number(exactC); a = Number(exactA);
+  } else {
+    i = Math.min(Math.round(cap * Number(ri||10) / 100), maxI || Infinity);
+    c = Math.min(Math.round(cap * Number(rc||10) / 100), maxC || Infinity);
+    a = cap - i - c;
+  }
+  const tot = i + c + a;
+  return { i, c, a, tot,
+    ri: tot > 0 ? Math.round(i/tot*100) : Number(ri||10),
+    rc: tot > 0 ? Math.round(c/tot*100) : Number(rc||10),
+    ra: tot > 0 ? Math.round(a/tot*100) : Number(ra||80)
+  };
+}
+
+function buildDiscordText(username, cs) {
+  const inf = Number(cs.inf||0), cav = Number(cs.cav||0), arc = Number(cs.arc||0);
+  const lines = [`🐻 **Bear Hunt** — ${username}`];
+  if (inf||cav||arc) lines.push(`**Stocks** : INF ${fmtN(inf)} | CAV ${fmtN(cav)} | ARC ${fmtN(arc)}`);
+  lines.push('');
+  const lT = getTeamCounts(cs.leadCap, cs.leadExactI, cs.leadExactC, cs.leadExactA, cs.lInf, cs.lCav, cs.lArc, inf, cav, arc);
+  if (lT) lines.push(`👑 **Leader** : ${fmtN(lT.tot)} troupes — INF ${fmtN(lT.i)} (${lT.ri}%) · CAV ${fmtN(lT.c)} (${lT.rc}%) · ARC ${fmtN(lT.a)} (${lT.ra}%)`);
+  (cs.joiners||[]).forEach((j, idx) => {
+    const t = getTeamCounts(j.cap, j.exactI, j.exactC, j.exactA, j.inf, j.cav, j.arc, inf, cav, arc);
+    if (t) lines.push(`⚡ **Joiner ${idx+1}** : ${fmtN(t.tot)} troupes — INF ${fmtN(t.i)} (${t.ri}%) · CAV ${fmtN(t.c)} (${t.rc}%) · ARC ${fmtN(t.a)} (${t.ra}%)`);
+  });
+  lines.push('');
+  lines.push('_Bear Hunt Calculator · Kingshot Help_');
+  return lines.join('\n');
+}
+
+// ══════════════════════════════════════════════════
+//  CHARGEMENT DONNÉES
+// ══════════════════════════════════════════════════
+async function loadAlliance() {
+  const client = getSb();
+  if (!client) return;
+
+  if (!currentUser) {
+    renderNotLogged();
+    return;
+  }
+
+  if (!currentUser.alliance) {
+    renderNoAlliance();
+    return;
+  }
+
+  showLoading(true);
+
+  try {
+    // Charger les membres
+    const res = await client
+      .from('alliance_members')
+      .select('*')
+      .eq('alliance', currentUser.alliance);
+
+    if (res.error) throw res.error;
+    allMembers = res.data || [];
+
+    if (allMembers.length === 0) {
+      showLoading(false);
+      renderEmpty();
+      return;
+    }
+
+    // Charger calc_state + last_seen depuis profiles
+    const usernames = allMembers.map(m => m.username);
+    const pRes = await client
+      .from('profiles')
+      .select('username, calc_state, updated_at')
+      .in('username', usernames);
+
+    profilesMap = {};
+    (pRes.data || []).forEach(p => {
+      profilesMap[p.username] = {
+        calc_state: p.calc_state || {},
+        updated_at: p.updated_at
+      };
+    });
+
+    // Mettre à jour last_seen de l'utilisateur connecté
+    await client
+      .from('profiles')
+      .update({ updated_at: new Date().toISOString() })
+      .eq('id', currentUser.id);
+
+  } catch(e) {
+    showLoading(false);
+    renderError(e.message);
+    return;
+  }
+
+  showLoading(false);
+  renderAlliance();
+
+  // Refresh automatique toutes les 30s pour le statut en ligne
+  clearInterval(refreshTimer);
+  refreshTimer = setInterval(() => {
+    renderMemberList(); // juste re-render les dots
+  }, 30000);
+}
+
+// ══════════════════════════════════════════════════
+//  RENDER PRINCIPAL
+// ══════════════════════════════════════════════════
+function renderAlliance() {
+  document.getElementById('allianceName').textContent =
+    currentUser.alliance + (currentUser.server ? ' · ' + currentUser.server : '');
+
+  const online = allMembers.filter(m => isOnline(profilesMap[m.username]?.updated_at)).length;
+  const hasLead = allMembers.filter(m => Number((profilesMap[m.username]?.calc_state||{}).leadCap||0) > 0).length;
+
+  document.getElementById('allyContent').innerHTML = `
+    <!-- Stats bar -->
+    <div class="alliance-bar">
+      <div class="abar-item">
+        <span class="abar-num">${allMembers.length}</span>
+        <span class="abar-lbl">Membres</span>
+      </div>
+      <div class="abar-item">
+        <span class="abar-num" style="color:var(--green)">${online}</span>
+        <span class="abar-lbl">En ligne</span>
+      </div>
+      <div class="abar-item">
+        <span class="abar-num">${hasLead}</span>
+        <span class="abar-lbl">Avec config</span>
+      </div>
+    </div>
+
+    <!-- Filtre / tri -->
+    <div class="filter-bar">
+      <input type="text" class="filter-input" placeholder="🔍 Rechercher un membre…"
+        oninput="searchQuery=this.value;renderMemberList()" value="${searchQuery}">
+      <select class="filter-sort" onchange="sortMode=this.value;renderMemberList()">
+        <option value="name"   ${sortMode==='name'?'selected':''}>A → Z</option>
+        <option value="online" ${sortMode==='online'?'selected':''}>En ligne d'abord</option>
+        <option value="lead"   ${sortMode==='lead'?'selected':''}>Plus grosse lead</option>
+      </select>
+      <button class="refresh-btn" onclick="loadAlliance()">↺ Refresh</button>
+    </div>
+
+    <!-- Liste membres -->
+    <div class="member-list" id="memberList"></div>
+  `;
+
+  renderMemberList();
+}
+
+function renderMemberList() {
+  const el = document.getElementById('memberList');
+  if (!el) return;
+
+  // Filtrer
+  let members = allMembers.filter(m =>
+    !searchQuery || m.username.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Trier
+  members = members.slice().sort((a, b) => {
+    if (sortMode === 'online') {
+      const ao = isOnline(profilesMap[a.username]?.updated_at) ? 1 : 0;
+      const bo = isOnline(profilesMap[b.username]?.updated_at) ? 1 : 0;
+      if (ao !== bo) return bo - ao;
+    }
+    if (sortMode === 'lead') {
+      const al = Number((profilesMap[a.username]?.calc_state||{}).leadCap||0);
+      const bl = Number((profilesMap[b.username]?.calc_state||{}).leadCap||0);
+      if (al !== bl) return bl - al;
+    }
+    return a.username.localeCompare(b.username);
+  });
+
+  if (members.length === 0) {
+    el.innerHTML = '<div class="state-box"><div class="state-icon">🔍</div><div class="state-title">Aucun résultat</div></div>';
+    return;
+  }
+
+  el.innerHTML = members.map((m, idx) => renderMemberCard(m, idx)).join('');
+}
+
+function renderMemberCard(m, idx) {
+  const profile = profilesMap[m.username] || {};
+  const cs = profile.calc_state || {};
+  const updAt = profile.updated_at;
+  const online = isOnline(updAt);
+  const isMe = m.username === currentUser?.username;
+
+  const inf = Number(cs.inf||0), cav = Number(cs.cav||0), arc = Number(cs.arc||0);
+  const leadCap = Number(cs.leadCap||0);
+  const activeJoiners = (cs.joiners||[]).filter(j => Number(j.cap||0) > 0);
+
+  // Statut texte
+  const statusTxt = online
+    ? '<span class="m-online-txt">● En ligne</span>'
+    : (updAt ? '<span class="m-offline-txt">' + timeAgo(updAt) + '</span>' : '<span class="m-offline-txt">Jamais connecté</span>');
+
+  // Résumé rapide
+  const quickParts = [];
+  if (leadCap) quickParts.push('Lead ' + fmtN(leadCap));
+  if (activeJoiners.length) quickParts.push(activeJoiners.length + ' joiner' + (activeJoiners.length > 1 ? 's' : ''));
+
+  const id = 'mc_' + m.username.replace(/[^a-z0-9]/gi, '_');
+
+  return `
+    <div class="member-card${isMe ? ' is-me' : ''}">
+      <div class="member-row" onclick="toggleCard('${id}')">
+        <div class="member-dot ${online ? 'online' : 'offline'}"></div>
+        <div class="member-name">
+          ${escHtml(m.username)}
+          ${isMe ? '<span class="member-me-badge">(toi)</span>' : ''}
+        </div>
+        <div class="member-meta">
+          ${statusTxt}
+          ${quickParts.length ? '<span>· ' + quickParts.join(' · ') + '</span>' : ''}
+        </div>
+        <span class="member-arrow" id="${id}_arrow">▶</span>
+      </div>
+      <div class="member-detail" id="${id}_detail">
+        ${renderMemberDetail(m, cs, inf, cav, arc, leadCap, activeJoiners)}
+      </div>
+    </div>
+  `;
+}
+
+function renderMemberDetail(m, cs, inf, cav, arc, leadCap, activeJoiners) {
+  const hasData = inf > 0 || cav > 0 || arc > 0 || leadCap > 0;
+
+  if (!hasData) {
+    return '<div style="font-size:13px;color:var(--text-faint);font-style:italic;padding:4px 0">Ce membre n\'a pas encore sauvegardé de configuration.</div>';
+  }
+
+  // Grille stocks
+  const stocksHtml = `
+    <div class="stats-grid" style="margin-bottom:14px">
+      <div class="stat-box">
+        <span class="stat-lbl">INF</span>
+        <span class="stat-val cv-inf">${fmtN(inf)}</span>
+        <span class="stat-sub">troupes</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-lbl">CAV</span>
+        <span class="stat-val cv-cav">${fmtN(cav)}</span>
+        <span class="stat-sub">troupes</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-lbl">ARC</span>
+        <span class="stat-val cv-arc">${fmtN(arc)}</span>
+        <span class="stat-sub">troupes</span>
+      </div>
+    </div>
+  `;
+
+  // Teams
+  const teams = [];
+  if (leadCap > 0) {
+    const t = getTeamCounts(cs.leadCap, cs.leadExactI, cs.leadExactC, cs.leadExactA, cs.lInf, cs.lCav, cs.lArc, inf, cav, arc);
+    if (t) teams.push({ icon: '👑', name: 'Lead', team: t });
+  }
+  activeJoiners.forEach((j, idx) => {
+    const t = getTeamCounts(j.cap, j.exactI, j.exactC, j.exactA, j.inf, j.cav, j.arc, inf, cav, arc);
+    if (t) teams.push({ icon: '⚡', name: `J${idx+1}`, team: t });
+  });
+
+  const teamsHtml = teams.length ? `
+    <div class="bh-section">
+      <div class="bh-label">Bear Hunt</div>
+      <div class="teams-grid">
+        ${teams.map(({ icon, name, team: t }) => `
+          <div class="team-row">
+            <span class="team-icon">${icon}</span>
+            <span class="team-name">${name}</span>
+            <div class="team-troops">
+              <span class="troop-chip"><span class="tc-lbl">INF</span><span class="tc-val tc-inf">${fmtN(t.i)}</span></span>
+              <span class="troop-chip"><span class="tc-lbl">CAV</span><span class="tc-val tc-cav">${fmtN(t.c)}</span></span>
+              <span class="troop-chip"><span class="tc-lbl">ARC</span><span class="tc-val tc-arc">${fmtN(t.a)}</span></span>
+            </div>
+            <span class="team-total">${fmtN(t.tot)}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    <button class="discord-btn" id="disc_${escHtml(m.username)}" onclick="copyDiscord('${escHtml(m.username)}')">▣ Copier pour Discord</button>
+  ` : '';
+
+  return stocksHtml + teamsHtml;
+}
+
+// ══════════════════════════════════════════════════
+//  TOGGLE CARTE
+// ══════════════════════════════════════════════════
+function toggleCard(id) {
+  const detail = document.getElementById(id + '_detail');
+  const arrow  = document.getElementById(id + '_arrow');
+  if (!detail) return;
+  const open = detail.classList.contains('open');
+  detail.classList.toggle('open');
+  if (arrow) {
+    arrow.classList.toggle('open');
+    arrow.textContent = open ? '▶' : '▼';
+  }
+}
+
+// ══════════════════════════════════════════════════
+//  COPIE DISCORD
+// ══════════════════════════════════════════════════
+function copyDiscord(username) {
+  const profile = profilesMap[username] || {};
+  const cs = profile.calc_state || {};
+  const text = buildDiscordText(username, cs);
+  const btn = document.getElementById('disc_' + username);
+
+  navigator.clipboard.writeText(text).then(() => {
+    if (btn) { btn.textContent = '✓ Copié !'; btn.classList.add('copied'); }
+    setTimeout(() => {
+      if (btn) { btn.textContent = '▣ Copier pour Discord'; btn.classList.remove('copied'); }
+    }, 2000);
+  }).catch(() => toast('Erreur copie', 'err'));
+}
+
+// ══════════════════════════════════════════════════
+//  ÉTATS (non connecté, pas d'alliance, erreur…)
+// ══════════════════════════════════════════════════
+function renderNotLogged() {
+  document.getElementById('allianceName').textContent = 'Connexion requise';
+  document.getElementById('allyContent').innerHTML = `
+    <div class="state-box">
+      <div class="state-icon">🔒</div>
+      <div class="state-title">Connexion requise</div>
+      <div class="state-sub">Connecte-toi pour accéder à la page Alliance.</div>
+    </div>`;
+}
+
+function renderNoAlliance() {
+  document.getElementById('allianceName').textContent = 'Aucune alliance';
+  document.getElementById('allyContent').innerHTML = `
+    <div class="state-box">
+      <div class="state-icon">🏰</div>
+      <div class="state-title">Pas d'alliance renseignée</div>
+      <div class="state-sub">Renseigne ton tag d'alliance dans ton profil pour voir tes alliés.</div>
+    </div>`;
+}
+
+function renderEmpty() {
+  document.getElementById('allyContent').innerHTML = `
+    <div class="state-box">
+      <div class="state-icon">👥</div>
+      <div class="state-title">Aucun membre trouvé</div>
+      <div class="state-sub">Personne dans ton alliance n'a encore de compte sur Kingshot Help.</div>
+    </div>`;
+}
+
+function renderError(msg) {
+  document.getElementById('allyContent').innerHTML = `
+    <div class="state-box">
+      <div class="state-icon">⚠️</div>
+      <div class="state-title">Erreur de chargement</div>
+      <div class="state-sub">${escHtml(msg)}</div>
+    </div>`;
+}
+
+function showLoading(show) {
+  let bar = document.getElementById('allyLoadingBar');
+  const content = document.getElementById('allyContent');
+  if (show) {
+    if (!bar) {
+      bar = document.createElement('div');
+      bar.id = 'allyLoadingBar';
+      bar.className = 'loading-bar';
+      bar.innerHTML = '<div class="loading-bar-inner"></div>';
+      content.before(bar);
+    }
+  } else { bar?.remove(); }
+}
+
+function escHtml(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ══════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════
+(function loadSDK() {
+  if (typeof supabase !== 'undefined') { loadAlliance(); return; }
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+  s.onload = () => { sb = supabase.createClient(SUPA_URL, SUPA_KEY); loadAlliance(); };
+  s.onerror = () => toast('Erreur chargement SDK', 'err');
+  document.head.appendChild(s);
+})();
+
+// Écouter les changements de connexion depuis auth-bundle
+const _origSet = localStorage.setItem.bind(localStorage);
+localStorage.setItem = function(key, value) {
+  _origSet(key, value);
+  if (key === 'ksUser') {
+    try { currentUser = JSON.parse(value); } catch(e) { currentUser = null; }
+    loadAlliance();
+  }
+};
+</script>
+
+<script src="auth-bundle.js"></script>
+</body>
+</html>
