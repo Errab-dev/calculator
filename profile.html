@@ -55,6 +55,40 @@ body::before {
 
 .page { max-width: 680px; margin: 0 auto; padding: 0 16px; }
 
+/* ── SUBNAV (onglets fixes sous la navbar) ── */
+#profileSubnav {
+  position: fixed;
+  top: 82px; /* hauteur navbar (48px row1 + 34px row2) */
+  left: 0; right: 0;
+  z-index: 8000;
+  background: var(--surface);
+  border-bottom: 2px solid var(--border);
+  display: flex;
+  padding: 0 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+#profileSubnav .pnav-btn {
+  font-family: var(--f-display);
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 11px 18px;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  color: var(--text-faint);
+  cursor: pointer;
+  transition: color .2s, border-color .2s;
+}
+#profileSubnav .pnav-btn.active {
+  color: var(--amber);
+  border-bottom-color: var(--amber);
+}
+/* décaler le contenu sous les deux barres fixes : 82px navbar + 46px subnav */
+body { padding-top: 128px !important; }
+
 /* ── HEADER ── */
 .hdr {
   padding: 32px 0 20px;
@@ -296,21 +330,13 @@ footer {
 <body>
 <div class="page">
 
-  <!-- HEADER -->
-  <div class="hdr">
-    <div class="hdr-top">
-      <div>
-        <div class="hdr-label">// Kingshot Help</div>
-        <div class="hdr-title">Mon <span>Profil</span></div>
-        <div class="hdr-sub">Compte · Compositions sauvegardées</div>
-      </div>
-      <a href="index.html" class="back-link">← Accueil</a>
-    </div>
+  <!-- SUBNAV ONGLETS (fixe sous navbar) -->
+  <div id="profileSubnav" style="display:none">
+    <button class="pnav-btn active" id="pnav-compos" onclick="switchTab('compos')">Compositions</button>
+    <button class="pnav-btn" id="pnav-stats" onclick="switchTab('stats')">Stats Bonus</button>
   </div>
 
-  <!-- CONTENU AUTH (injecté par auth-bundle) -->
-  <!-- authBar sera inséré ici automatiquement -->
-
+  <!-- CONTENU -->
   <div id="mainContent">
     <!-- rempli par JS -->
   </div>
@@ -453,12 +479,6 @@ function renderMain() {
       </div>
     </div>
 
-    <!-- ONGLETS -->
-    <div style="display:flex;gap:0;margin-top:28px;border-bottom:1px solid var(--border)">
-      <button id="tabBtnCompos" onclick="switchTab('compos')" style="font-family:var(--f-display);font-size:1rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:10px 20px;background:transparent;border:none;border-bottom:3px solid var(--amber);color:var(--text);cursor:pointer">Compositions</button>
-      <button id="tabBtnStats" onclick="switchTab('stats')" style="font-family:var(--f-display);font-size:1rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:10px 20px;background:transparent;border:none;border-bottom:3px solid transparent;color:var(--text-faint);cursor:pointer">Stats Bonus</button>
-    </div>
-
     <!-- TAB : COMPOSITIONS -->
     <div id="tabCompos" style="margin-top:16px">
       <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
@@ -508,6 +528,9 @@ function renderMain() {
     </div>
   `;
 
+  // Afficher la subnav
+  const subnav = document.getElementById('profileSubnav');
+  if (subnav) subnav.style.display = 'flex';
   renderCompos();
   loadBonusStats();
 }
@@ -560,17 +583,17 @@ function renderCompos() {
 function switchTab(tab) {
   const tabCompos = document.getElementById('tabCompos');
   const tabStats  = document.getElementById('tabStats');
-  const btnCompos = document.getElementById('tabBtnCompos');
-  const btnStats  = document.getElementById('tabBtnStats');
+  const btnCompos = document.getElementById('pnav-compos');
+  const btnStats  = document.getElementById('pnav-stats');
   if (!tabCompos) return;
   if (tab === 'stats') {
     tabCompos.style.display = 'none'; tabStats.style.display = '';
-    btnCompos.style.borderBottomColor = 'transparent'; btnCompos.style.color = 'var(--text-faint)';
-    btnStats.style.borderBottomColor  = 'var(--amber)'; btnStats.style.color  = 'var(--text)';
+    if (btnCompos) { btnCompos.classList.remove('active'); }
+    if (btnStats)  { btnStats.classList.add('active'); }
   } else {
     tabCompos.style.display = ''; tabStats.style.display = 'none';
-    btnCompos.style.borderBottomColor = 'var(--amber)'; btnCompos.style.color = 'var(--text)';
-    btnStats.style.borderBottomColor  = 'transparent';  btnStats.style.color  = 'var(--text-faint)';
+    if (btnCompos) { btnCompos.classList.add('active'); }
+    if (btnStats)  { btnStats.classList.remove('active'); }
   }
 }
 
