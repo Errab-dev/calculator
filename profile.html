@@ -1156,14 +1156,13 @@ function openHeroModal(key) {
       </div>` : ''}
 
       <!-- Actions -->
-      <div style="display:flex;gap:8px;margin-top:20px;justify-content:space-between">
-        <button class="btn btn-red" onclick="resetHeroData('${key}')" style="font-size:12px">
-          Réinitialiser
-        </button>
+      <!-- Actions -->
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:20px">
         <div style="display:flex;gap:8px">
-          <button class="btn" onclick="closeHeroModal()">Annuler</button>
-          <button class="btn btn-green" onclick="saveHeroModal('${key}')">✓ Enregistrer</button>
+          <button class="btn" onclick="closeHeroModal()" style="flex:1">Annuler</button>
+          <button class="btn btn-green" onclick="saveHeroModal('${key}')" style="flex:2">✓ Enregistrer</button>
         </div>
+        <button class="btn btn-red" onclick="resetHeroData('${key}')" style="font-size:12px;width:100%">Réinitialiser</button>
       </div>
     </div>`;
 
