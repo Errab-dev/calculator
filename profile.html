@@ -606,11 +606,26 @@ function loadCompo(idx) {
   if (!confirm(`Charger "${c.name}" ?\nCela remplacera ta config actuelle dans le calculateur.`)) return;
 
   try {
-    localStorage.setItem('bearCalcState', JSON.stringify(c.calc_state));
+    // Debug : vérifier que calc_state existe et contient des données
+    if (!c.calc_state || Object.keys(c.calc_state).length === 0) {
+      toast('Erreur : composition vide ou corrompue', 'err');
+      console.error('calc_state vide:', c);
+      return;
+    }
+    const json = JSON.stringify(c.calc_state);
+    localStorage.setItem('bearCalcState', json);
+    // Vérification que l'écriture a bien fonctionné
+    const check = localStorage.getItem('bearCalcState');
+    if (!check) {
+      toast('Erreur : impossible d\'écrire dans le localStorage', 'err');
+      return;
+    }
     toast('Config chargée ! Redirection…', 'ok');
-    setTimeout(() => window.location.href = 'bear_calculator.html?fromProfile=1', 900);
+    // Redirection immédiate (pas de setTimeout pour éviter tout écrasement)
+    window.location.href = 'bear_calculator.html?fromProfile=1';
   } catch(e) {
-    toast('Erreur lors du chargement', 'err');
+    console.error('loadCompo error:', e);
+    toast('Erreur lors du chargement : ' + e.message, 'err');
   }
 }
 
