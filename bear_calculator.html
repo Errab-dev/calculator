@@ -683,6 +683,7 @@ select option { background: #ffffff; color: var(--text); }
   <input type="number" id="bonusLthSquad" value="0">
   <input type="number" id="bonusHp" value="0">
   <input type="number" id="bonusDef" value="0">
+  <div id="bonusSummary"></div>
 </div>
 
 <!-- ══ ÉTAPE 1 — STOCK ══ -->
@@ -2465,8 +2466,12 @@ function saveState(){
       marchSlotCount:document.getElementById('marchSlotCount')?.value||'6',
       inf:gv('tInf'),cav:gv('tCav'),arc:gv('tArc'),leadCap:gv('leadCap'),lInf:parseFloat(document.getElementById('lInf')?.value)||10,lCav:parseFloat(document.getElementById('lCav')?.value)||10,lArc:parseFloat(document.getElementById('lArc')?.value)||80,leadExactI:document.getElementById('leadCap')?.dataset.exactI,leadExactC:document.getElementById('leadCap')?.dataset.exactC,leadExactA:document.getElementById('leadCap')?.dataset.exactA,joiners}));
   }catch(e){}
+  _flashSaveIndicator(t('saved'));
+}
+
+function _flashSaveIndicator(msg){
   const ind=document.getElementById('saveIndicator');
-  if(ind){ind.style.opacity='1';clearTimeout(ind._t);ind._t=setTimeout(()=>ind.style.opacity='0',1500);}
+  if(ind){if(msg)ind.textContent=msg;ind.style.opacity='1';clearTimeout(ind._t);ind._t=setTimeout(()=>ind.style.opacity='0',1500);}
 }
 
 function loadState(){
@@ -2560,6 +2565,7 @@ function loadState(){
     }
 
     refreshSummary();
+    _flashSaveIndicator('✓ CHARGÉ');
   }catch(e){ console.error('loadState error:', e); }
 }
 
