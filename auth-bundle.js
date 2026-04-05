@@ -548,10 +548,8 @@
         + '<div class="nav-row1">'
         +   '<a href="index.html" class="nav-logo">Kingshot <span>Help</span></a>'
         +   '<div class="nav-right">'
-        +     '<input id="authUser" type="text" class="nav-input" placeholder="Pseudo" onkeydown="if(event.key===\'Enter\')window._auth.doLogin()">'
-        +     '<input id="authPwd" type="password" class="nav-input" placeholder="••••" onkeydown="if(event.key===\'Enter\')window._auth.doLogin()">'
-        +     '<button onclick="window._auth.doLogin()" class="nav-btn green">Connexion</button>'
-        +     '<button onclick="window._auth.toggleRegister()" class="nav-btn">Inscription ▾</button>'
+        +     '<button onclick="window._auth.togglePanel(\'login\')" class="nav-btn green">Connexion</button>'
+        +     '<button onclick="window._auth.togglePanel(\'register\')" class="nav-btn">Inscription</button>'
         +   '</div>'
         + '</div>'
         + row2;
@@ -575,20 +573,38 @@
       var panel = document.createElement('div');
       panel.id = 'ksNavRegPanel';
       panel.innerHTML = ''
-        + '<div style="font-family:var(--f-mono,monospace);font-size:9px;color:rgba(255,255,255,0.4);letter-spacing:2px;margin-bottom:12px;text-transform:uppercase">Créer un compte</div>'
-        + '<div class="reg-row">'
-        +   '<div style="flex:1"><label class="nav-label">Pseudo</label><input id="authUser2" type="text" class="nav-input" placeholder="ton_pseudo" style="width:100%"></div>'
-        +   '<div style="flex:1"><label class="nav-label">Mot de passe</label><input id="authPwd2" type="password" class="nav-input" placeholder="••••" style="width:100%"></div>'
+        /* Onglets */
+        + '<div style="display:flex;gap:0;margin-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.1)">'
+        +   '<button id="panelTabLogin" onclick="window._auth.switchPanelTab(\'login\')" style="flex:1;background:transparent;border:none;border-bottom:2px solid #1a7a44;color:#fff;font-family:var(--f-mono,monospace);font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:8px;cursor:pointer">Connexion</button>'
+        +   '<button id="panelTabReg" onclick="window._auth.switchPanelTab(\'register\')" style="flex:1;background:transparent;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,0.4);font-family:var(--f-mono,monospace);font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:8px;cursor:pointer">Inscription</button>'
         + '</div>'
-        + '<div class="reg-row" style="margin-top:8px">'
-        +   '<div style="flex:1"><label class="nav-label">Alliance (optionnel)</label><input id="authAlliance" type="text" class="nav-input" placeholder="[TAG]" style="width:100%"></div>'
-        +   '<div style="flex:1"><label class="nav-label">Serveur (optionnel)</label><input id="authServer" type="text" class="nav-input" placeholder="S.1507" style="width:100%"></div>'
+        /* Formulaire connexion */
+        + '<div id="panelLogin">'
+        +   '<div class="reg-row">'
+        +     '<div style="flex:1"><label class="nav-label">Pseudo</label><input id="authUser" type="text" class="nav-input" placeholder="ton_pseudo" style="width:100%" onkeydown="if(event.key===\'Enter\')window._auth.doLogin()"></div>'
+        +     '<div style="flex:1"><label class="nav-label">Mot de passe</label><input id="authPwd" type="password" class="nav-input" placeholder="••••" style="width:100%" onkeydown="if(event.key===\'Enter\')window._auth.doLogin()"></div>'
+        +   '</div>'
+        +   '<div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">'
+        +     '<button onclick="window._auth.closePanelAuth()" class="nav-btn">Annuler</button>'
+        +     '<button onclick="window._auth.doLogin()" class="nav-btn green">Se connecter</button>'
+        +   '</div>'
         + '</div>'
-        + '<div id="ksNavAuthErr" style="display:none;margin-top:8px;font-size:11px;color:#e05a4a;font-family:var(--f-mono,monospace)"></div>'
-        + '<div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">'
-        +   '<button onclick="window._auth.toggleRegister()" class="nav-btn">Annuler</button>'
-        +   '<button onclick="window._auth.doRegisterNav()" class="nav-btn amber">Créer le compte</button>'
-        + '</div>';
+        /* Formulaire inscription */
+        + '<div id="panelRegister" style="display:none">'
+        +   '<div class="reg-row">'
+        +     '<div style="flex:1"><label class="nav-label">Pseudo</label><input id="authUser2" type="text" class="nav-input" placeholder="ton_pseudo" style="width:100%"></div>'
+        +     '<div style="flex:1"><label class="nav-label">Mot de passe</label><input id="authPwd2" type="password" class="nav-input" placeholder="••••" style="width:100%"></div>'
+        +   '</div>'
+        +   '<div class="reg-row" style="margin-top:8px">'
+        +     '<div style="flex:1"><label class="nav-label">Alliance (optionnel)</label><input id="authAlliance" type="text" class="nav-input" placeholder="[TAG]" style="width:100%"></div>'
+        +     '<div style="flex:1"><label class="nav-label">Serveur (optionnel)</label><input id="authServer" type="text" class="nav-input" placeholder="S.1507" style="width:100%"></div>'
+        +   '</div>'
+        +   '<div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">'
+        +     '<button onclick="window._auth.closePanelAuth()" class="nav-btn">Annuler</button>'
+        +     '<button onclick="window._auth.doRegisterNav()" class="nav-btn amber">Créer le compte</button>'
+        +   '</div>'
+        + '</div>'
+        + '<div id="ksNavAuthErr" style="display:none;margin-top:8px;font-size:11px;color:#e05a4a;font-family:var(--f-mono,monospace)"></div>';
       document.body.appendChild(panel);
     }
 
@@ -638,10 +654,43 @@
   //  TOGGLE REGISTER
   // ═══════════════════════════════════════════════════════
 
-  function toggleRegister() {
+  function togglePanel(tab) {
     var panel = document.getElementById('ksNavRegPanel');
     if (!panel) return;
-    panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
+    if (panel.style.display === 'block') {
+      panel.style.display = 'none';
+    } else {
+      panel.style.display = 'block';
+      switchPanelTab(tab || 'login');
+      setTimeout(function() {
+        var inp = document.getElementById(tab === 'register' ? 'authUser2' : 'authUser');
+        if (inp) inp.focus();
+      }, 50);
+    }
+  }
+
+  function toggleRegister() { togglePanel('register'); }
+
+  function switchPanelTab(tab) {
+    var lp = document.getElementById('panelLogin');
+    var rp = document.getElementById('panelRegister');
+    var tl = document.getElementById('panelTabLogin');
+    var tr = document.getElementById('panelTabReg');
+    if (!lp) return;
+    if (tab === 'login') {
+      lp.style.display = ''; rp.style.display = 'none';
+      if (tl) { tl.style.borderBottomColor = '#1a7a44'; tl.style.color = '#fff'; }
+      if (tr) { tr.style.borderBottomColor = 'transparent'; tr.style.color = 'rgba(255,255,255,0.4)'; }
+    } else {
+      lp.style.display = 'none'; rp.style.display = '';
+      if (tl) { tl.style.borderBottomColor = 'transparent'; tl.style.color = 'rgba(255,255,255,0.4)'; }
+      if (tr) { tr.style.borderBottomColor = '#b86e00'; tr.style.color = '#fff'; }
+    }
+  }
+
+  function closePanelAuth() {
+    var panel = document.getElementById('ksNavRegPanel');
+    if (panel) panel.style.display = 'none';
   }
 
   async function doRegisterNav() {
@@ -677,7 +726,10 @@
     loadFromCloud:     loadFromCloud,
     openAllianceModal: openAllianceModal,
     openEditProfile:   openEditProfile,
-    toggleRegister:    toggleRegister
+    toggleRegister:    toggleRegister,
+    togglePanel:       togglePanel,
+    switchPanelTab:    switchPanelTab,
+    closePanelAuth:    closePanelAuth
   };
 
   init();
