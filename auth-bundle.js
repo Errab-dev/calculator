@@ -644,7 +644,13 @@
       };
       var fromProfile = location.search.includes('fromProfile=1');
       if (fromProfile) {
-        // Venir du profil : bloquer cloud saves, recharger l'état sauvegardé
+        // Priorité : sessionStorage écrit par profile.html
+        var profileData = sessionStorage.getItem('bearCalcLoad');
+        if (profileData) {
+          localStorage.setItem('bearCalcState', profileData);
+          sessionStorage.removeItem('bearCalcLoad');
+        }
+        // Bloquer cloud saves et recharger
         window._skipCloudSave = true;
         setTimeout(function() {
           if (typeof window.resetCalc === 'function') window.resetCalc();

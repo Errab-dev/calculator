@@ -651,15 +651,10 @@ function loadCompo(idx) {
       return;
     }
     const json = JSON.stringify(c.calc_state);
+    // Écrire dans les deux pour maximiser les chances
     localStorage.setItem('bearCalcState', json);
-    // Vérification que l'écriture a bien fonctionné
-    const check = localStorage.getItem('bearCalcState');
-    if (!check) {
-      toast('Erreur : impossible d\'écrire dans le localStorage', 'err');
-      return;
-    }
+    sessionStorage.setItem('bearCalcLoad', json);
     toast('Config chargée ! Redirection…', 'ok');
-    // Redirection immédiate (pas de setTimeout pour éviter tout écrasement)
     window.location.href = 'bear_calculator.html?fromProfile=1';
   } catch(e) {
     console.error('loadCompo error:', e);
