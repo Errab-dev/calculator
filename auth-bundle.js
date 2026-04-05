@@ -414,36 +414,47 @@
   function injectCSS() {
     var s = document.createElement('style');
     s.textContent = [
-      '#ksNav{position:fixed;top:0;left:0;right:0;z-index:9000;height:52px;background:rgba(24,32,46,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(184,110,0,0.25);display:flex;align-items:center;padding:0 20px;gap:12px;font-family:var(--f-mono,monospace);box-shadow:0 2px 20px rgba(0,0,0,0.25);}',
-      '#ksNav .nav-logo{font-family:var(--f-display,"Barlow Condensed",sans-serif);font-size:1.25rem;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:#fff;text-decoration:none;white-space:nowrap;flex-shrink:0;}',
+      /* ── NAVBAR BASE ── */
+      '#ksNav{position:fixed;top:0;left:0;right:0;z-index:9000;background:rgba(24,32,46,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(184,110,0,0.25);font-family:var(--f-mono,monospace);box-shadow:0 2px 20px rgba(0,0,0,0.25);}',
+      /* Ligne 1 : logo + droite */
+      '#ksNav .nav-row1{display:flex;align-items:center;height:48px;padding:0 16px;gap:10px;}',
+      /* Ligne 2 : liens de nav */
+      '#ksNav .nav-row2{display:flex;align-items:center;gap:0;padding:0 10px;height:34px;border-top:1px solid rgba(255,255,255,0.06);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}',
+      '#ksNav .nav-row2::-webkit-scrollbar{display:none;}',
+      '#ksNav .nav-logo{font-family:var(--f-display,"Barlow Condensed",sans-serif);font-size:1.2rem;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:#fff;text-decoration:none;white-space:nowrap;flex-shrink:0;}',
       '#ksNav .nav-logo span{color:#b86e00;}',
-      '#ksNav .nav-links{display:flex;align-items:center;gap:2px;}',
-      '#ksNav .nav-link{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.5);text-decoration:none;padding:5px 9px;transition:all .2s;white-space:nowrap;}',
+      '#ksNav .nav-links{display:flex;align-items:center;gap:0;flex:1;}',
+      '#ksNav .nav-link{font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:rgba(255,255,255,0.5);text-decoration:none;padding:6px 10px;transition:color .2s;white-space:nowrap;flex-shrink:0;}',
       '#ksNav .nav-link:hover{color:#fff;}',
-      '#ksNav .nav-link.active{color:#b86e00;}',
+      '#ksNav .nav-link.active{color:#b86e00;border-bottom:2px solid #b86e00;}',
       '#ksNav .nav-sep{width:1px;height:20px;background:rgba(255,255,255,0.12);margin:0 6px;flex-shrink:0;}',
-      '#ksNav .nav-right{display:flex;align-items:center;gap:6px;margin-left:auto;}',
-      '#ksNav .nav-user{display:flex;align-items:center;gap:8px;text-decoration:none;}',
-      '#ksNav .nav-avatar{width:28px;height:28px;background:rgba(184,110,0,0.2);border:1px solid rgba(184,110,0,0.5);display:flex;align-items:center;justify-content:center;font-family:var(--f-display,"Barlow Condensed",sans-serif);font-size:.95rem;font-weight:900;color:#b86e00;text-transform:uppercase;flex-shrink:0;}',
+      '#ksNav .nav-right{display:flex;align-items:center;gap:6px;margin-left:auto;flex-shrink:0;}',
+      '#ksNav .nav-user{display:flex;align-items:center;gap:7px;text-decoration:none;flex-shrink:0;}',
+      '#ksNav .nav-avatar{width:26px;height:26px;background:rgba(184,110,0,0.2);border:1px solid rgba(184,110,0,0.5);display:flex;align-items:center;justify-content:center;font-family:var(--f-display,"Barlow Condensed",sans-serif);font-size:.9rem;font-weight:900;color:#b86e00;text-transform:uppercase;flex-shrink:0;}',
       '#ksNav .nav-userinfo{display:flex;flex-direction:column;line-height:1.2;}',
-      '#ksNav .nav-username{font-size:12px;color:#fff;font-weight:600;letter-spacing:.5px;}',
+      '#ksNav .nav-username{font-size:12px;color:#fff;font-weight:600;letter-spacing:.5px;white-space:nowrap;}',
       '#ksNav .nav-alliance{font-size:9px;color:rgba(184,110,0,0.8);letter-spacing:1px;}',
       '#ksNav .nav-dot{width:7px;height:7px;background:#1a7a44;border-radius:50%;flex-shrink:0;}',
-      '#ksNav .nav-btn{background:transparent;border:1px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.65);font-family:var(--f-mono,monospace);font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:5px 10px;cursor:pointer;transition:all .2s;white-space:nowrap;text-decoration:none;display:inline-block;}',
+      '#ksNav .nav-btn{background:transparent;border:1px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.65);font-family:var(--f-mono,monospace);font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:5px 9px;cursor:pointer;transition:all .2s;white-space:nowrap;text-decoration:none;display:inline-block;flex-shrink:0;}',
       '#ksNav .nav-btn:hover{border-color:#b86e00;color:#b86e00;background:rgba(184,110,0,0.1);}',
       '#ksNav .nav-btn.green{border-color:rgba(26,122,68,0.5);color:#4db87a;}',
       '#ksNav .nav-btn.green:hover{border-color:#1a7a44;color:#1a7a44;background:rgba(26,122,68,0.1);}',
       '#ksNav .nav-btn.amber{border-color:rgba(184,110,0,0.55);color:#b86e00;}',
       '#ksNav .nav-btn.red{border-color:rgba(192,57,43,0.45);color:#e05a4a;}',
       '#ksNav .nav-btn.red:hover{border-color:#c0392b;color:#c0392b;background:rgba(192,57,43,0.1);}',
-      '#ksNav .nav-input{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:#fff;font-family:var(--f-mono,monospace);font-size:11px;padding:5px 8px;outline:none;width:100px;transition:border-color .2s;}',
+      /* Champs de connexion : cachés sur très petit écran */
+      '#ksNav .nav-input{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:#fff;font-family:var(--f-mono,monospace);font-size:11px;padding:5px 8px;outline:none;width:90px;transition:border-color .2s;flex-shrink:1;min-width:60px;}',
       '#ksNav .nav-input:focus{border-color:#b86e00;}',
       '#ksNav .nav-input::placeholder{color:rgba(255,255,255,0.28);}',
-      '#ksNavRegPanel{display:none;position:fixed;top:52px;right:0;z-index:8999;background:rgba(20,26,38,0.99);border:1px solid rgba(184,110,0,0.25);border-top:none;padding:16px;min-width:260px;box-shadow:0 8px 32px rgba(0,0,0,0.45);}',
+      '@media(max-width:480px){#ksNav .nav-input{display:none;} #ksNav .nav-hide-mobile{display:none;}}',
+      /* Panel inscription */
+      '#ksNavRegPanel{display:none;position:fixed;top:82px;right:0;left:0;z-index:8999;background:rgba(20,26,38,0.99);border-bottom:1px solid rgba(184,110,0,0.25);padding:16px;box-shadow:0 8px 32px rgba(0,0,0,0.45);}',
+      '@media(min-width:480px){#ksNavRegPanel{left:auto;min-width:300px;top:82px;}}',
       '#ksNavRegPanel .nav-input{width:100%;margin-bottom:8px;display:block;box-sizing:border-box;}',
       '#ksNavRegPanel .nav-label{font-size:9px;color:rgba(255,255,255,0.4);letter-spacing:1.5px;text-transform:uppercase;display:block;margin-bottom:3px;}',
       '#ksNavRegPanel .reg-row{display:flex;gap:6px;}',
-      'body{padding-top:52px !important;}',
+      /* Offset body : 48px (row1) + 34px (row2) = 82px */
+      'body{padding-top:82px !important;}',
       '.auth-input{width:100%;padding:6px 8px;background:var(--surface2,#edf0f5);border:1px solid var(--border,#ccd4e0);font-family:var(--f-body,sans-serif);font-size:13px;color:var(--text,#18202e);outline:none;}',
       '.auth-input:focus{border-color:#b86e00;}',
       '.auth-label{font-size:10px;color:var(--text-dim,#445068);display:block;margin-bottom:2px;font-family:var(--f-mono,monospace);letter-spacing:1px;}',
@@ -500,47 +511,50 @@
       + navLnk('island-guide.html',    '🏝 Île Oasis',    'island', active)
       + navLnk('mystic-trial.html',    '🎯 Mystic Trial', 'mystic', active);
 
+    var row2 = '<div class="nav-row2"><div class="nav-links">' + links + '</div></div>';
+
     if (isLoggedIn()) {
       var u = currentUser;
       var initial = (u.username || '?')[0].toUpperCase();
       var cloudBtns = IS_CALC
-        ? '<button onclick="window._auth.saveToCloud()" class="nav-btn green">☁ Sauver</button>'
-          + '<button onclick="window._auth.loadFromCloud()" class="nav-btn">☁ Charger</button>'
-          + '<div class="nav-sep"></div>'
+        ? '<button onclick="window._auth.saveToCloud()" class="nav-btn green nav-hide-mobile">☁ Sauver</button>'
+          + '<button onclick="window._auth.loadFromCloud()" class="nav-btn nav-hide-mobile">☁ Charger</button>'
         : '';
       var allyBtn = u.alliance
-        ? '<button onclick="window._auth.openAllianceModal()" class="nav-btn amber">👥 ' + u.alliance + '</button><div class="nav-sep"></div>'
+        ? '<button onclick="window._auth.openAllianceModal()" class="nav-btn amber nav-hide-mobile">👥 ' + u.alliance + '</button>'
         : '';
 
       nav.innerHTML = ''
-        + '<a href="index.html" class="nav-logo">Kingshot <span>Help</span></a>'
-        + '<div class="nav-sep"></div>'
-        + '<div class="nav-links">' + links + '</div>'
-        + '<div class="nav-right">'
-        + cloudBtns
-        + allyBtn
-        + '<div class="nav-dot"></div>'
-        + '<a href="profile.html" class="nav-user">'
-        +   '<div class="nav-avatar">' + initial + '</div>'
-        +   '<div class="nav-userinfo">'
-        +     '<span class="nav-username">' + u.username + '</span>'
-        +     (u.alliance ? '<span class="nav-alliance">' + u.alliance + '</span>' : '')
+        + '<div class="nav-row1">'
+        +   '<a href="index.html" class="nav-logo">Kingshot <span>Help</span></a>'
+        +   '<div class="nav-right">'
+        +     cloudBtns
+        +     allyBtn
+        +     '<div class="nav-dot"></div>'
+        +     '<a href="profile.html" class="nav-user">'
+        +       '<div class="nav-avatar">' + initial + '</div>'
+        +       '<div class="nav-userinfo">'
+        +         '<span class="nav-username">' + u.username + '</span>'
+        +         (u.alliance ? '<span class="nav-alliance">' + u.alliance + '</span>' : '')
+        +       '</div>'
+        +     '</a>'
+        +     '<button onclick="window._auth.doLogout()" class="nav-btn red">Déco</button>'
         +   '</div>'
-        + '</a>'
-        + '<button onclick="window._auth.doLogout()" class="nav-btn red">Déco</button>'
-        + '</div>';
+        + '</div>'
+        + row2;
 
     } else {
       nav.innerHTML = ''
-        + '<a href="index.html" class="nav-logo">Kingshot <span>Help</span></a>'
-        + '<div class="nav-sep"></div>'
-        + '<div class="nav-links">' + links + '</div>'
-        + '<div class="nav-right">'
-        +   '<input id="authUser" type="text" class="nav-input" placeholder="Pseudo" onkeydown="if(event.key===\'Enter\')window._auth.doLogin()">'
-        +   '<input id="authPwd" type="password" class="nav-input" placeholder="••••" onkeydown="if(event.key===\'Enter\')window._auth.doLogin()">'
-        +   '<button onclick="window._auth.doLogin()" class="nav-btn green">Connexion</button>'
-        +   '<button onclick="window._auth.toggleRegister()" class="nav-btn">Inscription ▾</button>'
-        + '</div>';
+        + '<div class="nav-row1">'
+        +   '<a href="index.html" class="nav-logo">Kingshot <span>Help</span></a>'
+        +   '<div class="nav-right">'
+        +     '<input id="authUser" type="text" class="nav-input" placeholder="Pseudo" onkeydown="if(event.key===\'Enter\')window._auth.doLogin()">'
+        +     '<input id="authPwd" type="password" class="nav-input" placeholder="••••" onkeydown="if(event.key===\'Enter\')window._auth.doLogin()">'
+        +     '<button onclick="window._auth.doLogin()" class="nav-btn green">Connexion</button>'
+        +     '<button onclick="window._auth.toggleRegister()" class="nav-btn">Inscription ▾</button>'
+        +   '</div>'
+        + '</div>'
+        + row2;
     }
   }
 
@@ -551,14 +565,12 @@
   function init() {
     injectCSS();
 
-    // Navbar fixe
     if (!document.getElementById('ksNav')) {
       var nav = document.createElement('nav');
       nav.id = 'ksNav';
       document.body.prepend(nav);
     }
 
-    // Panel inscription (dropdown sous la navbar)
     if (!document.getElementById('ksNavRegPanel')) {
       var panel = document.createElement('div');
       panel.id = 'ksNavRegPanel';
@@ -582,25 +594,22 @@
 
     renderAuthUI();
 
-    // Fermer le panel inscription si on clique ailleurs
     document.addEventListener('click', function(e) {
       var panel = document.getElementById('ksNavRegPanel');
       if (panel && panel.style.display === 'block') {
-        if (!panel.contains(e.target) && !document.getElementById('ksNav')?.contains(e.target)) {
+        if (!panel.contains(e.target) && !document.getElementById('ksNav').contains(e.target)) {
           panel.style.display = 'none';
-          renderAuthUI();
         }
       }
     });
 
-    // Hook calculateur
     if (IS_CALC && typeof window.saveState === 'function') {
       var orig = window.saveState;
       window.saveState = function() { orig(); scheduleCloudSave(); };
       window.resetCalc = function() {
         while (window.jCount > 0) {
-          document.getElementById('jtab' + window.jCount)?.remove();
-          document.getElementById('jpanel' + window.jCount)?.remove();
+          document.getElementById('jtab' + window.jCount).remove();
+          document.getElementById('jpanel' + window.jCount).remove();
           window.jCount--;
         }
         if (typeof window.syncJCtrl === 'function') window.syncJCtrl();
@@ -617,7 +626,6 @@
       if (isLoggedIn()) setTimeout(loadFromCloud, 300);
     }
 
-    // SDK Supabase
     if (typeof supabase === 'undefined') {
       var script = document.createElement('script');
       script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
@@ -639,10 +647,10 @@
   async function doRegisterNav() {
     var sb = getSb();
     if (!sb) { showAuthError('Service indisponible'); return; }
-    var username = (document.getElementById('authUser2')?.value || '').trim().toLowerCase();
-    var password = document.getElementById('authPwd2')?.value || '';
-    var alliance = (document.getElementById('authAlliance')?.value || '').trim();
-    var server   = (document.getElementById('authServer')?.value   || '').trim();
+    var username = (document.getElementById('authUser2').value || '').trim().toLowerCase();
+    var password = document.getElementById('authPwd2').value || '';
+    var alliance = (document.getElementById('authAlliance').value || '').trim();
+    var server   = (document.getElementById('authServer').value   || '').trim();
     if (!username || username.length < 3) { showAuthError('Pseudo : 3 caractères minimum'); return; }
     if (!password || password.length < 4) { showAuthError('Mot de passe : 4 caractères minimum'); return; }
     try {
@@ -657,22 +665,21 @@
   }
 
   // ═══════════════════════════════════════════════════════
-  //  EXPOSER LES FONCTIONS AU GLOBAL (pour les onclick)
+  //  EXPOSER LES FONCTIONS AU GLOBAL
   // ═══════════════════════════════════════════════════════
 
   window._auth = {
-    doLogin:          doLogin,
-    doRegister:       doRegister,
-    doRegisterNav:    doRegisterNav,
-    doLogout:         doLogout,
-    saveToCloud:      saveToCloud,
-    loadFromCloud:    loadFromCloud,
+    doLogin:           doLogin,
+    doRegister:        doRegister,
+    doRegisterNav:     doRegisterNav,
+    doLogout:          doLogout,
+    saveToCloud:       saveToCloud,
+    loadFromCloud:     loadFromCloud,
     openAllianceModal: openAllianceModal,
-    openEditProfile:  openEditProfile,
-    toggleRegister:   toggleRegister
+    openEditProfile:   openEditProfile,
+    toggleRegister:    toggleRegister
   };
 
-  // Lancer l'init
   init();
 
 })();
