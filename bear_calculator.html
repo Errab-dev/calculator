@@ -1572,13 +1572,22 @@ function calcWeights() { return calcWeightsFor(calcHeroBonuses()); }
 let _joinerWeightsCache = {};
 function invalidateJoinerCache(i){ if(i===undefined) _joinerWeightsCache={}; else delete _joinerWeightsCache[i]; }
 
-// Poids d'un joiner i : toujours poids neutres (sans héros leader ni bonus gouverneur)
+// Poids d'un joiner : stats de base uniquement, SANS bonus gouverneur ni héros
+function calcWeightsNeutral() {
+  // Ignorer curBonus complètement — calcul sur stats de troupes pures
+  return {
+    w_inf: curStats.inf.atk * PITFALL * curStats.inf.lth / 100 / BEAR_DEF_BASE,
+    w_cav: curStats.cav.atk * PITFALL * curStats.cav.lth / 100 / BEAR_DEF_BASE,
+    w_arc: curStats.arc.atk * PITFALL * curStats.arc.lth / 100 / BEAR_DEF_BASE * RANGED_BONUS,
+  };
+}
+
 function calcWeightsJoiner(i) {
   if(_joinerWeightsCache[i]) return _joinerWeightsCache[i];
   const data = joinerHeroData[i];
-  // Pas de héros joiner → poids neutres (pas de liaison avec le leader)
+  // Pas de héros joiner → poids purement neutres (aucun bonus)
   if(!data?.heroKey) {
-    _joinerWeightsCache[i] = calcWeightsFor({});
+    _joinerWeightsCache[i] = calcWeightsNeutral();
     return _joinerWeightsCache[i];
   }
   const extra = { totalAtk:0, totalLth:0, totalDmgEV:0, lthReduceEnemy:0, atkInf:0, atkCav:0, atkArc:0, lthInf:0, lthCav:0, lthArc:0 };
@@ -2033,7 +2042,7 @@ function _computeNAuto(nAuto,s,leadCap,forcedCapsList,slotsAuto,callback){
   let bestScore=-1,bestAlloc=null;
   const wL=calcWeights();
   const wJForced=forcedCapsList.map((_,fi)=>calcWeightsJoiner(fi+1));
-  const wJAuto=calcWeightsFor({});
+  const wJAuto=calcWeightsNeutral();
   const STEPS=30;
 
   function iterCap(cap,maxI,maxC,maxA,fn){
@@ -2422,7 +2431,7 @@ function resetAll(){
   document.getElementById('bonusSummary').textContent=t('bonus_placeholder');
   // Reset héros
   heroSlots=[]; heroSlotCount=0;
-  document.getElementById('heroSlots').innerHTML='';
+  const _hsEl=document.getElementById('heroSlots'); if(_hsEl)_hsEl.innerHTML='';
   document.getElementById('btnAddHero').disabled=false;
   document.getElementById('heroSummary').textContent=t('hero_ratio_idle');
 }
@@ -2454,43 +2463,41 @@ function saveState(){
 }
 
 function loadState(){
-  // Rafraîchir la liste des héros depuis le profil
   refreshHeroList();
-  // Charger les bonus depuis le profil si disponibles
+  const BONUS_IDS = ['bonusAtkInf','bonusAtkCav','bonusAtkArc','bonusLthInf','bonusLthCav','bonusLthArc','bonusAtkSquad','bonusLthSquad'];
+
+  // 1. Lire les deux sources
+  let profileBonus = null, calcState = null;
+  try { const r=localStorage.getItem('bearBonusStats'); if(r) profileBonus=JSON.parse(r); } catch(e){}
+  try { const r=localStorage.getItem('bearCalcState');  if(r) calcState=JSON.parse(r);    } catch(e){}
+
+  // 2. Appliquer les bonus — profil en priorité si au moins une valeur non nulle
+  const hasProfileBonus = profileBonus && BONUS_IDS.some(id=>Number(profileBonus[id])!==0);
+  if(hasProfileBonus){
+    BONUS_IDS.forEach(id=>{const el=document.getElementById(id);if(el)el.value=profileBonus[id]??0;});
+  } else if(calcState){
+    BONUS_IDS.forEach(id=>{if(calcState[id]!==undefined){const el=document.getElementById(id);if(el)el.value=calcState[id]!==''?calcState[id]:0;}});
+  }
+  onBonusChange();
+
+  if(!calcState) return;
+
   try{
-    const rawB=localStorage.getItem('bearBonusStats');
-    if(rawB){
-      const b=JSON.parse(rawB);
-      const bids=['bonusAtkInf','bonusAtkCav','bonusAtkArc','bonusLthInf','bonusLthCav','bonusLthArc','bonusAtkSquad','bonusLthSquad','bonusHp','bonusDef'];
-      bids.forEach(id=>{if(b[id]!==undefined){const el=document.getElementById(id);if(el)el.value=b[id];}});
-      onBonusChange();
-    }
-  }catch(e){}
-  try{
-    const raw=localStorage.getItem('bearCalcState');if(!raw)return;const st=JSON.parse(raw);
-    // Tiers — forcer la valeur après que les options soient bien créées
-    ['InfT','InfG','CavT','CavG','ArcT','ArcG'].forEach(k => {
-      const key = 'tier'+k;
-      if(st[key] !== undefined){
-        const el=document.getElementById(key);
-        if(el){
-          el.value = String(st[key]);
-          // Si la valeur n'a pas pris (option absente), forcer via selectedIndex
-          if(el.value !== String(st[key])){
-            for(let i=0;i<el.options.length;i++){
-              if(String(el.options[i].value)===String(st[key])){el.selectedIndex=i;break;}
-            }
-          }
+    // 3. Tiers
+    ['InfT','InfG','CavT','CavG','ArcT','ArcG'].forEach(k=>{
+      const key='tier'+k, el=document.getElementById(key);
+      if(el && calcState[key]!==undefined){
+        el.value=String(calcState[key]);
+        if(el.value!==String(calcState[key])){
+          for(let i=0;i<el.options.length;i++){if(String(el.options[i].value)===String(calcState[key])){el.selectedIndex=i;break;}}
         }
       }
     });
-    onTierChange(); // toujours recalculer après restauration
-    // Bonus : priorité au profil (bearBonusStats), déjà chargé ci-dessus
-    // On ne recharge PAS depuis bearCalcState pour ne pas écraser les stats du profil
-    onBonusChange();
-    // Héros
-    if(st.heroes?.length){
-      st.heroes.forEach(h=>{
+    onTierChange();
+
+    // 4. Héros
+    if(calcState.heroes?.length){
+      calcState.heroes.forEach(h=>{
         if(!h.heroKey)return;
         heroSlots.push({heroKey:h.heroKey,skillLevels:h.skillLevels||[1,1,1],widgetLevel:h.widgetLevel||0,heroStats:h.heroStats||{atk:'',def:'',lth:'',hp:''}});
         heroSlotCount++;
@@ -2499,12 +2506,54 @@ function loadState(){
       if(heroSlotCount>=3)document.getElementById('btnAddHero').disabled=true;
       updateHeroSummary();
     }
-    if(st.inf)document.getElementById('tInf').value=st.inf;if(st.cav)document.getElementById('tCav').value=st.cav;if(st.arc)document.getElementById('tArc').value=st.arc;if(st.inf||st.cav||st.arc)onStockChange();
-    if(st.leadCap){document.getElementById('leadCap').value=st.leadCap;document.getElementById('lInf').value=st.lInf??10;document.getElementById('lCav').value=st.lCav??10;document.getElementById('lArc').value=st.lArc??80;if(st.leadExactI!==undefined){document.getElementById('leadCap').dataset.exactI=st.leadExactI;document.getElementById('leadCap').dataset.exactC=st.leadExactC;document.getElementById('leadCap').dataset.exactA=st.leadExactA;}updateLeader();}
-    if(st.marchSlotCount){const el=document.getElementById('marchSlotCount');if(el){el.value=st.marchSlotCount;syncJCtrl();}}
-    if(st.joiners?.length){for(const j of st.joiners){jCount++;buildJoinerTab(jCount,false);buildJoinerPanel(jCount);document.getElementById(`j${jCount}_cap`).value=j.cap||'';document.getElementById(`j${jCount}_inf`).value=j.inf??10;document.getElementById(`j${jCount}_cav`).value=j.cav??10;document.getElementById(`j${jCount}_arc`).value=j.arc??80;if(j.exactI!==undefined){document.getElementById(`j${jCount}_cap`).dataset.exactI=j.exactI;document.getElementById(`j${jCount}_cap`).dataset.exactC=j.exactC;document.getElementById(`j${jCount}_cap`).dataset.exactA=j.exactA;}updateJoiner(jCount);}if(jCount>0){document.getElementById('jIdleMsg').style.display='none';switchJoiner(jCount);}syncJCtrl();}
+
+    // 5. Stocks
+    if(calcState.inf)document.getElementById('tInf').value=calcState.inf;
+    if(calcState.cav)document.getElementById('tCav').value=calcState.cav;
+    if(calcState.arc)document.getElementById('tArc').value=calcState.arc;
+    if(calcState.inf||calcState.cav||calcState.arc) onStockChange();
+
+    // 6. Lead
+    if(calcState.leadCap){
+      document.getElementById('leadCap').value=calcState.leadCap;
+      document.getElementById('lInf').value=calcState.lInf??10;
+      document.getElementById('lCav').value=calcState.lCav??10;
+      document.getElementById('lArc').value=calcState.lArc??80;
+      if(calcState.leadExactI!==undefined){
+        document.getElementById('leadCap').dataset.exactI=calcState.leadExactI;
+        document.getElementById('leadCap').dataset.exactC=calcState.leadExactC;
+        document.getElementById('leadCap').dataset.exactA=calcState.leadExactA;
+      }
+      updateLeader();
+    }
+
+    // 7. Fils de marche
+    if(calcState.marchSlotCount){
+      const el=document.getElementById('marchSlotCount');
+      if(el){el.value=calcState.marchSlotCount;syncJCtrl();}
+    }
+
+    // 8. Joiners
+    if(calcState.joiners?.length){
+      for(const j of calcState.joiners){
+        jCount++;buildJoinerTab(jCount,false);buildJoinerPanel(jCount);
+        document.getElementById(`j${jCount}_cap`).value=j.cap||'';
+        document.getElementById(`j${jCount}_inf`).value=j.inf??10;
+        document.getElementById(`j${jCount}_cav`).value=j.cav??10;
+        document.getElementById(`j${jCount}_arc`).value=j.arc??80;
+        if(j.exactI!==undefined){
+          document.getElementById(`j${jCount}_cap`).dataset.exactI=j.exactI;
+          document.getElementById(`j${jCount}_cap`).dataset.exactC=j.exactC;
+          document.getElementById(`j${jCount}_cap`).dataset.exactA=j.exactA;
+        }
+        updateJoiner(jCount);
+      }
+      if(jCount>0){document.getElementById('jIdleMsg').style.display='none';switchJoiner(jCount);}
+      syncJCtrl();
+    }
+
     refreshSummary();
-  }catch(e){}
+  }catch(e){ console.error('loadState error:', e); }
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -2789,7 +2838,7 @@ function addHeroSlot(){
 function removeHeroSlot(idx){
   heroSlots.splice(idx,1); heroSlotCount--;
   document.getElementById('btnAddHero').disabled=false;
-  document.getElementById('heroSlots').innerHTML='';
+  const _hsEl=document.getElementById('heroSlots'); if(_hsEl)_hsEl.innerHTML='';
   const saved=[...heroSlots]; heroSlots=[]; heroSlotCount=0;
   saved.forEach(s=>{heroSlotCount++;heroSlots.push(s);renderHeroSlot(heroSlotCount-1);});
   if(heroSlotCount>=3)document.getElementById('btnAddHero').disabled=true;
@@ -2828,7 +2877,7 @@ function renderHeroSlot(idx){
       </div>
       ${hero?buildSkillsHTML(idx,hero,slot):'<div class="field-sub" style="margin-top:6px">'+t('hero_no_skills')+'</div>'}
     </div>`;
-  document.getElementById('heroSlots').appendChild(div);
+  const _hs=document.getElementById('heroSlots'); if(_hs)_hs.appendChild(div);
 }
 
 function buildSkillsHTML(idx, hero, slot) {
@@ -2920,7 +2969,8 @@ function onHeroSelect(idx){
       </div>
       ${hero?buildSkillsHTML(idx,hero,heroSlots[idx]):'<div class="field-sub" style="margin-top:6px">'+t('hero_no_skills')+'</div>'}
     </div>`;
-  const c=document.getElementById('heroSlots'), s=c.children;
+  const c=document.getElementById('heroSlots'); if(!c)return;
+  const s=c.children;
   if(s[idx])c.insertBefore(div,s[idx]); else c.appendChild(div);
   updateHeroSummary(); refreshAfterStatChange(); saveState();
 }
@@ -3033,7 +3083,7 @@ function updateHeroSummary(){
     if(parts.length) return `<span style="color:var(--text-faint)">${hero.name} : ${parts.join(' · ')}</span>`;
     return null;
   }).filter(Boolean);
-  document.getElementById('heroSummary').innerHTML=
+  const _hsum=document.getElementById('heroSummary'); if(!_hsum)return; _hsum.innerHTML=
     t('hero_bonus_lbl')+
     `ATK : <strong style="color:var(--amber)">+${b.totalAtk.toFixed(1)}%</strong> &nbsp;·&nbsp; `+
     `LET : <strong style="color:var(--amber)">+${b.totalLth.toFixed(1)}%</strong>`+
