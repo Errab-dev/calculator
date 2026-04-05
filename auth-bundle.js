@@ -458,6 +458,27 @@
       '#ksNavMenu .mn-avatar{width:32px;height:32px;background:rgba(184,110,0,0.2);border:1px solid rgba(184,110,0,0.5);display:flex;align-items:center;justify-content:center;font-family:var(--f-display,"Barlow Condensed",sans-serif);font-size:1rem;font-weight:900;color:#b86e00;text-transform:uppercase;flex-shrink:0;}',
       '#ksNavMenu .mn-uname{font-size:13px;color:#fff;font-weight:600;}',
       '#ksNavMenu .mn-ualliance{font-size:10px;color:rgba(184,110,0,0.8);letter-spacing:1px;}',
+      /* Modale connexion overlay */
+      '#ksNavRegPanel{display:none;position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:16px;}',
+      '#ksNavRegPanel.open{display:flex;}',
+      '#ksNavRegPanel .login-box{background:rgba(20,26,38,0.99);border:1px solid rgba(184,110,0,0.3);border-top:2px solid #b86e00;width:100%;max-width:320px;padding:24px;box-shadow:0 24px 64px rgba(0,0,0,0.6);}',
+      '#ksNavRegPanel .login-title{font-family:var(--f-display,"Barlow Condensed",sans-serif);font-size:1.5rem;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:#fff;margin-bottom:2px;}',
+      '#ksNavRegPanel .login-sub{font-family:var(--f-mono,monospace);font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:2px;text-transform:uppercase;margin-bottom:18px;}',
+      '#ksNavRegPanel .login-tabs{display:flex;border-bottom:1px solid rgba(255,255,255,0.1);margin-bottom:16px;}',
+      '#ksNavRegPanel .login-tab{flex:1;background:transparent;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,0.3);font-family:var(--f-mono,monospace);font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:8px;cursor:pointer;margin-bottom:-1px;transition:color .15s,border-color .15s;}',
+      '#ksNavRegPanel .login-tab.active{color:#4db87a;border-bottom-color:#4db87a;}',
+      '#ksNavRegPanel .nav-label{font-family:var(--f-mono,monospace);font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:1.5px;text-transform:uppercase;display:block;margin-bottom:4px;}',
+      '#ksNavRegPanel .nav-input{width:100%;padding:9px 10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;font-family:var(--f-body,sans-serif);font-size:14px;outline:none;margin-bottom:10px;display:block;box-sizing:border-box;transition:border-color .2s;}',
+      '#ksNavRegPanel .nav-input:focus{border-color:#b86e00;}',
+      '#ksNavRegPanel .nav-input::placeholder{color:rgba(255,255,255,0.2);}',
+      '#ksNavRegPanel .reg-row{display:flex;gap:8px;}',
+      '#ksNavRegPanel .reg-row>div{flex:1;}',
+      '#ksNavRegPanel .login-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:4px;}',
+      '#ksNavRegPanel .login-btn{background:transparent;border:1px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.5);font-family:var(--f-mono,monospace);font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:8px 14px;cursor:pointer;transition:all .2s;}',
+      '#ksNavRegPanel .login-btn:hover{border-color:rgba(255,255,255,0.4);color:#fff;}',
+      '#ksNavRegPanel .login-btn.primary{border-color:rgba(26,122,68,0.6);color:#4db87a;background:rgba(26,122,68,0.1);}',
+      '#ksNavRegPanel .login-btn.primary:hover{background:rgba(26,122,68,0.2);}',
+      '#ksNavAuthErr{display:none;margin-top:10px;font-size:11px;color:#e05a4a;font-family:var(--f-mono,monospace);letter-spacing:.5px;}',
       /* body offset */
       'body{padding-top:48px !important;}',
       '.auth-input{width:100%;padding:6px 8px;background:var(--surface2,#edf0f5);border:1px solid var(--border,#ccd4e0);font-family:var(--f-body,sans-serif);font-size:13px;color:var(--text,#18202e);outline:none;}',
@@ -640,51 +661,51 @@
       var panel = document.createElement('div');
       panel.id = 'ksNavRegPanel';
       panel.style.display = 'none';
+      // Fermer si clic sur l'overlay
+      panel.addEventListener('click', function(e) {
+        if (e.target === panel) window._auth.closePanelAuth();
+      });
       panel.innerHTML = ''
-        /* Onglets */
-        + '<div style="display:flex;gap:0;margin-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.1)">'
-        +   '<button id="panelTabLogin" onclick="window._auth.switchPanelTab(\'login\')" style="flex:1;background:transparent;border:none;border-bottom:2px solid #1a7a44;color:#fff;font-family:var(--f-mono,monospace);font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:8px;cursor:pointer">Connexion</button>'
-        +   '<button id="panelTabReg" onclick="window._auth.switchPanelTab(\'register\')" style="flex:1;background:transparent;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,0.4);font-family:var(--f-mono,monospace);font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:8px;cursor:pointer">Inscription</button>'
-        + '</div>'
-        /* Formulaire connexion */
-        + '<div id="panelLogin">'
-        +   '<div class="reg-row">'
-        +     '<div style="flex:1"><label class="nav-label">Pseudo</label><input id="authUser" type="text" class="nav-input" placeholder="ton_pseudo" style="width:100%" onkeydown="if(event.key===\'Enter\')window._auth.doLogin()"></div>'
-        +     '<div style="flex:1"><label class="nav-label">Mot de passe</label><input id="authPwd" type="password" class="nav-input" placeholder="••••" style="width:100%" onkeydown="if(event.key===\'Enter\')window._auth.doLogin()"></div>'
+        + '<div class="login-box">'
+        +   '<div class="login-title">Connexion</div>'
+        +   '<div class="login-sub">// Kingshot Help</div>'
+        +   '<div class="login-tabs">'
+        +     '<button id="panelTabLogin" class="login-tab active" onclick="window._auth.switchPanelTab(\'login\')">Connexion</button>'
+        +     '<button id="panelTabReg"   class="login-tab"        onclick="window._auth.switchPanelTab(\'register\')">Inscription</button>'
         +   '</div>'
-        +   '<div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">'
-        +     '<button onclick="window._auth.closePanelAuth()" class="nav-btn">Annuler</button>'
-        +     '<button onclick="window._auth.doLogin()" class="nav-btn green">Se connecter</button>'
+        +   '<div id="panelLogin">'
+        +     '<label class="nav-label">Pseudo</label>'
+        +     '<input id="authUser" type="text" class="nav-input" placeholder="ton_pseudo" onkeydown="if(event.key===\'Enter\')window._auth.doLogin()">'
+        +     '<label class="nav-label">Mot de passe</label>'
+        +     '<input id="authPwd" type="password" class="nav-input" placeholder="••••" onkeydown="if(event.key===\'Enter\')window._auth.doLogin()">'
+        +     '<div class="login-actions">'
+        +       '<button onclick="window._auth.closePanelAuth()" class="login-btn">Annuler</button>'
+        +       '<button onclick="window._auth.doLogin()" class="login-btn primary">Se connecter</button>'
+        +     '</div>'
         +   '</div>'
-        + '</div>'
-        /* Formulaire inscription */
-        + '<div id="panelRegister" style="display:none">'
-        +   '<div class="reg-row">'
-        +     '<div style="flex:1"><label class="nav-label">Pseudo</label><input id="authUser2" type="text" class="nav-input" placeholder="ton_pseudo" style="width:100%"></div>'
-        +     '<div style="flex:1"><label class="nav-label">Mot de passe</label><input id="authPwd2" type="password" class="nav-input" placeholder="••••" style="width:100%"></div>'
+        +   '<div id="panelRegister" style="display:none">'
+        +     '<div class="reg-row">'
+        +       '<div><label class="nav-label">Pseudo</label><input id="authUser2" type="text" class="nav-input" placeholder="ton_pseudo"></div>'
+        +       '<div><label class="nav-label">Mot de passe</label><input id="authPwd2" type="password" class="nav-input" placeholder="••••"></div>'
+        +     '</div>'
+        +     '<div class="reg-row">'
+        +       '<div><label class="nav-label">Alliance (optionnel)</label><input id="authAlliance" type="text" class="nav-input" placeholder="[TAG]"></div>'
+        +       '<div><label class="nav-label">Serveur (optionnel)</label><input id="authServer" type="text" class="nav-input" placeholder="S.1507"></div>'
+        +     '</div>'
+        +     '<div class="login-actions">'
+        +       '<button onclick="window._auth.closePanelAuth()" class="login-btn">Annuler</button>'
+        +       '<button onclick="window._auth.doRegisterNav()" class="login-btn primary">Créer le compte</button>'
+        +     '</div>'
         +   '</div>'
-        +   '<div class="reg-row" style="margin-top:8px">'
-        +     '<div style="flex:1"><label class="nav-label">Alliance (optionnel)</label><input id="authAlliance" type="text" class="nav-input" placeholder="[TAG]" style="width:100%"></div>'
-        +     '<div style="flex:1"><label class="nav-label">Serveur (optionnel)</label><input id="authServer" type="text" class="nav-input" placeholder="S.1507" style="width:100%"></div>'
-        +   '</div>'
-        +   '<div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">'
-        +     '<button onclick="window._auth.closePanelAuth()" class="nav-btn">Annuler</button>'
-        +     '<button onclick="window._auth.doRegisterNav()" class="nav-btn amber">Créer le compte</button>'
-        +   '</div>'
-        + '</div>'
-        + '<div id="ksNavAuthErr" style="display:none;margin-top:8px;font-size:11px;color:#e05a4a;font-family:var(--f-mono,monospace)"></div>';
+        +   '<div id="ksNavAuthErr"></div>'
+        + '</div>';
       document.body.appendChild(panel);
     }
 
     renderAuthUI();
 
     document.addEventListener('click', function(e) {
-      var panel = document.getElementById('ksNavRegPanel');
-      if (panel && panel.style.display === 'block') {
-        if (!panel.contains(e.target) && !document.getElementById('ksNav').contains(e.target)) {
-          panel.style.display = 'none';
-        }
-      }
+      // Panel connexion : fermeture gérée par l'overlay lui-même (clic sur fond)
       var mnu = document.getElementById('ksNavMenu');
       if (mnu && mnu.style.display === 'block') {
         if (!mnu.contains(e.target) && !document.getElementById('ksNav').contains(e.target)) {
@@ -751,10 +772,12 @@
   function togglePanel(tab) {
     var panel = document.getElementById('ksNavRegPanel');
     if (!panel) return;
-    if (panel.style.display === 'block') {
+    if (panel.classList.contains('open')) {
+      panel.classList.remove('open');
       panel.style.display = 'none';
     } else {
-      panel.style.display = 'block';
+      panel.style.display = '';
+      panel.classList.add('open');
       switchPanelTab(tab || 'login');
       setTimeout(function() {
         var inp = document.getElementById(tab === 'register' ? 'authUser2' : 'authUser');
@@ -784,7 +807,7 @@
 
   function closePanelAuth() {
     var panel = document.getElementById('ksNavRegPanel');
-    if (panel) panel.style.display = 'none';
+    if (panel) { panel.classList.remove('open'); panel.style.display = 'none'; }
   }
 
   async function doRegisterNav() {
