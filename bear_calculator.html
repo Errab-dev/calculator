@@ -1572,14 +1572,13 @@ function calcWeights() { return calcWeightsFor(calcHeroBonuses()); }
 let _joinerWeightsCache = {};
 function invalidateJoinerCache(i){ if(i===undefined) _joinerWeightsCache={}; else delete _joinerWeightsCache[i]; }
 
-// Poids d'un joiner i : gouverneur + 1ère compétence de son héros seulement
-// Si aucun héros défini → fallback sur les poids du leader
+// Poids d'un joiner i : toujours poids neutres (sans héros leader ni bonus gouverneur)
 function calcWeightsJoiner(i) {
   if(_joinerWeightsCache[i]) return _joinerWeightsCache[i];
   const data = joinerHeroData[i];
-  // Pas de héros joiner → on utilise les poids leader (meilleure approximation)
+  // Pas de héros joiner → poids neutres (pas de liaison avec le leader)
   if(!data?.heroKey) {
-    _joinerWeightsCache[i] = calcWeights();
+    _joinerWeightsCache[i] = calcWeightsFor({});
     return _joinerWeightsCache[i];
   }
   const extra = { totalAtk:0, totalLth:0, totalDmgEV:0, lthReduceEnemy:0, atkInf:0, atkCav:0, atkArc:0, lthInf:0, lthCav:0, lthArc:0 };
@@ -2486,10 +2485,9 @@ function loadState(){
       }
     });
     onTierChange(); // toujours recalculer après restauration
-    // Bonus par type — st[id] peut valoir "0" (falsy) donc on vérifie !== undefined
-    const bids=['bonusAtkInf','bonusAtkCav','bonusAtkArc','bonusLthInf','bonusLthCav','bonusLthArc','bonusAtkSquad','bonusLthSquad'];
-    bids.forEach(id=>{if(st[id]!==undefined){const el=document.getElementById(id);if(el)el.value=(st[id]!==''?st[id]:'');}});
-    onBonusChange(); // toujours recalculer, même si tout est à 0
+    // Bonus : priorité au profil (bearBonusStats), déjà chargé ci-dessus
+    // On ne recharge PAS depuis bearCalcState pour ne pas écraser les stats du profil
+    onBonusChange();
     // Héros
     if(st.heroes?.length){
       st.heroes.forEach(h=>{
