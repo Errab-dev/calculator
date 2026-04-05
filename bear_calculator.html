@@ -612,7 +612,7 @@ select option { background: #ffffff; color: var(--text); }
     </div>
     <div class="hdr-badge">
       <a href="index.html" style="font-family:var(--f-mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-faint);text-decoration:none;display:flex;align-items:center;gap:5px;transition:color .15s;justify-content:flex-end;" onmouseover="this.style.color='var(--amber)'" onmouseout="this.style.color='var(--text-faint)'">← Accueil</a>
-      <div style="margin-top:4px;color:var(--amber);opacity:.5">v8.1</div>
+      <div style="margin-top:4px;color:var(--amber);opacity:.5">v8.2</div>
       <div id="saveIndicator" style="margin-top:6px;font-size:9px;color:var(--green);opacity:0;transition:opacity .4s;letter-spacing:1px" data-i18n="saved">✓ SAUVEGARDÉ</div>
     </div>
   </div>
@@ -948,7 +948,7 @@ select option { background: #ffffff; color: var(--text); }
 
 <footer>
   <div class="footer-title">Bear Hunt Calculator</div>
-  <div class="footer-sub"><a href="index.html" style="color:var(--amber);text-decoration:none;">← Kingshot Help</a> · v8.1 · Non affilié à Century Games</div>
+  <div class="footer-sub"><a href="index.html" style="color:var(--amber);text-decoration:none;">← Kingshot Help</a> · v8.2 · Non affilié à Century Games</div>
 </footer>
 
 <script>
@@ -1543,8 +1543,11 @@ let curBonus = {
 /* ─── CALCUL DES POIDS PAR MARCHE ───────────────────────────────────
    calcWeightsFor(extra) : poids avec bonus gouverneur + bonus extra
    calcWeightsLeader()   : poids avec TOUS les bonus héros leader
-   calcWeightsJoiner(i)  : poids avec seulement la 1ère compétence du héros joiner i
+   calcWeightsNeutral()  : poids sur stats de troupes pures (joiners)
+   calcWeightsJoiner(i)  : inutilisé (legacy), retombe sur Neutral
    dmg(nI,nC,nA,w)       : w optionnel, sinon utilise calcWeightsLeader()
+   NOTE: L'auto-optimisation utilise calcWeightsNeutral() pour les joiners
+         car les joiners n'ont PAS tes bonus gouverneur ni tes héros.
 ─────────────────────────────────────────────────────────────────── */
 function calcWeightsFor(extra) {
   // extra = { totalAtk, totalLth, totalDmgEV, lthReduceEnemy, atkInf, atkCav, atkArc, lthInf, lthCav, lthArc }
@@ -1782,6 +1785,7 @@ function runAutoOptimize(){
 
   const allRatios=_allRatios(); // ~4851 combos
   const wL=calcWeights();
+  const wJ=calcWeightsNeutral(); // Joiners : sans bonus gouverneur ni héros
 
   // Caps joiner saisies manuellement par l'utilisateur (dans l'ordre des panels)
   // Si une cap est saisie → taille fixe pour ce joiner
@@ -1881,7 +1885,7 @@ function runAutoOptimize(){
           for(let j=0;j<nJ;j++){
             const jCap=manualJoinerCaps[j];
             if(jCap>remI+remC+remA){ok=false;break;}
-            const best=_bestRatioForCap(jCap,remI,remC,remA,wL,allRatios);
+            const best=_bestRatioForCap(jCap,remI,remC,remA,wJ,allRatios);
             if(!best){ok=false;break;}
             joinerAllocs.push({jNum:j+1,cap:jCap,...best});
             remI-=best.nI; remC-=best.nC; remA-=best.nA;
@@ -1899,7 +1903,7 @@ function runAutoOptimize(){
           for(let j=0;j<manualJoinerCaps.length&&j<nJ;j++){
             const jCap=manualJoinerCaps[j];
             if(jCap>mRemI+mRemC+mRemA){manualOk=false;break;}
-            const best=_bestRatioForCap(jCap,mRemI,mRemC,mRemA,wL,allRatios);
+            const best=_bestRatioForCap(jCap,mRemI,mRemC,mRemA,wJ,allRatios);
             if(!best){manualOk=false;break;}
             manualAllocs.push({jNum:j+1,cap:jCap,...best});
             mRemI-=best.nI; mRemC-=best.nC; mRemA-=best.nA;
@@ -1916,7 +1920,7 @@ function runAutoOptimize(){
             let ok=true;
             for(let j=0;j<nAuto;j++){
               if(capAuto>remI+remC+remA){ok=false;break;}
-              const best=_bestRatioForCap(capAuto,remI,remC,remA,wL,allRatios);
+              const best=_bestRatioForCap(capAuto,remI,remC,remA,wJ,allRatios);
               if(!best){ok=false;break;}
               joinerAllocs.push({jNum:manualJoinerCaps.length+j+1,cap:capAuto,...best});
               remI-=best.nI; remC-=best.nC; remA-=best.nA;
@@ -2436,7 +2440,10 @@ function resetAll(){
   document.getElementById('heroSummary').textContent=t('hero_ratio_idle');
 }
 
+let _initDone = false; // Guard: prevent saveState before loadState completes
+
 function saveState(){
+  if(!_initDone) return; // Skip saves during initialization
   try{
     const joiners=[];for(let i=1;i<=jCount;i++)joiners.push({cap:gv(`j${i}_cap`),inf:parseFloat(document.getElementById(`j${i}_inf`)?.value)||10,cav:parseFloat(document.getElementById(`j${i}_cav`)?.value)||10,arc:parseFloat(document.getElementById(`j${i}_arc`)?.value)||80,exactI:document.getElementById(`j${i}_cap`)?.dataset.exactI,exactC:document.getElementById(`j${i}_cap`)?.dataset.exactC,exactA:document.getElementById(`j${i}_cap`)?.dataset.exactA});
     localStorage.setItem('bearCalcState',JSON.stringify({
@@ -3101,6 +3108,7 @@ applyTranslations();
 syncJCtrl();
 buildTierOptions();
 loadState();
+_initDone = true; // Now saveState is active
 window.addEventListener('beforeunload', saveState);
 
 </script>
