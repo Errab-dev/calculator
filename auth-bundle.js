@@ -621,7 +621,10 @@
 
     if (IS_CALC && typeof window.saveState === 'function') {
       var orig = window.saveState;
-      window.saveState = function() { orig(); scheduleCloudSave(); };
+      window.saveState = function() {
+        orig();
+        if (!window._skipCloudSave) scheduleCloudSave();
+      };
       window.resetCalc = function() {
         while (window.jCount > 0) {
           document.getElementById('jtab' + window.jCount).remove();
@@ -640,7 +643,17 @@
         if (typeof window.updateHeroSummary === 'function') window.updateHeroSummary();
       };
       var fromProfile = location.search.includes('fromProfile=1');
-      if (isLoggedIn() && !fromProfile) setTimeout(loadFromCloud, 300);
+      if (fromProfile) {
+        // Venir du profil : bloquer cloud saves, recharger l'état sauvegardé
+        window._skipCloudSave = true;
+        setTimeout(function() {
+          if (typeof window.resetCalc === 'function') window.resetCalc();
+          if (typeof window.loadState === 'function') window.loadState();
+          window._skipCloudSave = false;
+        }, 50);
+      } else if (isLoggedIn()) {
+        setTimeout(loadFromCloud, 300);
+      }
     }
 
     if (typeof supabase === 'undefined') {
