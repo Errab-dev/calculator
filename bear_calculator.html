@@ -655,58 +655,18 @@ select option { background: #ffffff; color: var(--text); }
   </div>
 </div>
 
-<!-- ══ ÉTAPE 00b — BONUS GOUVERNEUR ══ -->
-<div class="sec" style="margin-top:16px">
-  <div class="sec-num" style="background:var(--text-faint)">+%</div>
-  <div class="sec-body">
-    <div class="sec-title" data-i18n="sec00b_title">Tes bonus de stats</div>
-    <div class="sec-desc" data-i18n="sec00b_desc">Bonus depuis ta Recherche, Équipement, Charmes — par type de troupe</div>
-  </div>
-</div>
-
-<div class="panel">
-  <div class="panel-accent" style="background:linear-gradient(90deg,var(--green),transparent 70%)"></div>
-  <div class="panel-body">
-    <div class="help-box">
-      <span class="help-icon">📊</span>
-      <div class="help-text" data-i18n="help00b">
-        Retrouve tes bonus dans ton profil → <strong>Puissance de Combat</strong>. Entre le total en % pour chaque stat. Les bonus <strong>globaux</strong> (toutes troupes) vont dans la 1ère colonne. Si tu as des bonus spécifiques par type (ex : Archer Attack +50%), ajoute-les dans la colonne correspondante — ils s'additionneront.
-      </div>
-    </div>
-
-    <!-- Grille bonus : ligne header + 3 colonnes INF/CAV/ARC -->
-    <div style="display:grid;grid-template-columns:90px 1fr 1fr 1fr;gap:6px;align-items:center;margin-bottom:10px">
-      <!-- Headers -->
-      <div></div>
-      <div style="text-align:center;font-family:var(--f-mono);font-size:9px;letter-spacing:1px;color:var(--inf);font-weight:700">INF</div>
-      <div style="text-align:center;font-family:var(--f-mono);font-size:9px;letter-spacing:1px;color:var(--cav);font-weight:700">CAV</div>
-      <div style="text-align:center;font-family:var(--f-mono);font-size:9px;letter-spacing:1px;color:var(--arc);font-weight:700">ARC</div>
-      <!-- ATK row -->
-      <div style="font-size:11px;font-weight:600;color:var(--amber)">⚔ ATK %</div>
-      <div class="bonus-input-wrap"><input type="number" id="bonusAtkInf" placeholder="0" min="0" style="text-align:center" oninput="onBonusChange()"><span class="bonus-pct">%</span></div>
-      <div class="bonus-input-wrap"><input type="number" id="bonusAtkCav" placeholder="0" min="0" style="text-align:center" oninput="onBonusChange()"><span class="bonus-pct">%</span></div>
-      <div class="bonus-input-wrap"><input type="number" id="bonusAtkArc" placeholder="0" min="0" style="text-align:center" oninput="onBonusChange()"><span class="bonus-pct">%</span></div>
-      <!-- LTH row -->
-      <div style="font-size:11px;font-weight:600;color:var(--red)">🗡 LET %</div>
-      <div class="bonus-input-wrap"><input type="number" id="bonusLthInf" placeholder="0" min="0" style="text-align:center" oninput="onBonusChange()"><span class="bonus-pct">%</span></div>
-      <div class="bonus-input-wrap"><input type="number" id="bonusLthCav" placeholder="0" min="0" style="text-align:center" oninput="onBonusChange()"><span class="bonus-pct">%</span></div>
-      <div class="bonus-input-wrap"><input type="number" id="bonusLthArc" placeholder="0" min="0" style="text-align:center" oninput="onBonusChange()"><span class="bonus-pct">%</span></div>
-    </div>
-    <!-- Bonus globaux : escouade + HP + DEF -->
-    <div class="bonus-grid" style="grid-template-columns:1fr 1fr;margin-top:4px">
-      <div>
-        <div class="bonus-label"><span class="field-dot fd-amber"></span><span data-i18n="atk_squad_lbl">ATK Escouade globale (%)</span></div>
-        <div class="bonus-input-wrap"><input type="number" id="bonusAtkSquad" placeholder="0" min="0" oninput="onBonusChange()"><span class="bonus-pct">%</span></div>
-      </div>
-      <div>
-        <div class="bonus-label"><span class="field-dot" style="background:var(--red);box-shadow:0 0 5px var(--red)"></span><span data-i18n="lth_squad_lbl">LET Escouade globale (%)</span></div>
-        <div class="bonus-input-wrap"><input type="number" id="bonusLthSquad" placeholder="0" min="0" oninput="onBonusChange()"><span class="bonus-pct">%</span></div>
-      </div>
-    </div>
-    <div class="bonus-summary" id="bonusSummary">
-      Remplis tes bonus pour voir l'impact sur les poids de calcul
-    </div>
-  </div>
+<!-- Champs bonus cachés — remplis depuis profil.html via localStorage -->
+<div style="display:none">
+  <input type="number" id="bonusAtkInf" value="0">
+  <input type="number" id="bonusAtkCav" value="0">
+  <input type="number" id="bonusAtkArc" value="0">
+  <input type="number" id="bonusLthInf" value="0">
+  <input type="number" id="bonusLthCav" value="0">
+  <input type="number" id="bonusLthArc" value="0">
+  <input type="number" id="bonusAtkSquad" value="0">
+  <input type="number" id="bonusLthSquad" value="0">
+  <input type="number" id="bonusHp" value="0">
+  <input type="number" id="bonusDef" value="0">
 </div>
 
 <!-- ══ ÉTAPE 1 — STOCK ══ -->
@@ -1786,7 +1746,6 @@ function runAutoOptimize(){
 
   const allRatios=_allRatios(); // ~4851 combos
   const wL=calcWeights();
-  const wN=calcWeightsFor({}); // Poids neutres (sans héros ni bonus) pour les joiners
 
   // Caps joiner saisies manuellement par l'utilisateur (dans l'ordre des panels)
   // Si une cap est saisie → taille fixe pour ce joiner
@@ -1885,7 +1844,7 @@ function runAutoOptimize(){
           for(let j=0;j<nJ;j++){
             const jCap=manualJoinerCaps[j];
             if(jCap>remI+remC+remA){ok=false;break;}
-            const best=_bestRatioForCap(jCap,remI,remC,remA,wN,allRatios);
+            const best=_bestRatioForCap(jCap,remI,remC,remA,wL,allRatios);
             if(!best){ok=false;break;}
             joinerAllocs.push({jNum:j+1,cap:jCap,...best});
             remI-=best.nI; remC-=best.nC; remA-=best.nA;
@@ -1903,7 +1862,7 @@ function runAutoOptimize(){
           for(let j=0;j<manualJoinerCaps.length&&j<nJ;j++){
             const jCap=manualJoinerCaps[j];
             if(jCap>mRemI+mRemC+mRemA){manualOk=false;break;}
-            const best=_bestRatioForCap(jCap,mRemI,mRemC,mRemA,wN,allRatios);
+            const best=_bestRatioForCap(jCap,mRemI,mRemC,mRemA,wL,allRatios);
             if(!best){manualOk=false;break;}
             manualAllocs.push({jNum:j+1,cap:jCap,...best});
             mRemI-=best.nI; mRemC-=best.nC; mRemA-=best.nA;
@@ -1920,7 +1879,7 @@ function runAutoOptimize(){
             let ok=true;
             for(let j=0;j<nAuto;j++){
               if(capAuto>remI+remC+remA){ok=false;break;}
-              const best=_bestRatioForCap(capAuto,remI,remC,remA,wN,allRatios);
+              const best=_bestRatioForCap(capAuto,remI,remC,remA,wL,allRatios);
               if(!best){ok=false;break;}
               joinerAllocs.push({jNum:manualJoinerCaps.length+j+1,cap:capAuto,...best});
               remI-=best.nI; remC-=best.nC; remA-=best.nA;
@@ -2459,6 +2418,16 @@ function saveState(){
 }
 
 function loadState(){
+  // Charger les bonus depuis le profil si disponibles
+  try{
+    const rawB=localStorage.getItem('bearBonusStats');
+    if(rawB){
+      const b=JSON.parse(rawB);
+      const bids=['bonusAtkInf','bonusAtkCav','bonusAtkArc','bonusLthInf','bonusLthCav','bonusLthArc','bonusAtkSquad','bonusLthSquad','bonusHp','bonusDef'];
+      bids.forEach(id=>{if(b[id]!==undefined){const el=document.getElementById(id);if(el)el.value=b[id];}});
+      onBonusChange();
+    }
+  }catch(e){}
   try{
     const raw=localStorage.getItem('bearCalcState');if(!raw)return;const st=JSON.parse(raw);
     // Tiers — forcer la valeur après que les options soient bien créées

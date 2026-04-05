@@ -261,6 +261,12 @@ body::before {
 }
 @keyframes loadAnim { from { margin-left: 0 } to { margin-left: 60% } }
 
+/* ── BONUS INPUTS ── */
+.bonus-input-wrap { display:flex; align-items:center; gap:3px; }
+.bonus-field { width:100%; padding:7px 8px; background:var(--surface2); border:1px solid var(--border); font-family:var(--f-mono); font-size:13px; color:var(--text); outline:none; text-align:center; }
+.bonus-field:focus { border-color:var(--amber); }
+.bonus-pct { font-family:var(--f-mono); font-size:11px; color:var(--text-faint); }
+
 /* ── TOAST ── */
 #profToast {
   position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
@@ -447,23 +453,63 @@ function renderMain() {
       </div>
     </div>
 
-    <!-- COMPOSITIONS -->
-    <div class="sec">
-      <div class="sec-num">02</div>
-      <div class="sec-body">
-        <div class="sec-title">Mes compositions</div>
-        <div class="sec-desc">Sauvegarde et charge tes configs Bear Hunt</div>
+    <!-- ONGLETS -->
+    <div style="display:flex;gap:0;margin-top:28px;border-bottom:1px solid var(--border)">
+      <button id="tabBtnCompos" onclick="switchTab('compos')" style="font-family:var(--f-display);font-size:1rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:10px 20px;background:transparent;border:none;border-bottom:3px solid var(--amber);color:var(--text);cursor:pointer">Compositions</button>
+      <button id="tabBtnStats" onclick="switchTab('stats')" style="font-family:var(--f-display);font-size:1rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;padding:10px 20px;background:transparent;border:none;border-bottom:3px solid transparent;color:var(--text-faint);cursor:pointer">Stats Bonus</button>
+    </div>
+
+    <!-- TAB : COMPOSITIONS -->
+    <div id="tabCompos" style="margin-top:16px">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+        <button class="btn btn-primary" onclick="openSaveModal()">＋ Sauvegarder la config actuelle</button>
+      </div>
+      <div id="compoList"></div>
+    </div>
+
+    <!-- TAB : STATS BONUS -->
+    <div id="tabStats" style="display:none;margin-top:16px">
+      <div class="panel">
+        <div class="panel-accent" style="background:linear-gradient(90deg,var(--green),transparent 70%)"></div>
+        <div class="panel-body">
+          <p style="font-size:13px;color:var(--text-dim);margin-bottom:16px">Retrouve tes bonus dans le jeu → <strong>Profil → Puissance de Combat</strong>. Ces stats sont automatiquement envoyées au calculateur Bear Hunt.</p>
+
+          <!-- Grille ATK/LTH par type -->
+          <div style="display:grid;grid-template-columns:100px 1fr 1fr 1fr;gap:8px;align-items:center;margin-bottom:14px">
+            <div></div>
+            <div style="text-align:center;font-family:var(--f-mono);font-size:9px;letter-spacing:1px;color:var(--inf);font-weight:700">INF</div>
+            <div style="text-align:center;font-family:var(--f-mono);font-size:9px;letter-spacing:1px;color:var(--cav);font-weight:700">CAV</div>
+            <div style="text-align:center;font-family:var(--f-mono);font-size:9px;letter-spacing:1px;color:var(--arc);font-weight:700">ARC</div>
+            <div style="font-size:12px;font-weight:600;color:var(--amber)">⚔ ATK %</div>
+            <div class="bonus-input-wrap"><input type="number" id="bAtkInf" class="bonus-field" placeholder="0" min="0" oninput="onStatsChange()"><span class="bonus-pct">%</span></div>
+            <div class="bonus-input-wrap"><input type="number" id="bAtkCav" class="bonus-field" placeholder="0" min="0" oninput="onStatsChange()"><span class="bonus-pct">%</span></div>
+            <div class="bonus-input-wrap"><input type="number" id="bAtkArc" class="bonus-field" placeholder="0" min="0" oninput="onStatsChange()"><span class="bonus-pct">%</span></div>
+            <div style="font-size:12px;font-weight:600;color:var(--red)">🗡 LET %</div>
+            <div class="bonus-input-wrap"><input type="number" id="bLthInf" class="bonus-field" placeholder="0" min="0" oninput="onStatsChange()"><span class="bonus-pct">%</span></div>
+            <div class="bonus-input-wrap"><input type="number" id="bLthCav" class="bonus-field" placeholder="0" min="0" oninput="onStatsChange()"><span class="bonus-pct">%</span></div>
+            <div class="bonus-input-wrap"><input type="number" id="bLthArc" class="bonus-field" placeholder="0" min="0" oninput="onStatsChange()"><span class="bonus-pct">%</span></div>
+          </div>
+
+          <!-- Bonus globaux escouade -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+            <div>
+              <div style="font-size:11px;color:var(--text-dim);margin-bottom:4px;font-family:var(--f-mono);letter-spacing:1px">ATK ESCOUADE GLOBALE %</div>
+              <div class="bonus-input-wrap"><input type="number" id="bAtkSquad" class="bonus-field" placeholder="0" min="0" oninput="onStatsChange()"><span class="bonus-pct">%</span></div>
+            </div>
+            <div>
+              <div style="font-size:11px;color:var(--text-dim);margin-bottom:4px;font-family:var(--f-mono);letter-spacing:1px">LET ESCOUADE GLOBALE %</div>
+              <div class="bonus-input-wrap"><input type="number" id="bLthSquad" class="bonus-field" placeholder="0" min="0" oninput="onStatsChange()"><span class="bonus-pct">%</span></div>
+            </div>
+          </div>
+
+          <div id="statsSaveIndicator" style="font-family:var(--f-mono);font-size:10px;color:var(--green);opacity:0;transition:opacity .4s;letter-spacing:1px">✓ SAUVEGARDÉ</div>
+        </div>
       </div>
     </div>
-
-    <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
-      <button class="btn btn-primary" onclick="openSaveModal()">＋ Sauvegarder la config actuelle</button>
-    </div>
-
-    <div id="compoList"></div>
   `;
 
   renderCompos();
+  loadBonusStats();
 }
 
 function renderCompos() {
@@ -505,6 +551,111 @@ function renderCompos() {
   }).join('')}</div>`;
 
   el.innerHTML = html;
+}
+
+
+// ══════════════════════════════════════════════════
+//  ONGLETS
+// ══════════════════════════════════════════════════
+function switchTab(tab) {
+  const tabCompos = document.getElementById('tabCompos');
+  const tabStats  = document.getElementById('tabStats');
+  const btnCompos = document.getElementById('tabBtnCompos');
+  const btnStats  = document.getElementById('tabBtnStats');
+  if (!tabCompos) return;
+  if (tab === 'stats') {
+    tabCompos.style.display = 'none'; tabStats.style.display = '';
+    btnCompos.style.borderBottomColor = 'transparent'; btnCompos.style.color = 'var(--text-faint)';
+    btnStats.style.borderBottomColor  = 'var(--amber)'; btnStats.style.color  = 'var(--text)';
+  } else {
+    tabCompos.style.display = ''; tabStats.style.display = 'none';
+    btnCompos.style.borderBottomColor = 'var(--amber)'; btnCompos.style.color = 'var(--text)';
+    btnStats.style.borderBottomColor  = 'transparent';  btnStats.style.color  = 'var(--text-faint)';
+  }
+}
+
+// ══════════════════════════════════════════════════
+//  STATS BONUS
+// ══════════════════════════════════════════════════
+const BONUS_FIELDS = ['bAtkInf','bAtkCav','bAtkArc','bLthInf','bLthCav','bLthArc','bAtkSquad','bLthSquad'];
+const BONUS_MAP    = { bAtkInf:'bonusAtkInf', bAtkCav:'bonusAtkCav', bAtkArc:'bonusAtkArc',
+                       bLthInf:'bonusLthInf', bLthCav:'bonusLthCav', bLthArc:'bonusLthArc',
+                       bAtkSquad:'bonusAtkSquad', bLthSquad:'bonusLthSquad' };
+
+let _statsTimer = null;
+
+function onStatsChange() {
+  // Écrire immédiatement dans localStorage pour le calculateur
+  const data = {};
+  BONUS_FIELDS.forEach(id => {
+    const el = document.getElementById(id);
+    const calcId = BONUS_MAP[id];
+    data[calcId] = el ? (parseFloat(el.value) || 0) : 0;
+  });
+  localStorage.setItem('bearBonusStats', JSON.stringify(data));
+
+  // Sauvegarder dans Supabase avec debounce 1.5s
+  clearTimeout(_statsTimer);
+  _statsTimer = setTimeout(saveStatsToCloud, 1500);
+
+  // Indicateur visuel
+  const ind = document.getElementById('statsSaveIndicator');
+  if (ind) { ind.style.opacity = '0'; }
+}
+
+async function saveStatsToCloud() {
+  const client = getSb();
+  if (!client || !currentUser) return;
+  const data = {};
+  BONUS_FIELDS.forEach(id => {
+    const el = document.getElementById(id);
+    data[BONUS_MAP[id]] = el ? (parseFloat(el.value) || 0) : 0;
+  });
+  try {
+    const res = await client.from('profiles')
+      .update({ bonus_stats: data })
+      .eq('id', currentUser.id);
+    if (res.error) throw res.error;
+    const ind = document.getElementById('statsSaveIndicator');
+    if (ind) { ind.style.opacity = '1'; setTimeout(() => ind.style.opacity = '0', 1500); }
+  } catch(e) {
+    console.error('saveStatsToCloud error:', e);
+    toast('Erreur sauvegarde stats', 'err');
+  }
+}
+
+async function loadBonusStats() {
+  // 1. Lire localStorage d'abord (rapide)
+  try {
+    const raw = localStorage.getItem('bearBonusStats');
+    if (raw) {
+      const data = JSON.parse(raw);
+      BONUS_FIELDS.forEach(id => {
+        const calcId = BONUS_MAP[id];
+        const el = document.getElementById(id);
+        if (el && data[calcId] !== undefined) el.value = data[calcId] || '';
+      });
+    }
+  } catch(e) {}
+
+  // 2. Puis charger depuis Supabase (source de vérité)
+  const client = getSb();
+  if (!client || !currentUser) return;
+  try {
+    const res = await client.from('profiles')
+      .select('bonus_stats')
+      .eq('id', currentUser.id)
+      .single();
+    if (res.error || !res.data?.bonus_stats) return;
+    const data = res.data.bonus_stats;
+    BONUS_FIELDS.forEach(id => {
+      const calcId = BONUS_MAP[id];
+      const el = document.getElementById(id);
+      if (el && data[calcId] !== undefined) el.value = data[calcId] || '';
+    });
+    // Sync localStorage
+    localStorage.setItem('bearBonusStats', JSON.stringify(data));
+  } catch(e) {}
 }
 
 function escHtml(str) {
