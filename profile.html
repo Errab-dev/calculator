@@ -500,24 +500,54 @@ function escHtml(str) {
 // ══════════════════════════════════════════════════
 async function loadCompos() {
   const client = getSb();
-  if (!client || !currentUser) return;
+  if (!client) { showDebug('Supabase non disponible'); return; }
+  if (!currentUser) { showDebug('Non connecté'); return; }
 
   showLoading(true);
   try {
+    // Test 1 : requête sans filtre pour voir si la table est accessible
+    const testRes = await client.from('compositions').select('id, user_id, name').limit(3);
+    if (testRes.error) {
+      showDebug('Erreur accès table: ' + testRes.error.message + ' | code: ' + testRes.error.code);
+      showLoading(false);
+      renderCompos();
+      return;
+    }
+
+    // Test 2 : requête filtrée par user_id
     const res = await client
       .from('compositions')
       .select('*')
       .eq('user_id', currentUser.id)
       .order('created_at', { ascending: false });
 
-    if (res.error) throw res.error;
+    if (res.error) {
+      showDebug('Erreur filtre user: ' + res.error.message + ' | user_id: ' + currentUser.id);
+      showLoading(false);
+      renderCompos();
+      return;
+    }
+
     compositions = res.data || [];
+    showDebug('OK — ' + compositions.length + ' compo(s) | user_id utilisé: ' + currentUser.id + ' | total visible sans filtre: ' + (testRes.data || []).length);
   } catch(e) {
-    console.error('Load compos error:', e);
-    toast('Erreur chargement compositions', 'err');
+    showDebug('Exception: ' + e.message);
   }
   showLoading(false);
   renderCompos();
+}
+
+function showDebug(msg) {
+  let el = document.getElementById('debugBox');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'debugBox';
+    el.style.cssText = 'background:#1a1a2e;color:#e0e0e0;font-family:monospace;font-size:12px;padding:12px;margin-bottom:12px;border:1px solid #b86e00;word-break:break-all;white-space:pre-wrap;';
+    const compoList = document.getElementById('compoList');
+    if (compoList) compoList.before(el);
+    else document.getElementById('mainContent').appendChild(el);
+  }
+  el.textContent = '🔍 DEBUG: ' + msg;
 }
 
 // ══════════════════════════════════════════════════
