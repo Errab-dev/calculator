@@ -2504,6 +2504,17 @@ function loadState(){
   if(!calcState) return;
 
   try{
+    // ── Cleanup : remettre à zéro héros et joiners avant restauration ──
+    heroSlots = []; heroSlotCount = 0;
+    const _hsEl = document.getElementById('heroSlots'); if(_hsEl) _hsEl.innerHTML = '';
+    document.getElementById('btnAddHero').disabled = false;
+
+    while(jCount > 0){
+      document.getElementById(`jtab${jCount}`)?.remove();
+      document.getElementById(`jpanel${jCount}`)?.remove();
+      jCount--;
+    }
+
     // 3. Tiers
     ['InfT','InfG','CavT','CavG','ArcT','ArcG'].forEach(k=>{
       const key='tier'+k, el=document.getElementById(key);
@@ -2516,9 +2527,9 @@ function loadState(){
     });
     onTierChange();
 
-    // 4. Héros
+    // 4. Héros (max 3)
     if(calcState.heroes?.length){
-      calcState.heroes.forEach(h=>{
+      calcState.heroes.slice(0,3).forEach(h=>{
         if(!h.heroKey)return;
         heroSlots.push({heroKey:h.heroKey,skillLevels:h.skillLevels||[1,1,1],widgetLevel:h.widgetLevel||0,heroStats:h.heroStats||{atk:'',def:'',lth:'',hp:''}});
         heroSlotCount++;
@@ -2554,9 +2565,11 @@ function loadState(){
       if(el){el.value=calcState.marchSlotCount;syncJCtrl();}
     }
 
-    // 8. Joiners
+    // 8. Joiners (max JMAX)
     if(calcState.joiners?.length){
-      for(const j of calcState.joiners){
+      const maxJ = Math.min(calcState.joiners.length, JMAX);
+      for(let ji=0; ji<maxJ; ji++){
+        const j = calcState.joiners[ji];
         jCount++;buildJoinerTab(jCount,false);buildJoinerPanel(jCount);
         document.getElementById(`j${jCount}_cap`).value=j.cap||'';
         document.getElementById(`j${jCount}_inf`).value=j.inf??10;
