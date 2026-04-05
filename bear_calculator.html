@@ -2475,225 +2475,159 @@ function loadState(){
    let_squad/rally, dmg_squad, dmg_chance
 ═══════════════════════════════════════════════════════════ */
 const HEROES_DB = {
-  /* ── GEN 1 MYTHIQUES ── */
-  // Source : kingshot-data.com + kingshotdata.com + ldshop.gg
-  'amadeus': { name:'Amadeus', gen:1, 'class':'inf', skills:[
-    { nom:'Élan du Ranger',    desc:l=>`Létalité de toutes les escouades +${[5,10,15,20,25][l-1]}%`,        type:'let_squad',  vals:[5,10,15,20,25] },
-    { nom:"Art de l'Épée",    desc:l=>`Attaque de toutes les escouades +${[5,10,15,20,25][l-1]}%`,          type:'atk_squad',  vals:[5,10,15,20,25] },
-    { nom:'Frappe Sauvage',   desc:l=>`${[8,16,24,32,40][l-1]}% de chance : dégâts +50% toutes escouades`,  type:'dmg_chance', vals:[8,16,24,32,40], bonus:50 },
-  ], widget:{ nom:'Discernement', desc:l=>`Attaque troupes ralliées +${[5,7.5,10,12.5,15][l-1]}%`, type:'atk_rally', vals:[5,7.5,10,12.5,15] }},
 
-  'helga': { name:'Helga', gen:1, 'class':'inf', skills:[
-    // Oath of Guardian : 40% chance -50% dmg subi
-    { nom:'Serment du Gardien', desc:l=>`${[8,16,24,32,40][l-1]}% de chance : dégâts subis −50% toutes escouades`, type:'none', vals:[8,16,24,32,40] },
-    // Echoes of Valhalla : Squad ATK +25%
-    { nom:'Échos du Valhalla',  desc:l=>`Attaque de toutes les escouades +${[5,10,15,20,25][l-1]}%`,             type:'atk_squad', vals:[5,10,15,20,25] },
-    // Nature's Balance : Squad LET +25%
-    { nom:'Balance Naturelle',  desc:l=>`Létalité de toutes les escouades +${[5,10,15,20,25][l-1]}%`,            type:'let_squad', vals:[5,10,15,20,25] },
-  ], widget:{ nom:'Zèle', desc:l=>`Létalité troupes ralliées +${[5,7.5,10,12.5,15][l-1]}%`, type:'let_rally', vals:[5,7.5,10,12.5,15] }},
+  /* ══ GEN 1 MYTHIQUES ══ */
+  'amadeus': { name:'Amadeus', gen:1, cls:'inf', skills:[
+    { nom:'Might total +25%',      desc:l=>`Might total escouades +${[5,10,15,20,25][l-1]}%`,                       type:'atk_squad',  vals:[5,10,15,20,25] },
+    { nom:'ATK totale +25%',       desc:l=>`ATK totale escouades +${[5,10,15,20,25][l-1]}%`,                        type:'atk_squad',  vals:[5,10,15,20,25] },
+    { nom:'Chance dégâts +50%',    desc:l=>`${[8,16,24,32,40][l-1]}% de chance : dégâts +50%`,                     type:'dmg_chance', vals:[8,16,24,32,40], bonus:50 },
+  ], widget:{ nom:'Aegis of Fate',     desc:l=>`Rally ATK +${[5,7.5,10,12.5,15][l-1]}%`,  type:'atk_rally', vals:[5,7.5,10,12.5,15] }},
 
-  'jabel': { name:'Jabel', gen:1, 'class':'cav', skills:[
-    // Rally Flag : 40% chance -50% dmg subi
-    { nom:'Rally Flag',      desc:l=>`${[8,16,24,32,40][l-1]}% de chance : dégâts subis −50% toutes escouades`, type:'none',      vals:[8,16,24,32,40] },
-    // Hero's Domain : dégâts +30%
-    { nom:"Domaine du Héros", desc:l=>`Dégâts infligés +${[10,15,20,25,30][l-1]}% toutes escouades`,             type:'dmg_squad', vals:[10,15,20,25,30] },
-    // Youthful Rage : 50% chance +50% dégâts
-    { nom:'Fougue Juvénile',  desc:l=>`50% de chance : dégâts +50% toutes escouades (${l} passif)`,              type:'dmg_chance', vals:[50,50,50,50,50], bonus:50 },
-  ], widget:{ nom:'Force Divine', desc:l=>`Létalité troupes défenseurs +${[5,7.5,10,12.5,15][l-1]}%`, type:'none', vals:[5,7.5,10,12.5,15] }},
+  'helga': { name:'Helga', gen:1, cls:'inf', skills:[
+    { nom:'Dégâts subis -50%',     desc:l=>`${[8,16,24,32,40][l-1]}% de chance : dégâts subis -50%`,               type:'none',       vals:[8,16,24,32,40] },
+    { nom:'ATK totale +25%',       desc:l=>`ATK totale escouades +${[5,10,15,20,25][l-1]}%`,                        type:'atk_squad',  vals:[5,10,15,20,25] },
+    { nom:'Might total +25%',      desc:l=>`Might total escouades +${[5,10,15,20,25][l-1]}%`,                       type:'atk_squad',  vals:[5,10,15,20,25] },
+  ], widget:{ nom:'Bands of Tyre',     desc:l=>`Rally Might +${[5,7.5,10,12.5,15][l-1]}%`, type:'atk_rally', vals:[5,7.5,10,12.5,15] }},
 
-  'saul': { name:'Saul', gen:1, 'class':'arc', skills:[
-    // Saul skill 1 : Squad DEF+HP
-    { nom:'Détermination',  desc:l=>`Défense +${[5,10,15,20,25][l-1]}% et Santé +${[5,10,15,20,25][l-1]}% toutes escouades`, type:'none', vals:[5,10,15,20,25] },
-    // Skill 2 : Defender ATK (garrison)
-    { nom:'Flanc Puissant', desc:l=>`Attaque troupes défenseurs +${[5,7.5,10,12.5,15][l-1]}%`,                    type:'none', vals:[5,7.5,10,12.5,15] },
-    // Skill 3 : Construction speed (growth)
-    { nom:'Maître Bâtisseur',desc:l=>`Vitesse de construction −${[3,6,9,12,15][l-1]}%`,                           type:'none', vals:[3,6,9,12,15] },
-  ], widget:{ nom:'Bouclier Défenseur', desc:l=>`Attaque troupes défenseurs +${[5,7.5,10,12.5,15][l-1]}%`, type:'none', vals:[5,7.5,10,12.5,15] }},
+  'jabel': { name:'Jabel', gen:1, cls:'cav', skills:[
+    { nom:'Dégâts subis -50%',     desc:l=>`${[8,16,24,32,40][l-1]}% de chance : dégâts subis -50%`,               type:'none',       vals:[8,16,24,32,40] },
+    { nom:'50% chance dégâts +50%',desc:l=>`50% de chance : dégâts alliés +50%`,                                    type:'dmg_chance', vals:[50,50,50,50,50], bonus:50 },
+    { nom:'Dégâts alliés +25%',    desc:l=>`Dégâts alliés infligés +${[5,10,15,20,25][l-1]}%`,                     type:'dmg_squad',  vals:[5,10,15,20,25] },
+  ], widget:{ nom:'Greaves of Faith',  desc:l=>`Dégâts alliés +${[10,15,20,25,30][l-1]}%`, type:'dmg_squad', vals:[10,15,20,25,30] }},
 
-  /* ── GEN 2 MYTHIQUES ── */
-  'zoe': { name:'Zoe', gen:2, 'class':'inf', skills:[
-    // Sundering Wound : 20% chance Sunder
-    { nom:'Blessure Profonde', desc:l=>`${[8,16,24,32,40][l-1]}% de chance : Sunder (dégâts +40%/tour, 3 tours)`, type:'dmg_chance', vals:[8,16,24,32,40], bonus:40 },
-    // Stoic : Squad ATK +25%
-    { nom:'Stoïque',           desc:l=>`Attaque de toutes les escouades +${[5,10,15,20,25][l-1]}%`,               type:'atk_squad',  vals:[5,10,15,20,25] },
-    // Infinite Arsenal : 50% chance dégâts ennemis +50%
-    { nom:'Arsenal Infini',    desc:l=>`${[10,20,30,40,50][l-1]}% de chance : dégâts ennemis subis +50%`,         type:'dmg_chance', vals:[10,20,30,40,50], bonus:50 },
-  ], widget:{ nom:'Dame Sombre', desc:l=>`Attaque troupes défenseurs +${[5,7.5,10,12.5,15][l-1]}%`, type:'none', vals:[5,7.5,10,12.5,15] }},
+  'saul': { name:'Saul', gen:1, cls:'arc', skills:[
+    { nom:'DEF+HP escouades',      desc:l=>`DEF +${[2,4,6,8,10][l-1]}% · HP +${[3,6,9,12,15][l-1]}%`,             type:'none',       vals:[2,4,6,8,10] },
+    { nom:'Vitesse construction',  desc:l=>`Vitesse construction +${[3,6,9,12,15][l-1]}%`,                          type:'none',       vals:[3,6,9,12,15] },
+    { nom:'Might total +25%',      desc:l=>`Might total escouades +${[5,10,15,20,25][l-1]}%`,                       type:'atk_squad',  vals:[5,10,15,20,25] },
+  ], widget:{ nom:'Rabbitgear Cannon', desc:l=>`ATK +${[6,12,16,20,24][l-1]}%`,           type:'none', vals:[6,12,16,20,24] }},
 
-  'hilde': { name:'Hilde', gen:2, 'class':'cav', skills:[
-    // Noble Path : Squad ATK +25% (valeur max confirmée)
-    { nom:'Noble Voie',       desc:l=>`Attaque de toutes les escouades +${[5,10,15,20,25][l-1]}%`,                type:'atk_squad',  vals:[5,10,15,20,25] },
-    // Elixir of Strength : 25% chance escouades 200% dégâts
-    { nom:"Élixir de Force",  desc:l=>`${[8,16,24,32,40][l-1]}% de chance : escouades infligent 200% dégâts`,    type:'dmg_chance', vals:[8,16,24,32,40], bonus:100 },
-    // Trial by Fire : 40% chance -50% dégâts subis
-    { nom:"Épreuve du Feu",   desc:l=>`${[8,16,24,32,40][l-1]}% de chance : dégâts subis −50% toutes escouades`, type:'none',        vals:[8,16,24,32,40] },
-  ], widget:{ nom:'Fortitude', desc:l=>`Santé troupes défenseurs +${[5,7.5,10,12.5,15][l-1]}%`, type:'none', vals:[5,7.5,10,12.5,15] }},
+  /* ══ GEN 2 MYTHIQUES ══ */
+  'zoe': { name:'Zoe', gen:2, cls:'inf', skills:[
+    { nom:'DoT 20% chance +40%',   desc:l=>`20% de chance : dégâts DoT +${[8,16,24,32,40][l-1]}% (3 tours)`,       type:'dmg_chance', vals:[8,16,24,32,40], bonus:40 },
+    { nom:'ATK totale +25%',       desc:l=>`ATK totale escouades +${[5,10,15,20,25][l-1]}%`,                        type:'atk_squad',  vals:[5,10,15,20,25] },
+    { nom:'Dégâts ennemis +50%',   desc:l=>`50% de chance : dégâts ennemis subis +${[10,20,30,40,50][l-1]}%`,      type:'dmg_chance', vals:[10,20,30,40,50], bonus:50 },
+  ], widget:{ nom:'The Unrighteous',   desc:l=>`Garrison ATK +${[5,7.5,10,12.5,15][l-1]}%`, type:'none', vals:[5,7.5,10,12.5,15] }},
 
-  'marlin': { name:'Marlin', gen:2, 'class':'arc', skills:[
-    // Wild Card : 40% chance +50% dégâts
-    { nom:'Wild Card', desc:l=>`${[8,16,24,32,40][l-1]}% de chance : dégâts +50% toutes escouades`,              type:'dmg_chance',       vals:[8,16,24,32,40], bonus:50 },
-    // Rumhead : 20% chance -50% LET ennemie
-    { nom:'Rumhead',   desc:l=>`20% de chance : Létalité ennemie −50% (2 tours)`,                                 type:'let_reduce_enemy', vals:[20,20,20,20,20] },
-    // Dynamo : 50% chance +50% dégâts
-    { nom:'Dynamo',    desc:l=>`50% de chance : dégâts +50% toutes escouades`,                                    type:'dmg_chance',       vals:[50,50,50,50,50], bonus:50 },
-  ], widget:{ nom:'Amiral en Ligne', desc:l=>`Létalité troupes ralliées +${[5,7.5,10,12.5,15][l-1]}%`, type:'let_rally', vals:[5,7.5,10,12.5,15] }},
+  'hilde': { name:'Hilde', gen:2, cls:'cav', skills:[
+    { nom:'ATK+DEF escouades',     desc:l=>`ATK +${[3,6,9,12,15][l-1]}% · DEF +${[2,4,6,8,10][l-1]}%`,            type:'atk_squad',  vals:[3,6,9,12,15] },
+    { nom:'25% chance 200% dégâts',desc:l=>`25% de chance : dégâts alliés +${[120,140,160,180,200][l-1]}%`,        type:'dmg_chance', vals:[120,140,160,180,200], bonus:200 },
+    { nom:'Dégâts subis -50%',     desc:l=>`${[8,16,24,32,40][l-1]}% de chance : dégâts subis -50%`,               type:'none',       vals:[8,16,24,32,40] },
+  ], widget:{ nom:'Revelation',        desc:l=>`Garrison HP +${[5,7.5,10,12.5,15][l-1]}%`,  type:'none', vals:[5,7.5,10,12.5,15] }},
 
-  /* ── GEN 3 MYTHIQUES ── */
-  'eric': { name:'Eric', gen:3, 'class':'inf', skills:[
-    // Exhortation : Squad HP +25%
-    { nom:'Exhortation',  desc:l=>`Santé de toutes les escouades +${[5,10,15,20,25][l-1]}%`,                      type:'none', vals:[5,10,15,20,25] },
-    // Conviction : ATK ennemie −20%
-    { nom:'Conviction',   desc:l=>`Attaque de toutes les escouades ennemies −${[4,8,12,16,20][l-1]}%`,            type:'none', vals:[4,8,12,16,20] },
-    // Squad HP via "inspiring leader"
-    { nom:'Vœu de Paladine', desc:l=>`Défense troupes défenseurs +${[5,7.5,10,12.5,15][l-1]}%`,                  type:'none', vals:[5,7.5,10,12.5,15] },
-  ], widget:{ nom:'Conviction de Foi', desc:l=>`Défense troupes défenseurs +${[5,7.5,10,12.5,15][l-1]}%`, type:'none', vals:[5,7.5,10,12.5,15] }},
+  'marlin': { name:'Marlin', gen:2, cls:'arc', skills:[
+    { nom:'40% chance dégâts +50%',desc:l=>`${[8,16,24,32,40][l-1]}% de chance : dégâts +50%`,                     type:'dmg_chance',       vals:[8,16,24,32,40], bonus:50 },
+    { nom:'Might ennemi -50%',     desc:l=>`20% de chance : Might ennemi -${[10,20,30,40,50][l-1]}%`,               type:'let_reduce_enemy', vals:[10,20,30,40,50] },
+    { nom:'50% chance dégâts +50%',desc:l=>`50% de chance : dégâts alliés +${[10,20,30,40,50][l-1]}%`,             type:'dmg_chance',       vals:[10,20,30,40,50], bonus:50 },
+  ], widget:{ nom:'Mistweaver',        desc:l=>`Rally Might +${[5,7.5,10,12.5,15][l-1]}%`,  type:'atk_rally', vals:[5,7.5,10,12.5,15] }},
 
-  'petra': { name:'Petra', gen:3, 'class':'cav', skills:[
-    // Evil Eye : 50% chance ATK +50%
-    { nom:"L'Œil du Mal",  desc:l=>`${[10,20,30,40,50][l-1]}% de chance : Attaque escouades +50%`,               type:'dmg_chance', vals:[10,20,30,40,50], bonus:50 },
-    // The Favor : 50% chance +50% dégâts
-    { nom:'La Faveur',     desc:l=>`${[10,20,30,40,50][l-1]}% de chance : dégâts +50% toutes escouades`,          type:'dmg_chance', vals:[10,20,30,40,50], bonus:50 },
-    // The Shield : 40% chance -50% dégâts subis
-    { nom:'Le Bouclier',   desc:l=>`${[8,16,24,32,40][l-1]}% de chance : dégâts subis −50% toutes escouades`,    type:'none',        vals:[8,16,24,32,40] },
-  ], widget:{ nom:"Œil Cosmique", desc:l=>`Attaque troupes ralliées +${[5,7.5,10,12.5,15][l-1]}%`, type:'atk_rally', vals:[5,7.5,10,12.5,15] }},
+  /* ══ GEN 3 MYTHIQUES ══ */
+  'eric': { name:'Eric', gen:3, cls:'inf', skills:[
+    { nom:'ATK ennemi -20%',       desc:l=>`ATK totale ennemie -${[4,8,12,16,20][l-1]}%`,                           type:'none', vals:[4,8,12,16,20] },
+    { nom:'Dégâts subis -20%',     desc:l=>`Dégâts subis alliés -${[4,8,12,16,20][l-1]}%`,                         type:'none', vals:[4,8,12,16,20] },
+    { nom:'HP escouades +25%',     desc:l=>`HP escouades alliées +${[5,10,15,20,25][l-1]}%`,                        type:'none', vals:[5,10,15,20,25] },
+  ], widget:{ nom:'Anvil of Truth',    desc:l=>`Garrison DEF +${[5,7.5,10,12.5,15][l-1]}%`, type:'none', vals:[5,7.5,10,12.5,15] }},
 
-  'jaeger': { name:'Jaeger', gen:3, 'class':'arc', skills:[
-    // The Tempest : 20% chance dégâts +40% pendant 3 tours
-    { nom:'La Tempête',     desc:l=>`${[8,16,24,32,40][l-1]}% de chance : dégâts +40% toutes escouades (3 tours)`, type:'dmg_chance',       vals:[8,16,24,32,40], bonus:40 },
-    // The Resistance : 20% chance LET ennemie -50%
-    { nom:'La Résistance',  desc:l=>`20% de chance : Létalité ennemie −50% (2 tours)`,                             type:'let_reduce_enemy', vals:[20,20,20,20,20] },
-    // The Celebration : Squad HP +25%
-    { nom:'La Célébration', desc:l=>`Santé de toutes les escouades +${[5,10,15,20,25][l-1]}%`,                     type:'none',             vals:[5,10,15,20,25] },
-  ], widget:{ nom:'Son du Silence', desc:l=>`Santé troupes défenseurs +${[5,7.5,10,12.5,15][l-1]}%`, type:'none', vals:[5,7.5,10,12.5,15] }},
+  'petra': { name:'Petra', gen:3, cls:'cav', skills:[
+    { nom:'Dégâts ennemis +50%',   desc:l=>`50% de chance : dégâts subis ennemis +${[10,20,30,40,50][l-1]}%`,      type:'dmg_chance', vals:[10,20,30,40,50], bonus:50 },
+    { nom:'ATK alliés +50%',       desc:l=>`50% de chance : ATK alliée +${[10,20,30,40,50][l-1]}%`,                type:'dmg_chance', vals:[10,20,30,40,50], bonus:50 },
+    { nom:'Dégâts subis -50%',     desc:l=>`${[10,20,30,40,50][l-1]}% de chance : dégâts subis -50%`,              type:'none',       vals:[10,20,30,40,50] },
+  ], widget:{ nom:"Fate's Writ",       desc:l=>`Rally ATK +${[5,7.5,10,12.5,15][l-1]}%`,   type:'atk_rally', vals:[5,7.5,10,12.5,15] }},
 
-  /* ── GEN 4 MYTHIQUES ── */
-  'alcar': { name:'Alcar', gen:4, 'class':'inf', skills:[
-    // Rescuing Hands : Defender HP +15%
-    { nom:'Mains Secourables',  desc:l=>`Santé troupes défenseurs +${[5,7.5,10,12.5,15][l-1]}%`,                  type:'none',       vals:[5,7.5,10,12.5,15] },
-    // Praetorian Will : INF+ARC dégâts subis -70% every 5 turns (2 turns)
-    { nom:'Volonté Prétorienne', desc:l=>`INF+ARC : dégâts subis −${[14,28,42,56,70][l-1]}% toutes les 5 attaques`, type:'none',      vals:[14,28,42,56,70] },
-    // Carpe Diem : chance +100% dégâts INF
-    { nom:'Carpe Diem',          desc:l=>`${[8,16,24,32,40][l-1]}% de chance : INF infligent +100% dégâts`,       type:'dmg_chance', vals:[8,16,24,32,40], bonus:100 },
-  ], widget:{ nom:"Vœu d'Honneur", desc:l=>`Santé troupes défenseurs +${[5,7.5,10,12.5,15][l-1]}%`, type:'none', vals:[5,7.5,10,12.5,15] }},
+  'jaeger': { name:'Jaeger', gen:3, cls:'arc', skills:[
+    { nom:'20% chance dégâts +40%',desc:l=>`20% de chance : dégâts +${[8,16,24,32,40][l-1]}% (3 tours)`,           type:'dmg_chance',       vals:[8,16,24,32,40], bonus:40 },
+    { nom:'LET ennemi -50%',       desc:l=>`20% de chance : LET ennemi -${[10,20,30,40,50][l-1]}%`,                 type:'let_reduce_enemy', vals:[10,20,30,40,50] },
+    { nom:'HP escouades +25%',     desc:l=>`HP escouades +${[5,10,15,20,25][l-1]}%`,                                type:'none',             vals:[5,10,15,20,25] },
+  ], widget:{ nom:'Wanderwail',        desc:l=>`Garrison HP +${[5,7.5,10,12.5,15][l-1]}%`, type:'none', vals:[5,7.5,10,12.5,15] }},
 
-  'margot': { name:'Margot', gen:4, 'class':'cav', skills:[
-    // Warbringer : Squad ATK (depuis kingshotguide.org : "boost squad attack")
-    { nom:'Instigatrice de Guerre', desc:l=>`Attaque de toutes les escouades +${[5,10,15,20,25][l-1]}%`,          type:'atk_squad',  vals:[5,10,15,20,25] },
-    // Subterfuge : 25% chance esquive complète
-    { nom:'Subterfuge',             desc:l=>`${[8,16,24,32,40][l-1]}% de chance d'esquiver toutes les attaques`,  type:'none',        vals:[8,16,24,32,40] },
-    // Sleight of Hand : chance 2ème attaque CAV
-    { nom:'Tour de Passe-Passe',    desc:l=>`${[8,16,24,32,40][l-1]}% de chance : 2ème attaque CAV (+100%)`,      type:'dmg_chance',  vals:[8,16,24,32,40], bonus:100 },
-  ], widget:{ nom:'Pugiliste', desc:l=>`Létalité troupes défenseurs +${[5,7.5,10,12.5,15][l-1]}%`, type:'none', vals:[5,7.5,10,12.5,15] }},
+  /* ══ GEN 4 MYTHIQUES ══ */
+  'alcar': { name:'Alcar', gen:4, cls:'inf', skills:[
+    { nom:'INF+ARC dégâts -70%',   desc:l=>`INF+ARC dégâts subis -${[14,28,42,56,70][l-1]}% (2t/5t)`,              type:'none',   vals:[14,28,42,56,70] },
+    { nom:'INF dégâts +100%',      desc:l=>`INF dégâts +${[20,40,60,80,100][l-1]}% · CAV+ARC +${[2,4,6,8,10][l-1]}%`, type:'atk_inf', vals:[20,40,60,80,100] },
+    { nom:'INF dégâts +60%/atk',   desc:l=>`INF dégâts +${[12,24,36,48,60][l-1]}% · ennemi +${[5,10,15,20,25][l-1]}%`, type:'atk_inf', vals:[12,24,36,48,60] },
+  ], widget:{ nom:'Praetorian Guard',  desc:l=>`Defender HP +${[5,7.5,10,12.5,15][l-1]}%`, type:'none', vals:[5,7.5,10,12.5,15] }},
 
-  'rosa': { name:'Rosa', gen:4, 'class':'arc', skills:[
-    // Concentration (widget expedition) : Rally LET +15%
-    { nom:'Concentration',  desc:l=>`Létalité troupes ralliées +${[5,10,15,20,25][l-1]}%`,                        type:'let_rally',  vals:[5,10,15,20,25] },
-    // Golden Rhythm : Archer ATK +30%
-    { nom:'Rythme Doré',    desc:l=>`Attaque des Archers +${[6,12,18,24,30][l-1]}%`,                              type:'atk_arc',    vals:[6,12,18,24,30] },
-    // Chaos Gambit : 40% chance +50% dégâts
-    { nom:'Chaos Gambit',   desc:l=>`${[8,16,24,32,40][l-1]}% de chance : dégâts +50% toutes escouades`,          type:'dmg_chance', vals:[8,16,24,32,40], bonus:50 },
-  ], widget:{ nom:'Focalisation Bataille', desc:l=>`Létalité troupes ralliées +${[5,7.5,10,12.5,15][l-1]}%`, type:'let_rally', vals:[5,7.5,10,12.5,15] }},
+  'margot': { name:'Margot', gen:4, cls:'cav', skills:[
+    { nom:'ATK escouades +25%',    desc:l=>`ATK totale escouades +${[5,10,15,20,25][l-1]}%`,                        type:'atk_squad',  vals:[5,10,15,20,25] },
+    { nom:'Esquive 20%',           desc:l=>`${[4,8,12,16,20][l-1]}% de chance d'esquiver attaques normales`,        type:'none',       vals:[4,8,12,16,20] },
+    { nom:'CAV 25% 200% dégâts',   desc:l=>`CAV : 25% de chance dégâts +${[120,140,160,180,200][l-1]}%`,           type:'dmg_chance', vals:[120,140,160,180,200], bonus:200 },
+  ], widget:{ nom:'Revel Fang',        desc:l=>`Defender LET +${[5,7.5,10,12.5,15][l-1]}%`, type:'none', vals:[5,7.5,10,12.5,15] }},
 
-  /* ── GEN 5 MYTHIQUES ── */
-  'long_fei': { name:'Long Fei', gen:5, 'class':'inf', skills:[
-    // Grande Muraille : défense globale
-    { nom:'Grande Muraille',    desc:l=>`Défense toutes escouades +${[5,10,15,20,25][l-1]}%`,                      type:'none',       vals:[5,10,15,20,25] },
-    // Art of War : 25% chance 200% dégâts
-    { nom:"Art de la Guerre",   desc:l=>`${[8,16,24,32,40][l-1]}% de chance : escouades font 200% dégâts`,        type:'dmg_chance', vals:[8,16,24,32,40], bonus:100 },
-    // Réduction dégâts subis
-    { nom:'Frappe Stratégique', desc:l=>`${[8,16,24,32,40][l-1]}% de chance : dégâts subis −50%`,                 type:'none',        vals:[8,16,24,32,40] },
-  ], widget:{ nom:'Frappe Stratégique', desc:l=>`Attaque troupes défenseurs +${[5,7.5,10,12.5,15][l-1]}%`, type:'none', vals:[5,7.5,10,12.5,15] }},
+  'rosa': { name:'Rosa', gen:4, cls:'arc', skills:[
+    { nom:'40% chance dégâts +50%',desc:l=>`${[10,20,30,40,50][l-1]}% de chance : dégâts alliés +50%`,             type:'dmg_chance', vals:[10,20,30,40,50], bonus:50 },
+    { nom:'Dégâts ennemis -20%',   desc:l=>`Dégâts ennemis -${[4,8,12,16,20][l-1]}%`,                              type:'none',       vals:[4,8,12,16,20] },
+    { nom:'ARC ATK +30%',          desc:l=>`ATK Archers +${[6,12,18,24,30][l-1]}%`,                                 type:'atk_arc',    vals:[6,12,18,24,30] },
+  ], widget:{ nom:'Rosa Gear',         desc:l=>`Rally LET +${[5,7.5,10,12.5,15][l-1]}%`,   type:'let_rally', vals:[5,7.5,10,12.5,15] }},
 
-  'thrud': { name:'Thrud', gen:5, 'class':'cav', skills:[
-    // Ancestral Guidance : toutes les 4 attaques CAV, dégâts +25% ET subis -25% (2 tours)
-    { nom:'Guidance Ancestrale', desc:l=>`Toutes les 4 att. CAV : dégâts +25% / subis −25% (2 tours)`,           type:'dmg_squad',    vals:[25,25,25,25,25] },
-    // Battle Hunger : INF+ARC dégâts +25%
-    { nom:'Faim de Bataille',    desc:l=>`Dégâts INF+ARC +${[5,10,15,20,25][l-1]}%`,                             type:'dmg_inf_arc',  vals:[5,10,15,20,25] },
-    // Rage Nordique : chance -50% dégâts subis
-    { nom:'Rage Nordique',       desc:l=>`${[8,16,24,32,40][l-1]}% de chance : dégâts subis −50%`,               type:'none',          vals:[8,16,24,32,40] },
-  ], widget:{ nom:'Wolf-Kissed', desc:l=>`Létalité troupes ralliées +${[5,7.5,10,12.5,15][l-1]}%`, type:'let_rally', vals:[5,7.5,10,12.5,15] }},
+  /* ══ GEN 5 MYTHIQUES ══ */
+  'long_fei': { name:'Long Fei', gen:5, cls:'inf', skills:[
+    { nom:'40% chance dégâts -50%',desc:l=>`${[10,20,30,40,50][l-1]}% de chance : dégâts subis -50%`,              type:'none',       vals:[10,20,30,40,50] },
+    { nom:'DEF escouades +25%',    desc:l=>`DEF escouades +${[5,10,15,20,25][l-1]}%`,                               type:'none',       vals:[5,10,15,20,25] },
+    { nom:'25% chance 200% dégâts',desc:l=>`25% de chance : dégâts alliés +${[120,140,160,180,200][l-1]}%`,        type:'dmg_chance', vals:[120,140,160,180,200], bonus:200 },
+  ], widget:{ nom:'Long Fei Gear',     desc:l=>`Defender ATK +${[5,7.5,10,12.5,15][l-1]}%`, type:'none', vals:[5,7.5,10,12.5,15] }},
 
-  'vivian': { name:'Vivian', gen:5, 'class':'arc', skills:[
-    // Crouching Tiger : dégâts ennemis subis +25% (permanent)
-    { nom:'Tigre Tapi',       desc:l=>`Dégâts ennemis subis +${[5,10,15,20,25][l-1]}% (permanent)`,              type:'dmg_squad',  vals:[5,10,15,20,25] },
-    // Focus Fire : 40% chance tir supp. +100% dégâts
-    { nom:'Tir Concentré',    desc:l=>`${[8,16,24,32,40][l-1]}% de chance : tir supplémentaire (+100% dégâts)`,  type:'dmg_chance', vals:[8,16,24,32,40], bonus:100 },
-    // Money Driven (widget) : Defender DEF
-    { nom:'Argent Mené',      desc:l=>`Défense troupes défenseurs +${[5,7.5,10,12.5,15][l-1]}%`,                 type:'none',        vals:[5,7.5,10,12.5,15] },
-  ], widget:{ nom:'Tir Raffiné', desc:l=>`Défense troupes défenseurs +${[5,7.5,10,12.5,15][l-1]}%`, type:'none', vals:[5,7.5,10,12.5,15] }},
+  'thrud': { name:'Thrud', gen:5, cls:'cav', skills:[
+    { nom:'INF+ARC +15%',          desc:l=>`INF+ARC dégâts subis -${[3,6,9,12,15][l-1]}% · dégâts +${[3,6,9,12,15][l-1]}%`, type:'none', vals:[3,6,9,12,15] },
+    { nom:'CAV 20% 100% extra',    desc:l=>`CAV : 20% de chance dégâts extra +${[20,40,60,80,100][l-1]}%`,          type:'dmg_chance', vals:[20,40,60,80,100], bonus:100 },
+    { nom:'Toutes 4 att +25%',     desc:l=>`Toutes 4 att CAV : tous +${[5,10,15,20,25][l-1]}% dégâts (2t)`,        type:'dmg_squad',  vals:[5,10,15,20,25] },
+  ], widget:{ nom:'Thrud Gear',        desc:l=>`Rally LET +${[5,7.5,10,12.5,15][l-1]}%`,   type:'let_rally', vals:[5,7.5,10,12.5,15] }},
 
-  /* ── GEN 6 MYTHIQUES ── */
-  'triton': { name:'Triton', gen:6, 'class':'inf', skills:[
-    // Command of Power : Squad DEF +25%
-    { nom:'Commandement de Puissance', desc:l=>`Défense toutes escouades +${[5,10,15,20,25][l-1]}%`,             type:'none',      vals:[5,10,15,20,25] },
-    // Warfare of Power : dégâts compétences +30%
-    { nom:'Guerre de Puissance',       desc:l=>`Dégâts de compétences +${[6,12,18,24,30][l-1]}% toutes escouades`, type:'dmg_squad', vals:[6,12,18,24,30] },
-    // Oath of Power : HP INF+CAV+ARC
-    { nom:'Serment de Puissance',      desc:l=>`Santé INF +${[4,8,12,16,20][l-1]}%, CAV+ARC +${[6,12,18,24,30][l-1]}%`, type:'none', vals:[4,8,12,16,20] },
-  ], widget:{ nom:'Sceptre de Marée', desc:l=>`Défense troupes défenseurs +${[5,7.5,10,12.5,15][l-1]}%`, type:'none', vals:[5,7.5,10,12.5,15] }},
+  'vivian': { name:'Vivian', gen:5, cls:'arc', skills:[
+    { nom:'Dégâts ennemis +25%',   desc:l=>`Dégâts ennemis subis +${[5,10,15,20,25][l-1]}%`,                       type:'dmg_squad',  vals:[5,10,15,20,25] },
+    { nom:'Toutes 4 att 100%',     desc:l=>`Toutes 4 att : dégâts extra +${[20,40,60,80,100][l-1]}%`,              type:'dmg_squad',  vals:[20,40,60,80,100] },
+    { nom:'ARC toutes 4 att 60%',  desc:l=>`ARC toutes 4 att : dégâts extra +${[12,24,36,48,60][l-1]}%`,           type:'atk_arc',    vals:[12,24,36,48,60] },
+  ], widget:{ nom:'Vivian Gear',       desc:l=>`Defender DEF +${[5,7.5,10,12.5,15][l-1]}%`, type:'none', vals:[5,7.5,10,12.5,15] }},
 
-  'sophia': { name:'Sophia', gen:6, 'class':'cav', skills:[
-    // Arcane Pact : 40% chance -50% dégâts subis
-    { nom:'Pacte Arcanique',   desc:l=>`${[8,16,24,32,40][l-1]}% de chance : dégâts subis −50%`,                 type:'none',      vals:[8,16,24,32,40] },
-    // Terror : dégâts ennemis +75% (cible terrorisée)
-    { nom:'Terreur',           desc:l=>`Dégâts ennemis subis +${[15,30,45,60,75][l-1]}% (cible terrorisée)`,     type:'dmg_squad', vals:[15,30,45,60,75] },
-    // Defender LET
-    { nom:'Létalité Défenseur',desc:l=>`Létalité troupes défenseurs +${[5,7.5,10,12.5,15][l-1]}%`,               type:'none',      vals:[5,7.5,10,12.5,15] },
-  ], widget:{ nom:'Rose Écarlate', desc:l=>`Létalité troupes défenseurs +${[5,7.5,10,12.5,15][l-1]}%`, type:'none', vals:[5,7.5,10,12.5,15] }},
+  /* ══ GEN 6 MYTHIQUES ══ */
+  'triton': { name:'Triton', gen:6, cls:'inf', skills:[
+    { nom:'DEF totale +25%',       desc:l=>`DEF totale escouades +${[5,10,15,20,25][l-1]}%`,                        type:'none',      vals:[5,10,15,20,25] },
+    { nom:'Skill dégâts +30%',     desc:l=>`Dégâts de skill escouades +${[6,12,18,24,30][l-1]}%`,                   type:'dmg_squad', vals:[6,12,18,24,30] },
+    { nom:'HP INF+20% CAV+ARC+30%',desc:l=>`HP INF +${[4,8,12,16,20][l-1]}% · CAV+ARC +${[6,12,18,24,30][l-1]}%`, type:'none',      vals:[4,8,12,16,20] },
+  ], widget:{ nom:"Triton's Gear",     desc:l=>`Defender DEF +${[5,7.5,10,12.5,15][l-1]}%`, type:'none', vals:[5,7.5,10,12.5,15] }},
 
-  'yang': { name:'Yang', gen:6, 'class':'arc', skills:[
-    // Avalanche : toutes les 4 attaques, frappe supp. 100% dégâts
-    { nom:'Avalanche',      desc:l=>`Toutes les 4 attaques : frappe supp. 100% dégâts (${l} passif)`,            type:'dmg_squad',  vals:[100,100,100,100,100] },
-    // Ambush : Rally LET +25%
-    { nom:'Embuscade',      desc:l=>`Létalité troupes ralliées +${[5,10,15,20,25][l-1]}%`,                        type:'let_rally',  vals:[5,10,15,20,25] },
-    // Ice Zone : 40% chance Archers +100% dégâts
-    { nom:'Zone de Glace',  desc:l=>`${[8,16,24,32,40][l-1]}% de chance : Archers +100% dégâts`,                 type:'dmg_chance', vals:[8,16,24,32,40], bonus:100 },
-  ], widget:{ nom:'Canon Tonnerre', desc:l=>`Létalité troupes ralliées +${[5,7.5,10,12.5,15][l-1]}%`, type:'let_rally', vals:[5,7.5,10,12.5,15] }},
+  'sophia': { name:'Sophia', gen:6, cls:'cav', skills:[
+    { nom:'40% chance dégâts -50%',desc:l=>`${[8,16,24,32,40][l-1]}% de chance : dégâts subis -50%`,               type:'none',       vals:[8,16,24,32,40] },
+    { nom:'Terror CAV 200%',       desc:l=>`CAV Terror : dégâts ennemis +${[40,80,120,160,200][l-1]}%`,             type:'dmg_chance', vals:[40,80,120,160,200], bonus:200 },
+    { nom:'Terrified +75%',        desc:l=>`Cibles Terrifiées : dégâts +${[15,30,45,60,75][l-1]}%`,                 type:'dmg_squad',  vals:[15,30,45,60,75] },
+  ], widget:{ nom:"Sophia's Gear",     desc:l=>`Defender LET +${[5,7.5,10,12.5,15][l-1]}%`, type:'none', vals:[5,7.5,10,12.5,15] }},
 
-  /* ── SR / Épiques (1-2 skills d'expédition, pas de widget) ── */
-  'chenko':  { name:'Chenko',  gen:1, 'class':'cav', skills:[
-    { nom:'Stand of Arms',       desc:l=>`Létalité de toutes les escouades +${[5,10,15,20,25][l-1]}%`,           type:'let_squad', vals:[5,10,15,20,25] },
-    { nom:'Réduction Défense',   desc:l=>`Défense ennemie réduite de ${[4,8,12,16,20][l-1]}%`,                   type:'none',      vals:[4,8,12,16,20] },
+  'yang': { name:'Yang', gen:6, cls:'arc', skills:[
+    { nom:'Toutes 4 att 100%',     desc:l=>`Toutes 4 att : dégâts extra +${[20,40,60,80,100][l-1]}%`,              type:'dmg_squad',  vals:[20,40,60,80,100] },
+    { nom:'ARC 40% 100% extra',    desc:l=>`ARC : 40% de chance dégâts extra +${[20,40,60,80,100][l-1]}%`,         type:'dmg_chance', vals:[20,40,60,80,100], bonus:100 },
+    { nom:'40% chance dégâts',     desc:l=>`40% de chance : dégâts augmentés par ${[8,16,24,32,40][l-1]}%`,        type:'dmg_chance', vals:[8,16,24,32,40], bonus:50 },
+  ], widget:{ nom:"Yang's Gear",       desc:l=>`Rally LET +${[5,7.5,10,12.5,15][l-1]}%`,   type:'let_rally', vals:[5,7.5,10,12.5,15] }},
+
+  /* ══ SR / ÉPIQUES ══ */
+  'chenko': { name:'Chenko', gen:1, cls:'cav', rarity:'SR', skills:[
+    { nom:'Might total +25%',      desc:l=>`Might total escouades +${[5,10,15,20,25][l-1]}%`,  type:'atk_squad', vals:[5,10,15,20,25] },
+    { nom:'Dégâts subis -20%',     desc:l=>`Dégâts subis alliés -${[4,8,12,16,20][l-1]}%`,    type:'none',      vals:[4,8,12,16,20] },
   ]},
-  'yeonwoo': { name:'Yeonwoo', gen:1, 'class':'arc', skills:[
-    { nom:'Stand of Arms',       desc:l=>`Létalité de toutes les escouades +${[5,10,15,20,25][l-1]}%`,           type:'let_squad', vals:[5,10,15,20,25] },
-    { nom:'Vitesse Recherche',   desc:l=>`Vitesse de recherche +${[3,6,9,12,15][l-1]}%`,                          type:'none',      vals:[3,6,9,12,15] },
+  'yeonwoo': { name:'Yeonwoo', gen:1, cls:'arc', rarity:'SR', skills:[
+    { nom:'Might total +25%',      desc:l=>`Might total escouades +${[5,10,15,20,25][l-1]}%`,  type:'atk_squad', vals:[5,10,15,20,25] },
+    { nom:'Vitesse recherche +15%',desc:l=>`Vitesse de recherche +${[3,6,9,12,15][l-1]}%`,     type:'none',      vals:[3,6,9,12,15] },
   ]},
-  'amane':   { name:'Amane',   gen:1, 'class':'inf', skills:[
-    { nom:'Mélodie Divine',      desc:l=>`Attaque de toutes les escouades +${[5,10,15,20,25][l-1]}%`,            type:'atk_squad', vals:[5,10,15,20,25] },
-    { nom:'Soin Infirmerie',     desc:l=>`Vitesse de soin +${[10,20,30,40,50][l-1]}%`,                            type:'none',      vals:[10,20,30,40,50] },
+  'amane': { name:'Amane', gen:1, cls:'inf', rarity:'SR', skills:[
+    { nom:'ATK totale +25%',       desc:l=>`ATK totale escouades +${[5,10,15,20,25][l-1]}%`,   type:'atk_squad', vals:[5,10,15,20,25] },
+    { nom:'Vitesse de soin',       desc:l=>`Vitesse de soin +${[10,20,30,40,50][l-1]}%`,       type:'none',      vals:[10,20,30,40,50] },
   ]},
-  'howard':  { name:'Howard',  gen:1, 'class':'inf', skills:[
-    { nom:'Réduction Dégâts',    desc:l=>`Dégâts subis des escouades −${[4,8,12,16,20][l-1]}%`,                  type:'none',      vals:[4,8,12,16,20] },
-    { nom:'Santé Défenseur',     desc:l=>`Santé troupes défenseurs +${[4,8,12,16,20][l-1]}%`,                     type:'none',      vals:[4,8,12,16,20] },
+  'howard': { name:'Howard', gen:1, cls:'inf', rarity:'SR', skills:[
+    { nom:'Dégâts subis -20%',     desc:l=>`Dégâts subis alliés -${[4,8,12,16,20][l-1]}%`,    type:'none', vals:[4,8,12,16,20] },
+    { nom:'ATK ennemi -20%',       desc:l=>`ATK totale ennemie -${[4,8,12,16,20][l-1]}%`,      type:'none', vals:[4,8,12,16,20] },
   ]},
-  'gordon':  { name:'Gordon',  gen:1, 'class':'cav', skills:[
-    { nom:'Santé de Rally',      desc:l=>`Santé de toutes les escouades +${[5,10,15,20,25][l-1]}%`,              type:'none',      vals:[5,10,15,20,25] },
-    { nom:'Bouclier Défenseur',  desc:l=>`Dégâts subis défenseurs −${[4,8,12,16,20][l-1]}%`,                     type:'none',      vals:[4,8,12,16,20] },
+  'gordon': { name:'Gordon', gen:1, cls:'cav', rarity:'SR', skills:[
+    { nom:'HP escouades +25%',     desc:l=>`HP totale escouades +${[5,10,15,20,25][l-1]}%`,    type:'none',      vals:[5,10,15,20,25] },
+    { nom:'ATK totale +25%',       desc:l=>`ATK totale escouades +${[5,10,15,20,25][l-1]}%`,   type:'atk_squad', vals:[5,10,15,20,25] },
   ]},
-  'quinn':   { name:'Quinn',   gen:1, 'class':'arc', skills:[
-    { nom:'Réduction Dégâts',    desc:l=>`${[8,16,24,32,40][l-1]}% de chance : dégâts subis −50%`,               type:'none',      vals:[8,16,24,32,40] },
-    { nom:'Défense Défenseur',   desc:l=>`Défense troupes défenseurs +${[4,8,12,16,20][l-1]}%`,                   type:'none',      vals:[4,8,12,16,20] },
+  'quinn': { name:'Quinn', gen:1, cls:'arc', rarity:'SR', skills:[
+    { nom:'Dégâts subis -20%',     desc:l=>`Dégâts subis alliés -${[4,8,12,16,20][l-1]}%`,    type:'none',      vals:[4,8,12,16,20] },
+    { nom:'50% chance dégâts +50%',desc:l=>`50% de chance : dégâts +${[10,20,30,40,50][l-1]}%`, type:'dmg_chance', vals:[10,20,30,40,50], bonus:50 },
   ]},
-  'fahd':    { name:'Fahd',    gen:1, 'class':'cav', skills:[
-    { nom:'ATK Ennemie Réduite', desc:l=>`Attaque ennemie −${[4,8,12,16,20][l-1]}%`,                             type:'none',      vals:[4,8,12,16,20] },
-    { nom:'Vitesse de Marche',   desc:l=>`Vitesse de marche +${[4,8,12,16,20][l-1]}%`,                            type:'none',      vals:[4,8,12,16,20] },
+  'fahd': { name:'Fahd', gen:1, cls:'cav', rarity:'SR', skills:[
+    { nom:'Dégâts ennemis -20%',   desc:l=>`Dégâts ennemis -${[4,8,12,16,20][l-1]}%`,         type:'none', vals:[4,8,12,16,20] },
+    { nom:'Vitesse de marche',     desc:l=>`Vitesse marche solo +${[20,40,60,80,100][l-1]}%`,  type:'none', vals:[20,40,60,80,100] },
   ]},
-  'diana':   { name:'Diana',   gen:1, 'class':'arc', skills:[
-    { nom:'Réduction Stamina',   desc:l=>`Coût stamina −${[2,4,6,8,10][l-1]}%`,                                   type:'none',      vals:[2,4,6,8,10] },
-    { nom:'Vitesse de Marche',   desc:l=>`Vitesse de marche +${[20,40,60,80,100][l-1]}%`,                         type:'none',      vals:[20,40,60,80,100] },
-  ]},
-  'olive':   { name:'Olive',   gen:1, 'class':'inf', skills:[
-    { nom:'Collecte',            desc:l=>`Vitesse de collecte +${[4,8,12,16,20][l-1]}%`,                          type:'none',      vals:[4,8,12,16,20] },
-  ]},
-  'seth':    { name:'Seth',    gen:1, 'class':'cav', skills:[
-    { nom:'Collecte',            desc:l=>`Vitesse de collecte +${[4,8,12,16,20][l-1]}%`,                          type:'none',      vals:[4,8,12,16,20] },
-  ]},
-  'edwin':   { name:'Edwin',   gen:1, 'class':'inf', skills:[
-    { nom:'Construction',        desc:l=>`Vitesse de construction +${[4,8,12,16,20][l-1]}%`,                      type:'none',      vals:[4,8,12,16,20] },
-  ]},
-  'forrest': { name:'Forrest', gen:1, 'class':'arc', skills:[
-    { nom:'Entraînement',        desc:l=>`Vitesse d'entraînement +${[4,8,12,16,20][l-1]}%`,                       type:'none',      vals:[4,8,12,16,20] },
+  'diana': { name:'Diana', gen:1, cls:'arc', rarity:'SR', skills:[
+    { nom:'Stamina -20%',          desc:l=>`Coût stamina gouverneur -${[10,12,15,18,20][l-1]}%`, type:'none', vals:[10,12,15,18,20] },
+    { nom:'Vitesse de marche',     desc:l=>`Vitesse de marche +${[20,40,60,80,100][l-1]}%`,    type:'none', vals:[20,40,60,80,100] },
   ]},
 };
 

@@ -156,11 +156,14 @@
     var sb = getSb();
     if (!sb || !isLoggedIn()) return;
     try {
-      var res = await sb.from('profiles').select('calc_state, bonus_stats').eq('id', currentUser.id).single();
+      var res = await sb.from('profiles').select('calc_state, bonus_stats, heroes_data').eq('id', currentUser.id).single();
       if (res.error) throw res.error;
       // Charger les bonus stats dans localStorage pour le calculateur
       if (res.data?.bonus_stats && Object.keys(res.data.bonus_stats).length > 0) {
         localStorage.setItem('bearBonusStats', JSON.stringify(res.data.bonus_stats));
+      }
+      if (res.data?.heroes_data && Object.keys(res.data.heroes_data).length > 0) {
+        localStorage.setItem('bearHeroesData', JSON.stringify(res.data.heroes_data));
       }
       if (res.data?.calc_state && Object.keys(res.data.calc_state).length > 0) {
         localStorage.setItem('bearCalcState', JSON.stringify(res.data.calc_state));
@@ -520,6 +523,7 @@
     if (p.includes('profile'))         return 'profile';
     if (p.includes('island-guide'))    return 'island';
     if (p.includes('mystic-trial'))    return 'mystic';
+    if (p.includes('alliance'))        return 'alliance';
     return 'home';
   }
 
@@ -598,7 +602,8 @@
         + '</div>'
         + '<div class="mn-section">'
         +   '<div class="mn-label">Mon compte</div>'
-        +   mi('profile.html', '👤', 'Mon profil', 'profile')
+        +   mi('profile.html',  '👤', 'Mon profil',  'profile')
+        +   mi('alliance.html', '🏰', 'Mon alliance', 'alliance')
         +   allySection
         + '</div>'
         + cloudSection
