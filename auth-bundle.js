@@ -112,6 +112,7 @@
       var res = await sb.from('profiles').select('id, username, alliance, server').eq('username', username).eq('password', hash).single();
       if (res.error || !res.data) throw new Error('Pseudo ou mot de passe incorrect');
       setUser(res.data);
+      closePanelAuth();
       showToast('Connecté !', 'ok');
       if (IS_CALC) loadFromCloud();
     } catch(e) {
@@ -549,7 +550,6 @@
         +   '<a href="index.html" class="nav-logo">Kingshot <span>Help</span></a>'
         +   '<div class="nav-right">'
         +     '<button onclick="window._auth.togglePanel(\'login\')" class="nav-btn green">Connexion</button>'
-        +     '<button onclick="window._auth.togglePanel(\'register\')" class="nav-btn">Inscription</button>'
         +   '</div>'
         + '</div>'
         + row2;
