@@ -443,6 +443,22 @@ select {
 select:focus { border-color: var(--amber); }
 select option { background: #ffffff; color: var(--text); }
 
+
+/* ── Hero profile summary (readonly dans le calc) ── */
+.hero-profile-summary { margin: 10px 0 12px; }
+.hero-profile-row { display:flex; gap:8px; flex-wrap:wrap; }
+.hps-item { display:flex; align-items:center; gap:4px; background:var(--surface2); border:1px solid var(--border); padding:4px 8px; }
+.hps-lbl { font-family:var(--f-mono); font-size:9px; letter-spacing:1px; color:var(--text-dim); text-transform:uppercase; }
+.hps-val { font-family:var(--f-mono); font-size:12px; font-weight:700; color:var(--amber); }
+.hero-profile-missing { font-size:11px; color:var(--text-faint); font-style:italic; margin:8px 0 12px; }
+.hps-skill-row { display:flex; align-items:baseline; gap:6px; padding:4px 0; border-bottom:1px solid var(--border2); flex-wrap:wrap; }
+.hps-skill-row:last-child { border-bottom:none; }
+.hps-skill-name { font-family:var(--f-mono); font-size:10px; font-weight:700; color:var(--text); flex-shrink:0; }
+.hps-skill-lvl { font-family:var(--f-mono); font-size:10px; color:var(--amber); flex-shrink:0; }
+.hps-skill-desc { font-size:11px; color:var(--text-faint); }
+.hps-widget-row { display:flex; align-items:baseline; gap:6px; padding:6px 0 2px; flex-wrap:wrap; }
+.hps-widget-icon { font-size:11px; flex-shrink:0; }
+
 /* ── HERO SLOTS ── */
 .hero-slot {
   background: var(--bg2);
@@ -852,6 +868,18 @@ select option { background: #ffffff; color: var(--text); }
       <button class="jbtn jbtn-add" id="btnAdd" onclick="addJoiner()">+ Ajouter un joiner</button>
       <button class="jbtn jbtn-rem" id="btnRem" onclick="removeJoiner()">− Retirer</button>
       <span class="jcount-lbl" id="jCountLbl">0 / 6</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:10px">
+      <label style="font-family:var(--f-mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text-dim)" id="marchSlotLabel">Fils de marche :</label>
+      <select id="marchSlotCount" onchange="syncJCtrl();saveState()" style="padding:6px 10px;background:var(--surface2);border:1px solid var(--border);font-family:var(--f-mono);font-size:12px;color:var(--text);outline:none;cursor:pointer">
+        <option value="6" selected>6 (max)</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+      </select>
+      <span style="font-size:11px;color:var(--text-faint)" id="marchSlotHint">L'auto-optim ne testera pas plus de <strong>6</strong> joiners</span>
     </div>
 
     <div class="jtabs" id="jtabs"></div>
@@ -1829,7 +1857,8 @@ function runAutoOptimize(){
         remI:lead.remI, remC:lead.remC, remA:lead.remA});
 
       // Teste 1 à JMAX joiners séquentiels
-      for(let nJ=1; nJ<=JMAX; nJ++){
+      const marchMax = parseInt(document.getElementById("marchSlotCount")?.value || "6") || JMAX;
+      for(let nJ=1; nJ<=Math.min(JMAX, marchMax); nJ++){
         const remTot=lead.remI+lead.remC+lead.remA;
         // Caps à tester pour ce nombre de joiners
         // Pour chaque joiner : si cap manuelle saisie → fixe, sinon → range auto
@@ -2246,7 +2275,14 @@ let jCount=0;const JMAX=6;
 
 function addJoiner(){if(jCount>=JMAX)return;jCount++;buildJoinerTab(jCount,false);buildJoinerPanel(jCount);switchJoiner(jCount);syncJCtrl();document.getElementById('jIdleMsg').style.display='none';refreshSummary();setTimeout(()=>document.getElementById(`jpanel${jCount}`)?.scrollIntoView({behavior:'smooth',block:'nearest'}),50);}
 function removeJoiner(){if(jCount<=0)return;document.getElementById(`jtab${jCount}`)?.remove();document.getElementById(`jpanel${jCount}`)?.remove();jCount--;if(jCount>0)switchJoiner(jCount);else document.getElementById('jIdleMsg').style.display='flex';syncJCtrl();refreshSummary();saveState();}
-function syncJCtrl(){document.getElementById('btnAdd').disabled=jCount>=JMAX;document.getElementById('btnRem').disabled=jCount<=0;document.getElementById('jCountLbl').textContent=`${jCount} / ${JMAX} joiners`;}
+function syncJCtrl(){
+  const marchMax=parseInt(document.getElementById('marchSlotCount')?.value||'6')||JMAX;
+  document.getElementById('btnAdd').disabled=jCount>=marchMax;
+  document.getElementById('btnRem').disabled=jCount<=0;
+  document.getElementById('jCountLbl').textContent=`${jCount} / ${marchMax} joiners`;
+  const hint=document.getElementById('marchSlotHint');
+  if(hint)hint.innerHTML=`L'auto-optim ne testera pas plus de <strong>${marchMax}</strong> joiner${marchMax>1?'s':''}`;
+}
 function switchJoiner(i){document.querySelectorAll('.jtab').forEach(t=>t.classList.remove('act'));document.querySelectorAll('.jpanel').forEach(p=>p.classList.remove('act'));document.getElementById(`jtab${i}`)?.classList.add('act');document.getElementById(`jpanel${i}`)?.classList.add('act');}
 
 function buildJoinerTab(i,isForced=false){
@@ -2411,6 +2447,7 @@ function saveState(){
       bonusAtkSquad: document.getElementById('bonusAtkSquad')?.value,
       bonusLthSquad: document.getElementById('bonusLthSquad')?.value,
       heroes: heroSlots.map(s=>({heroKey:s.heroKey,skillLevels:s.skillLevels,widgetLevel:s.widgetLevel,heroStats:s.heroStats||{atk:'',def:'',lth:'',hp:''}})),
+      marchSlotCount:document.getElementById('marchSlotCount')?.value||'6',
       inf:gv('tInf'),cav:gv('tCav'),arc:gv('tArc'),leadCap:gv('leadCap'),lInf:parseFloat(document.getElementById('lInf')?.value)||10,lCav:parseFloat(document.getElementById('lCav')?.value)||10,lArc:parseFloat(document.getElementById('lArc')?.value)||80,leadExactI:document.getElementById('leadCap')?.dataset.exactI,leadExactC:document.getElementById('leadCap')?.dataset.exactC,leadExactA:document.getElementById('leadCap')?.dataset.exactA,joiners}));
   }catch(e){}
   const ind=document.getElementById('saveIndicator');
@@ -2464,6 +2501,7 @@ function loadState(){
     }
     if(st.inf)document.getElementById('tInf').value=st.inf;if(st.cav)document.getElementById('tCav').value=st.cav;if(st.arc)document.getElementById('tArc').value=st.arc;if(st.inf||st.cav||st.arc)onStockChange();
     if(st.leadCap){document.getElementById('leadCap').value=st.leadCap;document.getElementById('lInf').value=st.lInf??10;document.getElementById('lCav').value=st.lCav??10;document.getElementById('lArc').value=st.lArc??80;if(st.leadExactI!==undefined){document.getElementById('leadCap').dataset.exactI=st.leadExactI;document.getElementById('leadCap').dataset.exactC=st.leadExactC;document.getElementById('leadCap').dataset.exactA=st.leadExactA;}updateLeader();}
+    if(st.marchSlotCount){const el=document.getElementById('marchSlotCount');if(el){el.value=st.marchSlotCount;syncJCtrl();}}
     if(st.joiners?.length){for(const j of st.joiners){jCount++;buildJoinerTab(jCount,false);buildJoinerPanel(jCount);document.getElementById(`j${jCount}_cap`).value=j.cap||'';document.getElementById(`j${jCount}_inf`).value=j.inf??10;document.getElementById(`j${jCount}_cav`).value=j.cav??10;document.getElementById(`j${jCount}_arc`).value=j.arc??80;if(j.exactI!==undefined){document.getElementById(`j${jCount}_cap`).dataset.exactI=j.exactI;document.getElementById(`j${jCount}_cap`).dataset.exactC=j.exactC;document.getElementById(`j${jCount}_cap`).dataset.exactA=j.exactA;}updateJoiner(jCount);}if(jCount>0){document.getElementById('jIdleMsg').style.display='none';switchJoiner(jCount);}syncJCtrl();}
     refreshSummary();
   }catch(e){}
@@ -2749,7 +2787,17 @@ function removeHeroSlot(idx){
 }
 
 function renderHeroSlot(idx){
-  const slot=heroSlots[idx], hero=slot.heroKey?HEROES_DB[slot.heroKey]:null;
+  const slot=heroSlots[idx];
+  // Enrichir avec les données du profil si les stats sont vides
+  if(slot.heroKey) {
+    const profileData = loadHeroDataFromProfile(slot.heroKey);
+    if(profileData) {
+      if(!slot.heroStats || (!slot.heroStats.atk && !slot.heroStats.lth)) slot.heroStats = profileData.heroStats || {};
+      if(!slot.skillLevels || slot.skillLevels.every(l=>l===1)) slot.skillLevels = profileData.skillLevels || [1,1,1];
+      if(!slot.widgetLevel) slot.widgetLevel = profileData.widgetLevel ?? 0;
+    }
+  }
+  const hero=slot.heroKey?HEROES_DB[slot.heroKey]:null;
   const hcls=hero?hero.cls||hero['class']:''; const classTag=hero?`<span class="hero-slot-class ${CLASS_COLORS[hcls]}">${CLASS_LABELS[hcls]}</span>`:''; 
   const div=document.createElement('div'); div.className='hero-slot'; div.id=`heroSlot${idx}`;
   div.innerHTML=`
@@ -2767,99 +2815,80 @@ function renderHeroSlot(idx){
           ${HERO_LIST.map(h=>`<option value="${h.key}" ${slot.heroKey===h.key?'selected':''}>${h.label}</option>`).join('')}
         </select>
       </div>
-      ${hero?buildSkillsHTML(idx,hero,slot):'<div class="field-sub" style="margin-top:6px">'+t('hero_no_skills')+'</div>'}
+      ${hero?buildHeroSummaryHTML(idx,hero,slot):'<div class="field-sub" style="margin-top:6px">'+t('hero_no_skills')+'</div>'}
     </div>`;
   document.getElementById('heroSlots').appendChild(div);
 }
 
-function buildSkillsHTML(idx,hero,slot){
-  // Hero Stats (bonus spécifiques au héros)
-  const hs = slot.heroStats || {atk:'',def:'',lth:'',hp:''};
-  const heroStatsHTML = `
-    <div style="margin-bottom:14px">
-      <div class="hero-skills-title" style="margin-bottom:8px">${t('hero_stats_title')}</div>
-      <div class="hero-stat-grid">
-        <div class="hero-stat-field">
-          <div class="hero-stat-label">Attack (%)</div>
-          <div class="hero-stat-input-wrap">
-            <input type="number" placeholder="ex : 166.52" value="${hs.atk}" min="0" step="0.01"
-              style="padding:8px 24px 8px 10px;font-size:.85rem;font-family:var(--f-mono)"
-              oninput="onHeroStat(${idx},'atk',this.value)">
-            <span class="hero-stat-pct">%</span>
-          </div>
-        </div>
-        <div class="hero-stat-field">
-          <div class="hero-stat-label">Defense (%)</div>
-          <div class="hero-stat-input-wrap">
-            <input type="number" placeholder="ex : 166.52" value="${hs.def}" min="0" step="0.01"
-              style="padding:8px 24px 8px 10px;font-size:.85rem;font-family:var(--f-mono)"
-              oninput="onHeroStat(${idx},'def',this.value)">
-            <span class="hero-stat-pct">%</span>
-          </div>
-        </div>
-        <div class="hero-stat-field">
-          <div class="hero-stat-label">Lethality (%)</div>
-          <div class="hero-stat-input-wrap">
-            <input type="number" placeholder="ex : 116.6" value="${hs.lth}" min="0" step="0.01"
-              style="padding:8px 24px 8px 10px;font-size:.85rem;font-family:var(--f-mono)"
-              oninput="onHeroStat(${idx},'lth',this.value)">
-            <span class="hero-stat-pct">%</span>
-          </div>
-        </div>
-        <div class="hero-stat-field">
-          <div class="hero-stat-label">Health (%)</div>
-          <div class="hero-stat-input-wrap">
-            <input type="number" placeholder="ex : 64" value="${hs.hp}" min="0" step="0.01"
-              style="padding:8px 24px 8px 10px;font-size:.85rem;font-family:var(--f-mono)"
-              oninput="onHeroStat(${idx},'hp',this.value)">
-            <span class="hero-stat-pct">%</span>
-          </div>
-        </div>
-      </div>
-    </div>`;
+function buildSkillsHTML(idx, hero, slot) {
+  // Lire les données depuis le profil (localStorage)
+  let profileData = {};
+  try { profileData = JSON.parse(localStorage.getItem('bearHeroesData') || '{}'); } catch(e) {}
+  const pd = profileData[slot.heroKey] || {};
+  const hs = pd.heroStats || {};
+  const skillLevels = pd.skillLevels || hero.skills.map(() => 1);
+  const widgetLevel = pd.widgetLevel || 0;
 
-  const skills=hero.skills.map((sk,si)=>{
-    const lvl=slot.skillLevels[si]||1, val=sk.vals?.[lvl-1]||0;
-    return `<div class="hero-skill-row">
-      <div class="hero-skill-info">
-        <div class="hero-skill-name">${sk.nom}</div>
-        <div class="hero-skill-desc" id="hsdesc_${idx}_${si}">${sk.desc(lvl)}</div>
+  // Résumé stats
+  const hasStats = hs.atk || hs.def || hs.lth || hs.hp;
+  const statsHTML = hasStats ? `
+    <div class="hero-profile-summary">
+      <div class="hero-profile-row">
+        <span class="hps-item"><span class="hps-lbl">ATK</span><span class="hps-val">${hs.atk||0}%</span></span>
+        <span class="hps-item"><span class="hps-lbl">DEF</span><span class="hps-val">${hs.def||0}%</span></span>
+        <span class="hps-item"><span class="hps-lbl">LET</span><span class="hps-val">${hs.lth||0}%</span></span>
+        <span class="hps-item"><span class="hps-lbl">HP</span><span class="hps-val">${hs.hp||0}%</span></span>
       </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
-        <select style="width:70px;font-size:.75rem;padding:5px 4px" onchange="onSkillLevel(${idx},${si},this.value)">
-          ${[1,2,3,4,5].map(l=>`<option value="${l}" ${l===lvl?'selected':''}>Lvl ${l}</option>`).join('')}
-        </select>
-        <span class="hero-skill-val" id="hsval_${idx}_${si}">${val}%</span>
-      </div>
+    </div>` : `<div class="hero-profile-missing">⚠ Stats non configurées dans le <a href="profile.html" style="color:var(--amber)">profil</a></div>`;
+
+  // Résumé skills
+  const skillsHTML = hero.skills.map((sk, si) => {
+    const lvl = skillLevels[si] || 1;
+    return `<div class="hps-skill-row">
+      <span class="hps-skill-name">${sk.nom}</span>
+      <span class="hps-skill-lvl">Lvl ${lvl}</span>
+      <span class="hps-skill-desc">${sk.desc(lvl)}</span>
     </div>`;
   }).join('');
-  const w=hero.widget, wl=slot.widgetLevel||0, wval=getWidgetVal(w,wl);
-  const widget=w?`<div class="hero-widget-row">
-    <div class="hero-widget-label">⚡ Widget Exclusif</div>
-    <div class="hero-skill-row" style="padding-top:0">
-      <div class="hero-skill-info">
-        <div class="hero-skill-name">${w.nom}</div>
-        <div class="hero-skill-desc" id="hwdesc_${idx}">${wl>0?w.desc(wl):'Non débloqué'}</div>
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
-        <select style="width:80px;font-size:.75rem;padding:5px 4px" onchange="onWidgetLevel(${idx},this.value)">
-          <option value="0" ${wl===0?'selected':''}>${t('widget_inactive')}</option>
-          ${[1,2,3,4,5,6,7,8,9,10].map(l=>`<option value="${l}" ${l===wl?'selected':''}>Lvl ${l}</option>`).join('')}
-        </select>
-        <span class="hero-skill-val" id="hwval_${idx}" style="color:${wl>0?'var(--amber)':'var(--text-faint)'}">${wl>0?wval+'%':'—'}</span>
-      </div>
-    </div>
-  </div>`:'';
+
+  // Widget
+  const w = hero.widget;
+  const wl = widgetLevel;
+  const widgetHTML = w ? `<div class="hps-widget-row">
+    <span class="hps-widget-icon">⚡</span>
+    <span class="hps-skill-name">${w.skill2.nom}</span>
+    <span class="hps-skill-lvl">${wl > 0 ? 'Lvl ' + wl : '—'}</span>
+    <span class="hps-skill-desc">${wl > 0 ? w.skill2.desc(Math.floor(wl/2)) : 'Non débloqué'}</span>
+  </div>` : '';
+
   return `<div class="hero-skills">
-    ${heroStatsHTML}
+    ${statsHTML}
     <div class="hero-skills-title">${t('skills_title')}</div>
-    ${skills}${widget}
+    ${skillsHTML}
+    ${widgetHTML}
   </div>`;
+}
+
+function loadHeroDataFromProfile(key) {
+  // Charge les données depuis le profil (localStorage)
+  try {
+    const raw = localStorage.getItem('bearHeroesData');
+    if (!raw) return null;
+    const db = JSON.parse(raw);
+    return db[key] || null;
+  } catch(e) { return null; }
 }
 
 function onHeroSelect(idx){
   const key=document.getElementById(`heroSel_${idx}`)?.value||'';
-  heroSlots[idx]={heroKey:key,skillLevels:[1,1,1],widgetLevel:0,heroStats:{atk:'',def:'',lth:'',hp:''}};
+  // Charger les données du profil si disponibles
+  const profileData = key ? loadHeroDataFromProfile(key) : null;
+  heroSlots[idx]={
+    heroKey: key,
+    skillLevels: profileData?.skillLevels || [1,1,1],
+    widgetLevel:  profileData?.widgetLevel  ?? 0,
+    heroStats:    profileData?.heroStats    || {atk:'',def:'',lth:'',hp:''},
+  };
   const existing=document.getElementById(`heroSlot${idx}`); if(existing)existing.remove();
   const hero=key?HEROES_DB[key]:null; const hcls2=hero?hero.cls||hero['class']:''; const classTag=hero?`<span class="hero-slot-class ${CLASS_COLORS[hcls2]}">${CLASS_LABELS[hcls2]}</span>`:''; 
   const div=document.createElement('div'); div.className='hero-slot'; div.id=`heroSlot${idx}`;
@@ -2878,7 +2907,7 @@ function onHeroSelect(idx){
           ${HERO_LIST.map(h=>`<option value="${h.key}" ${key===h.key?'selected':''}>${h.label}</option>`).join('')}
         </select>
       </div>
-      ${hero?buildSkillsHTML(idx,hero,heroSlots[idx]):'<div class="field-sub" style="margin-top:6px">'+t('hero_no_skills')+'</div>'}
+      ${hero?buildHeroSummaryHTML(idx,hero,heroSlots[idx]):'<div class="field-sub" style="margin-top:6px">'+t('hero_no_skills')+'</div>'}
     </div>`;
   const c=document.getElementById('heroSlots'), s=c.children;
   if(s[idx])c.insertBefore(div,s[idx]); else c.appendChild(div);
@@ -2898,7 +2927,7 @@ function onWidgetLevel(idx,val){
   heroSlots[idx].widgetLevel=parseInt(val);
   const hero=HEROES_DB[heroSlots[idx].heroKey]; if(!hero?.widget)return;
   const wl=parseInt(val), w=hero.widget;
-  const desc=document.getElementById(`hwdesc_${idx}`); if(desc)desc.textContent=wl>0?w.desc(Math.min(wl,5)):t('widget_locked');
+  const desc=document.getElementById(`hwdesc_${idx}`); if(desc)desc.textContent=wl>0?(w.skill2||w).desc(Math.floor(wl/2)||1):t('widget_locked');
   const wval=getWidgetVal(w,wl);
   const valEl=document.getElementById(`hwval_${idx}`);
   if(valEl){valEl.textContent=wl>0?wval+'%':'—';valEl.style.color=wl>0?'var(--amber)':'var(--text-faint)';}
@@ -2917,11 +2946,12 @@ const joinerHeroData = {};
 /* Valeur widget selon niveau 1-10
    Niveaux 1-5 : vals[l-1], niveaux 6-10 : interpolation vers vals[4]*2 */
 function getWidgetVal(w, lvl) {
-  if(!w?.vals||lvl<=0)return 0;
-  if(lvl<=5)return w.vals[lvl-1]||0;
-  // Niveaux 6-10 : progression linéaire de vals[4] vers vals[4]*2
-  const base=w.vals[4]||0;
-  return parseFloat((base + (base/5)*(lvl-5)).toFixed(2));
+  if(!w||lvl<=0) return 0;
+  // Nouvelle structure : widget.skill2 = expedition (niveaux pairs)
+  const sk = w.skill2 || w; // compat ancienne structure
+  if(!sk?.vals) return 0;
+  const sl = Math.max(1, Math.floor(lvl/2)); // niveau skill2 = floor(widget/2)
+  return sk.vals[Math.min(sl,5)-1] || 0;
 }
 
 /* Cache des bonus héros — recalculé seulement sur changement */
@@ -2972,7 +3002,8 @@ function calcHeroBonuses(){
     const w=hero.widget, wl=slot.widgetLevel||0;
     if(w&&wl>0){
       const wval=getWidgetVal(w,wl);
-      applySkill({type:w.type}, 1, wval);
+      const wtype = (w.skill2||w).type || 'none';
+      applySkill({type:wtype}, 1, wval);
     }
   });
 
