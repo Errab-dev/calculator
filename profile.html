@@ -58,36 +58,38 @@ body::before {
 /* ── SUBNAV (onglets fixes sous la navbar) ── */
 #profileSubnav {
   position: fixed;
-  top: 82px; /* hauteur navbar (48px row1 + 34px row2) */
+  top: 82px;
   left: 0; right: 0;
   z-index: 8000;
-  background: var(--surface);
-  border-bottom: 2px solid var(--border);
+  background: rgba(24,32,46,0.97);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(184,110,0,0.25);
   display: flex;
   padding: 0 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  height: 38px;
+  align-items: center;
 }
 #profileSubnav .pnav-btn {
-  font-family: var(--f-display);
-  font-size: 1rem;
-  font-weight: 800;
-  letter-spacing: 1px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
-  padding: 11px 18px;
+  padding: 0 12px;
+  height: 100%;
   background: transparent;
   border: none;
-  border-bottom: 3px solid transparent;
-  margin-bottom: -2px;
-  color: var(--text-faint);
+  border-bottom: 2px solid transparent;
+  color: rgba(255,255,255,0.45);
   cursor: pointer;
   transition: color .2s, border-color .2s;
 }
 #profileSubnav .pnav-btn.active {
-  color: var(--amber);
-  border-bottom-color: var(--amber);
+  color: #b86e00;
+  border-bottom-color: #b86e00;
 }
-/* décaler le contenu sous les deux barres fixes : 82px navbar + 46px subnav */
-body { padding-top: 128px !important; }
+/* navbar (82px) + subnav (38px) = 120px */
+body { padding-top: 120px !important; }
 
 /* ── HEADER ── */
 .hdr {
