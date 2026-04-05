@@ -1544,11 +1544,8 @@ let curBonus = {
 /* ─── CALCUL DES POIDS PAR MARCHE ───────────────────────────────────
    calcWeightsFor(extra) : poids avec bonus gouverneur + bonus extra
    calcWeightsLeader()   : poids avec TOUS les bonus héros leader
-   calcWeightsNeutral()  : poids sur stats de troupes pures (joiners)
-   calcWeightsJoiner(i)  : inutilisé (legacy), retombe sur Neutral
+   calcWeightsJoiner(i)  : poids avec seulement la 1ère compétence du héros joiner i
    dmg(nI,nC,nA,w)       : w optionnel, sinon utilise calcWeightsLeader()
-   NOTE: L'auto-optimisation utilise calcWeightsNeutral() pour les joiners
-         car les joiners n'ont PAS tes bonus gouverneur ni tes héros.
 ─────────────────────────────────────────────────────────────────── */
 function calcWeightsFor(extra) {
   // extra = { totalAtk, totalLth, totalDmgEV, lthReduceEnemy, atkInf, atkCav, atkArc, lthInf, lthCav, lthArc }
@@ -1753,57 +1750,21 @@ function _allRatios(){
 
 // Trouve le meilleur ratio pour une capacité donnée et un stock disponible
 // Retourne {ri,rc,ra,nI,nC,nA,score} ou null si stock insuffisant pour remplir cap
-// Accepte 0 d'un type si le stock de ce type est épuisé
 function _bestRatioForCap(cap, stockI, stockC, stockA, wts, allRatios){
+  // Vérification préalable : le stock total doit couvrir la cap demandée
   if(stockI+stockC+stockA < cap) return null;
   let best=null;
-
-  function tryAlloc(nI,nC,nA){
-    if(nI<0||nC<0||nA<0)return;
-    if(nI>stockI||nC>stockC||nA>stockA)return;
-    if(nI+nC+nA!==cap)return;
-    const s=dmg(nI,nC,nA,wts);
-    if(!best||s>best.score){
-      const tot=cap;
-      best={ri:Math.round(nI/tot*100),rc:Math.round(nC/tot*100),ra:Math.round(nA/tot*100),nI,nC,nA,score:s};
-    }
-  }
-
-  // 1. Bruteforce classique avec les ratios 3-types
   for(let k=0;k<allRatios.length;k++){
     const [ri,rc,ra]=allRatios[k];
     const nI=Math.round(cap*ri/100);
     const nC=Math.round(cap*rc/100);
     const nA=cap-nI-nC;
+    // Rejeter si le stock ne peut pas fournir ces troupes exactes
     if(nI<1||nC<1||nA<1)continue;
     if(nI>stockI||nC>stockC||nA>stockA)continue;
     const s=dmg(nI,nC,nA,wts);
     if(!best||s>best.score) best={ri,rc,ra,nI,nC,nA,score:s};
   }
-
-  // 2. Si un type est épuisé ou faible, tester les ratios 2-types
-  if(stockC===0 || stockI===0 || stockA===0 || !best){
-    // INF+ARC seulement (0 CAV)
-    for(let pi=0;pi<=100;pi++){
-      const nI=Math.round(cap*pi/100), nA=cap-nI;
-      tryAlloc(nI, 0, nA);
-    }
-    // CAV+ARC seulement (0 INF)
-    for(let pc=0;pc<=100;pc++){
-      const nC=Math.round(cap*pc/100), nA=cap-nC;
-      tryAlloc(0, nC, nA);
-    }
-    // INF+CAV seulement (0 ARC)
-    for(let pi=0;pi<=100;pi++){
-      const nI=Math.round(cap*pi/100), nC=cap-nI;
-      tryAlloc(nI, nC, 0);
-    }
-    // 100% d'un seul type
-    tryAlloc(cap, 0, 0);
-    tryAlloc(0, cap, 0);
-    tryAlloc(0, 0, cap);
-  }
-
   return best;
 }
 
@@ -1822,7 +1783,6 @@ function runAutoOptimize(){
 
   const allRatios=_allRatios(); // ~4851 combos
   const wL=calcWeights();
-  const wJ=calcWeightsNeutral(); // Joiners : sans bonus gouverneur ni héros
 
   // Caps joiner saisies manuellement par l'utilisateur (dans l'ordre des panels)
   // Si une cap est saisie → taille fixe pour ce joiner
@@ -1875,100 +1835,68 @@ function runAutoOptimize(){
     setP(2+Math.round(rIdx/allRatios.length*38),`Phase 1 — ${rIdx}/${allRatios.length} ratios leader…`);
     if(rIdx<allRatios.length){setTimeout(phase1Chunk,0);return;}
 
-    // ── PHASE 2 : Pour chaque top ratio leader, optimiser les joiners ──
-    // Caps manuelles saisies par l'user (indexées par position 0,1,2…)
-    // Si pas de cap saisie → on teste différentes tailles entre CAP_MIN et stock/nJ
-    const CAP_MIN = 1000; // taille de marche minimale testée
-    const CAP_STEPS = 15; // nb de tailles à tester en mode auto
-
-    // Génère une liste de caps à tester pour un stock donné et un nombre de joiners
-    function _capRange(stockTot, nJ){
-      const maxCap = Math.floor(stockTot / nJ);
-      if(maxCap < CAP_MIN) return [];
-      const caps = [];
-      const step = Math.max(CAP_MIN, Math.floor((maxCap - CAP_MIN) / CAP_STEPS));
-      for(let c = CAP_MIN; c <= maxCap; c += step) caps.push(c);
-      if(!caps.length || caps[caps.length-1] !== maxCap) caps.push(maxCap);
-      return caps;
-    }
-
-    setP(40,'Phase 2 — Optimisation joiners…');
+    // ── PHASE 2 : Algo D — Allocation globale optimale ──
+    // Caps manuelles = fixes (bruteforce), caps auto = allocation globale ∝ w²
+    setP(40,'Phase 2 — Optimisation joiners (Algo D)…');
     let lIdx=0;
 
     function phase2Step(){
       if(lIdx>=topLeadRatios.length){ finalize(); return; }
       const lead=topLeadRatios[lIdx];
       setP(40+Math.round(lIdx/topLeadRatios.length*55),
-        `Phase 2 — Ratio leader #${lIdx+1}/${topLeadRatios.length} → test joiners…`);
+        `Phase 2 — Ratio leader #${lIdx+1}/${topLeadRatios.length} → Algo D…`);
 
       // Sans joiners : juste le leader
       pushTop5({totalScore:lead.score, leadAlloc:lead, joiners:[],
         remI:lead.remI, remC:lead.remC, remA:lead.remA});
 
-      // Teste 1 à JMAX joiners séquentiels
       const marchMax = parseInt(document.getElementById("marchSlotCount")?.value || "6") || JMAX;
+
       for(let nJ=1; nJ<=Math.min(JMAX, marchMax); nJ++){
-        const remTot=lead.remI+lead.remC+lead.remA;
-        // Caps à tester pour ce nombre de joiners
-        // Pour chaque joiner : si cap manuelle saisie → fixe, sinon → range auto
-        const hasManualsForAll = nJ <= manualJoinerCaps.length;
+        let remI=lead.remI, remC=lead.remC, remA=lead.remA;
+        let totalScore=lead.score;
+        const joinerAllocs=[];
+        let ok=true;
 
-        if(hasManualsForAll){
-          // Toutes les caps sont fixes → bruteforce ratio par joiner + redistribution
-          let remI=lead.remI, remC=lead.remC, remA=lead.remA;
-          let totalScore=lead.score;
-          const joinerAllocs=[];
-          let ok=true;
-          for(let j=0;j<nJ;j++){
-            const jCap=manualJoinerCaps[j];
-            if(jCap>remI+remC+remA){ok=false;break;}
-            const best=_bestRatioForCap(jCap,remI,remC,remA,wJ,allRatios);
-            if(!best){ok=false;break;}
-            joinerAllocs.push({jNum:j+1,cap:jCap,...best});
-            remI-=best.nI; remC-=best.nC; remA-=best.nA;
-            totalScore+=best.score;
-          }
-          if(ok){
-            pushTop5({totalScore, leadAlloc:lead, joiners:joinerAllocs, remI, remC, remA});
-          }
-        } else {
-          // Au moins un joiner sans cap manuelle → on teste différentes tailles
-          // Stratégie : les joiners manuels gardent leur cap fixe,
-          // les joiners auto partagent le stock restant après les manuels
-          let remAfterManual=remTot;
-          let manualScore=0; const manualAllocs=[];
-          let manualOk=true;
-          let mRemI=lead.remI, mRemC=lead.remC, mRemA=lead.remA;
-          for(let j=0;j<manualJoinerCaps.length&&j<nJ;j++){
-            const jCap=manualJoinerCaps[j];
-            if(jCap>mRemI+mRemC+mRemA){manualOk=false;break;}
-            const best=_bestRatioForCap(jCap,mRemI,mRemC,mRemA,wJ,allRatios);
-            if(!best){manualOk=false;break;}
-            manualAllocs.push({jNum:j+1,cap:jCap,...best});
-            mRemI-=best.nI; mRemC-=best.nC; mRemA-=best.nA;
-            manualScore+=best.score; remAfterManual-=jCap;
-          }
-          if(!manualOk) continue;
+        // ── Étape 1 : Allouer les joiners à cap fixe (bruteforce) ──
+        for(let j=0;j<Math.min(nJ, manualJoinerCaps.length);j++){
+          const jCap=manualJoinerCaps[j];
+          if(jCap>remI+remC+remA){ok=false;break;}
+          const best=_bestRatioForCap(jCap,remI,remC,remA,wL,allRatios);
+          if(!best){ok=false;break;}
+          joinerAllocs.push({jNum:j+1,cap:jCap,...best});
+          remI-=best.nI; remC-=best.nC; remA-=best.nA;
+          totalScore+=best.score;
+        }
+        if(!ok) continue;
 
-          const nAuto=nJ-manualJoinerCaps.length;
-          const capsAuto=_capRange(mRemI+mRemC+mRemA, nAuto);
-          for(const capAuto of capsAuto){
-            let remI=mRemI, remC=mRemC, remA=mRemA;
-            let totalScore=lead.score+manualScore;
-            const joinerAllocs=[...manualAllocs];
-            let ok=true;
-            for(let j=0;j<nAuto;j++){
-              if(capAuto>remI+remC+remA){ok=false;break;}
-              const best=_bestRatioForCap(capAuto,remI,remC,remA,wJ,allRatios);
-              if(!best){ok=false;break;}
-              joinerAllocs.push({jNum:manualJoinerCaps.length+j+1,cap:capAuto,...best});
-              remI-=best.nI; remC-=best.nC; remA-=best.nA;
-              totalScore+=best.score;
-            }
-            if(ok){
-              pushTop5({totalScore, leadAlloc:lead, joiners:joinerAllocs, remI, remC, remA});
-            }
+        // ── Étape 2 : Joiners auto — allocation globale ∝ w² ──
+        const nAuto = nJ - Math.min(nJ, manualJoinerCaps.length);
+        if(nAuto > 0 && remI+remC+remA > 0){
+          // Calculer l'allocation totale optimale pour TOUS les auto-joiners
+          const totalOpt = solveOptimal(remI+remC+remA, remI, remC, remA, wL);
+          // Diviser également entre les auto-joiners
+          const perI = Math.floor(totalOpt.i / nAuto);
+          const perC = Math.floor(totalOpt.c / nAuto);
+          const perA = Math.floor(totalOpt.a / nAuto);
+
+          for(let j=0;j<nAuto;j++){
+            const isLast = (j === nAuto-1);
+            const ji = isLast ? remI : perI;
+            const jc = isLast ? remC : perC;
+            const ja = isLast ? remA : perA;
+            const jCap = ji+jc+ja;
+            if(jCap <= 0) continue;
+            const ri=Math.round(ji/jCap*100), rc=Math.round(jc/jCap*100), ra=100-ri-rc;
+            const sc=dmg(ji,jc,ja,wL);
+            joinerAllocs.push({jNum:manualJoinerCaps.length+j+1, cap:jCap, ri, rc, ra, nI:ji, nC:jc, nA:ja, score:sc});
+            remI-=ji; remC-=jc; remA-=ja;
+            totalScore+=sc;
           }
+        }
+
+        if(joinerAllocs.length>0){
+          pushTop5({totalScore, leadAlloc:lead, joiners:joinerAllocs, remI, remC, remA});
         }
       }
       lIdx++;
@@ -2481,10 +2409,10 @@ function resetAll(){
   document.getElementById('heroSummary').textContent=t('hero_ratio_idle');
 }
 
-let _initDone = false; // Guard: prevent saveState before loadState completes
+let _initDone = false;
 
 function saveState(){
-  if(!_initDone) return; // Skip saves during initialization
+  if(!_initDone) return;
   try{
     const joiners=[];for(let i=1;i<=jCount;i++)joiners.push({cap:gv(`j${i}_cap`),inf:parseFloat(document.getElementById(`j${i}_inf`)?.value)||10,cav:parseFloat(document.getElementById(`j${i}_cav`)?.value)||10,arc:parseFloat(document.getElementById(`j${i}_arc`)?.value)||80,exactI:document.getElementById(`j${i}_cap`)?.dataset.exactI,exactC:document.getElementById(`j${i}_cap`)?.dataset.exactC,exactA:document.getElementById(`j${i}_cap`)?.dataset.exactA});
     localStorage.setItem('bearCalcState',JSON.stringify({
@@ -2535,16 +2463,10 @@ function loadState(){
   if(!calcState) return;
 
   try{
-    // ── Cleanup : remettre à zéro héros et joiners avant restauration ──
     heroSlots = []; heroSlotCount = 0;
     const _hsEl = document.getElementById('heroSlots'); if(_hsEl) _hsEl.innerHTML = '';
     document.getElementById('btnAddHero').disabled = false;
-
-    while(jCount > 0){
-      document.getElementById(`jtab${jCount}`)?.remove();
-      document.getElementById(`jpanel${jCount}`)?.remove();
-      jCount--;
-    }
+    while(jCount > 0){ document.getElementById(`jtab${jCount}`)?.remove(); document.getElementById(`jpanel${jCount}`)?.remove(); jCount--; }
 
     // 3. Tiers
     ['InfT','InfG','CavT','CavG','ArcT','ArcG'].forEach(k=>{
@@ -3167,7 +3089,7 @@ applyTranslations();
 syncJCtrl();
 buildTierOptions();
 loadState();
-_initDone = true; // Now saveState is active
+_initDone = true;
 window.addEventListener('beforeunload', saveState);
 
 </script>
