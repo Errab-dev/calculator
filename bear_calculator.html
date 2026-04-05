@@ -1783,6 +1783,7 @@ function runAutoOptimize(){
 
   const allRatios=_allRatios(); // ~4851 combos
   const wL=calcWeights();
+  const wJ=calcWeightsNeutral(); // Joiners : sans bonus gouverneur ni héros
 
   // Caps joiner saisies manuellement par l'utilisateur (dans l'ordre des panels)
   // Si une cap est saisie → taille fixe pour ce joiner
@@ -1862,7 +1863,7 @@ function runAutoOptimize(){
         for(let j=0;j<Math.min(nJ, manualJoinerCaps.length);j++){
           const jCap=manualJoinerCaps[j];
           if(jCap>remI+remC+remA){ok=false;break;}
-          const best=_bestRatioForCap(jCap,remI,remC,remA,wL,allRatios);
+          const best=_bestRatioForCap(jCap,remI,remC,remA,wJ,allRatios);
           if(!best){ok=false;break;}
           joinerAllocs.push({jNum:j+1,cap:jCap,...best});
           remI-=best.nI; remC-=best.nC; remA-=best.nA;
@@ -1874,7 +1875,7 @@ function runAutoOptimize(){
         const nAuto = nJ - Math.min(nJ, manualJoinerCaps.length);
         if(nAuto > 0 && remI+remC+remA > 0){
           // Calculer l'allocation totale optimale pour TOUS les auto-joiners
-          const totalOpt = solveOptimal(remI+remC+remA, remI, remC, remA, wL);
+          const totalOpt = solveOptimal(remI+remC+remA, remI, remC, remA, wJ);
           // Diviser également entre les auto-joiners
           const perI = Math.floor(totalOpt.i / nAuto);
           const perC = Math.floor(totalOpt.c / nAuto);
@@ -1888,7 +1889,7 @@ function runAutoOptimize(){
             const jCap = ji+jc+ja;
             if(jCap <= 0) continue;
             const ri=Math.round(ji/jCap*100), rc=Math.round(jc/jCap*100), ra=100-ri-rc;
-            const sc=dmg(ji,jc,ja,wL);
+            const sc=dmg(ji,jc,ja,wJ);
             joinerAllocs.push({jNum:manualJoinerCaps.length+j+1, cap:jCap, ri, rc, ra, nI:ji, nC:jc, nA:ja, score:sc});
             remI-=ji; remC-=jc; remA-=ja;
             totalScore+=sc;
