@@ -632,12 +632,14 @@
     if (!document.getElementById('ksNavMenu')) {
       var menu = document.createElement('div');
       menu.id = 'ksNavMenu';
+      menu.style.display = 'none';
       document.body.appendChild(menu);
     }
 
     if (!document.getElementById('ksNavRegPanel')) {
       var panel = document.createElement('div');
       panel.id = 'ksNavRegPanel';
+      panel.style.display = 'none';
       panel.innerHTML = ''
         /* Onglets */
         + '<div style="display:flex;gap:0;margin-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.1)">'
