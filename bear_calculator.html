@@ -2455,6 +2455,8 @@ function saveState(){
 }
 
 function loadState(){
+  // Rafraîchir la liste des héros depuis le profil
+  refreshHeroList();
   // Charger les bonus depuis le profil si disponibles
   try{
     const rawB=localStorage.getItem('bearBonusStats');
@@ -2726,42 +2728,52 @@ const HEROES_DB = {
   ]},
 };
 
-function buildHeroList(){ return [
-  /* ── Mythiques ── */
-  {key:'amadeus',  label:`Amadeus — ${t('hero_list_inf')} (${t('gen_label')(1)})`},
-  {key:'helga',    label:`Helga — ${t('hero_list_inf')} (${t('gen_label')(1)})`},
-  {key:'jabel',    label:`Jabel — ${t('hero_list_cav')} (${t('gen_label')(1)})`},
-  {key:'saul',     label:`Saul — ${t('hero_list_arc')} (${t('gen_label')(1)})`},
-  {key:'zoe',      label:`Zoe — ${t('hero_list_inf')} (${t('gen_label')(2)})`},
-  {key:'hilde',    label:`Hilde — ${t('hero_list_cav')} (${t('gen_label')(2)})`},
-  {key:'marlin',   label:`Marlin — ${t('hero_list_arc')} (${t('gen_label')(2)})`},
-  {key:'eric',     label:`Eric — ${t('hero_list_inf')} (${t('gen_label')(3)})`},
-  {key:'petra',    label:`Petra — ${t('hero_list_cav')} (${t('gen_label')(3)})`},
-  {key:'jaeger',   label:`Jaeger — ${t('hero_list_arc')} (${t('gen_label')(3)})`},
-  {key:'alcar',    label:`Alcar — ${t('hero_list_inf')} (${t('gen_label')(4)})`},
-  {key:'margot',   label:`Margot — ${t('hero_list_cav')} (${t('gen_label')(4)})`},
-  {key:'rosa',     label:`Rosa — ${t('hero_list_arc')} (${t('gen_label')(4)})`},
-  {key:'long_fei', label:`Long Fei — ${t('hero_list_inf')} (${t('gen_label')(5)})`},
-  {key:'thrud',    label:`Thrud — ${t('hero_list_cav')} (${t('gen_label')(5)})`},
-  {key:'vivian',   label:`Vivian — ${t('hero_list_arc')} (${t('gen_label')(5)})`},
-  {key:'triton',   label:`Triton — ${t('hero_list_inf')} (${t('gen_label')(6)})`},
-  {key:'sophia',   label:`Sophia — ${t('hero_list_cav')} (${t('gen_label')(6)})`},
-  {key:'yang',     label:`Yang — ${t('hero_list_arc')} (${t('gen_label')(6)})`},
-  /* ── SR / Épiques ── */
-  {key:'chenko',   label:`Chenko — ${t('hero_list_cav')} (SR)`},
-  {key:'yeonwoo',  label:`Yeonwoo — ${t('hero_list_arc')} (SR)`},
-  {key:'amane',    label:`Amane — ${t('hero_list_inf')} (SR)`},
-  {key:'howard',   label:`Howard — ${t('hero_list_inf')} (SR)`},
-  {key:'gordon',   label:`Gordon — ${t('hero_list_cav')} (SR)`},
-  {key:'quinn',    label:`Quinn — ${t('hero_list_arc')} (SR)`},
-  {key:'fahd',     label:`Fahd — ${t('hero_list_cav')} (SR)`},
-  {key:'diana',    label:`Diana — ${t('hero_list_arc')} (SR)`},
-  {key:'olive',    label:`Olive — ${t('hero_list_inf')} (R)`},
-  {key:'seth',     label:`Seth — ${t('hero_list_cav')} (R)`},
-  {key:'edwin',    label:`Edwin — ${t('hero_list_inf')} (R)`},
-  {key:'forrest',  label:`Forrest — ${t('hero_list_arc')} (R)`},
-]; }
+// Tous les héros du jeu (référence complète)
+const ALL_HEROES_LIST = [
+  {key:'amadeus',  gen:1, cls:'inf'}, {key:'helga',    gen:1, cls:'inf'},
+  {key:'jabel',    gen:1, cls:'cav'}, {key:'saul',     gen:1, cls:'arc'},
+  {key:'zoe',      gen:2, cls:'inf'}, {key:'hilde',    gen:2, cls:'cav'},
+  {key:'marlin',   gen:2, cls:'arc'}, {key:'eric',     gen:3, cls:'inf'},
+  {key:'petra',    gen:3, cls:'cav'}, {key:'jaeger',   gen:3, cls:'arc'},
+  {key:'alcar',    gen:4, cls:'inf'}, {key:'margot',   gen:4, cls:'cav'},
+  {key:'rosa',     gen:4, cls:'arc'}, {key:'long_fei', gen:5, cls:'inf'},
+  {key:'thrud',    gen:5, cls:'cav'}, {key:'vivian',   gen:5, cls:'arc'},
+  {key:'triton',   gen:6, cls:'inf'}, {key:'sophia',   gen:6, cls:'cav'},
+  {key:'yang',     gen:6, cls:'arc'}, {key:'chenko',   gen:0, cls:'cav'},
+  {key:'yeonwoo',  gen:0, cls:'arc'}, {key:'amane',    gen:0, cls:'inf'},
+  {key:'howard',   gen:0, cls:'inf'}, {key:'gordon',   gen:0, cls:'cav'},
+  {key:'quinn',    gen:0, cls:'arc'}, {key:'fahd',     gen:0, cls:'cav'},
+  {key:'diana',    gen:0, cls:'arc'},
+];
+
+function buildHeroList() {
+  // Lire les héros configurés dans le profil
+  let profileHeroes = {};
+  try { profileHeroes = JSON.parse(localStorage.getItem('bearHeroesData') || '{}'); } catch(e) {}
+
+  const configured = Object.keys(profileHeroes);
+  const clsLabel = { inf: t('hero_list_inf'), cav: t('hero_list_cav'), arc: t('hero_list_arc') };
+  const rarityLabel = g => g > 0 ? t('gen_label')(g) : 'SR';
+
+  if (configured.length > 0) {
+    // Ne montrer que les héros du profil
+    return ALL_HEROES_LIST
+      .filter(h => configured.includes(h.key))
+      .map(h => ({ key: h.key, label: `${HEROES_DB[h.key]?.name || h.key} — ${clsLabel[h.cls]} (${rarityLabel(h.gen)})` }));
+  }
+
+  // Aucun héros dans le profil → montrer tous avec indicateur
+  return ALL_HEROES_LIST.map(h => ({
+    key: h.key,
+    label: `${HEROES_DB[h.key]?.name || h.key} — ${clsLabel[h.cls]} (${rarityLabel(h.gen)})`
+  }));
+}
 let HERO_LIST = buildHeroList();
+
+// Rafraîchir la liste si bearHeroesData change (retour depuis profil)
+function refreshHeroList() {
+  HERO_LIST = buildHeroList();
+}
 
 const CLASS_COLORS={inf:'hsc-inf',cav:'hsc-cav',arc:'hsc-arc'};
 const CLASS_LABELS={inf:t('class_inf'),cav:t('class_cav'),arc:t('class_arc')};
@@ -2810,12 +2822,13 @@ function renderHeroSlot(idx){
     <div class="hero-slot-body">
       <div class="hero-select-wrap">
         <div class="hero-select-label">${t('hero_select_label')}</div>
+        ${HERO_LIST.length === 0 ? `<div style="font-size:12px;color:var(--text-faint);font-style:italic;padding:6px 0">Aucun héros configuré — <a href="profile.html" style="color:var(--amber)">configure tes héros dans le profil</a></div>` : `
         <select id="heroSel_${idx}" onchange="onHeroSelect(${idx})">
           <option value="">${t('hero_select_placeholder')}</option>
           ${HERO_LIST.map(h=>`<option value="${h.key}" ${slot.heroKey===h.key?'selected':''}>${h.label}</option>`).join('')}
-        </select>
+        </select>`}
       </div>
-      ${hero?buildHeroSummaryHTML(idx,hero,slot):'<div class="field-sub" style="margin-top:6px">'+t('hero_no_skills')+'</div>'}
+      ${hero?buildSkillsHTML(idx,hero,slot):'<div class="field-sub" style="margin-top:6px">'+t('hero_no_skills')+'</div>'}
     </div>`;
   document.getElementById('heroSlots').appendChild(div);
 }
@@ -2907,7 +2920,7 @@ function onHeroSelect(idx){
           ${HERO_LIST.map(h=>`<option value="${h.key}" ${key===h.key?'selected':''}>${h.label}</option>`).join('')}
         </select>
       </div>
-      ${hero?buildHeroSummaryHTML(idx,hero,heroSlots[idx]):'<div class="field-sub" style="margin-top:6px">'+t('hero_no_skills')+'</div>'}
+      ${hero?buildSkillsHTML(idx,hero,heroSlots[idx]):'<div class="field-sub" style="margin-top:6px">'+t('hero_no_skills')+'</div>'}
     </div>`;
   const c=document.getElementById('heroSlots'), s=c.children;
   if(s[idx])c.insertBefore(div,s[idx]); else c.appendChild(div);
