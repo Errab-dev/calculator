@@ -1147,11 +1147,11 @@ function openHeroModal(key) {
           <div class="widget-desc" id="widgetDesc">${_heroModalState.widgetLevel > 0 ? h.widget.skill2.desc(Math.floor(_heroModalState.widgetLevel/2)) : "Niveau 0 — non débloqué"}</div>
           <div style="font-size:11px;color:var(--text-faint);margin-top:4px" id="widgetDesc1">${_heroModalState.widgetLevel > 0 ? "Skill Conquest : " + h.widget.skill1.desc(Math.ceil(_heroModalState.widgetLevel/2)) : ""}</div>
         </div>
-        <div class="widget-levels" id="widgetLevels">
-          ${[0,1,2,3,4,5,6,7,8,9,10].map(lv => `
-            <button class="widget-lvl-btn${_heroModalState.widgetLevel === lv ? ' active' : ''}"
-              onclick="setWidgetLevel(${lv})">${lv}</button>
-          `).join('')}
+        <div style="flex-shrink:0">
+          <select id="widgetLevels" onchange="setWidgetLevel(parseInt(this.value))"
+            style="padding:8px 10px;background:var(--surface2,#edf0f5);border:1px solid var(--border,#ccd4e0);font-family:var(--f-mono,monospace);font-size:13px;color:var(--text,#18202e);outline:none;cursor:pointer;width:100px">
+            ${[0,1,2,3,4,5,6,7,8,9,10].map(lv => `<option value="${lv}" ${_heroModalState.widgetLevel === lv ? 'selected' : ''}>${lv}</option>`).join('')}
+          </select>
         </div>
       </div>` : ''}
 
@@ -1214,13 +1214,9 @@ function setWidgetLevel(level) {
   const h = HEROES_DB[_currentHeroKey];
   if (!h?.widget) return;
   _heroModalState.widgetLevel = level;
-  // Mettre à jour les boutons
-  const container = document.getElementById('widgetLevels');
-  if (container) {
-    container.querySelectorAll('.widget-lvl-btn').forEach((btn, i) => {
-      btn.classList.toggle('active', i === level);
-    });
-  }
+  // Mettre à jour le select
+  const sel = document.getElementById('widgetLevels');
+  if (sel) sel.value = level;
   // Mettre à jour les descriptions
   const d1 = document.getElementById('widgetDesc');
   const d2 = document.getElementById('widgetDesc1');
