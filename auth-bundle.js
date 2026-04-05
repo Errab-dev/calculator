@@ -419,47 +419,47 @@
   function injectCSS() {
     var s = document.createElement('style');
     s.textContent = [
-      /* ── NAVBAR BASE ── */
-      '#ksNav{position:fixed;top:0;left:0;right:0;z-index:9000;background:rgba(24,32,46,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(184,110,0,0.25);font-family:var(--f-mono,monospace);box-shadow:0 2px 20px rgba(0,0,0,0.25);}',
-      /* Ligne 1 : logo + droite */
-      '#ksNav .nav-row1{display:flex;align-items:center;height:48px;padding:0 16px;gap:10px;}',
-      /* Ligne 2 : liens de nav */
-      '#ksNav .nav-row2{display:flex;align-items:center;gap:0;padding:0 10px;height:34px;border-top:1px solid rgba(255,255,255,0.06);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}',
-      '#ksNav .nav-row2::-webkit-scrollbar{display:none;}',
+      /* ── NAVBAR ── */
+      '#ksNav{position:fixed;top:0;left:0;right:0;z-index:9000;height:48px;background:rgba(24,32,46,0.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(184,110,0,0.25);display:flex;align-items:center;padding:0 16px;font-family:var(--f-mono,monospace);box-shadow:0 2px 20px rgba(0,0,0,0.25);}',
       '#ksNav .nav-logo{font-family:var(--f-display,"Barlow Condensed",sans-serif);font-size:1.2rem;font-weight:900;text-transform:uppercase;letter-spacing:1px;color:#fff;text-decoration:none;white-space:nowrap;flex-shrink:0;}',
       '#ksNav .nav-logo span{color:#b86e00;}',
-      '#ksNav .nav-links{display:flex;align-items:center;gap:0;flex:1;}',
-      '#ksNav .nav-link{font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:rgba(255,255,255,0.5);text-decoration:none;padding:6px 10px;transition:color .2s;white-space:nowrap;flex-shrink:0;}',
-      '#ksNav .nav-link:hover{color:#fff;}',
-      '#ksNav .nav-link.active{color:#b86e00;border-bottom:2px solid #b86e00;}',
-      '#ksNav .nav-sep{width:1px;height:20px;background:rgba(255,255,255,0.12);margin:0 6px;flex-shrink:0;}',
-      '#ksNav .nav-right{display:flex;align-items:center;gap:6px;margin-left:auto;flex-shrink:0;}',
+      '#ksNav .nav-right{display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0;}',
+      '#ksNav .nav-dot{width:7px;height:7px;background:#1a7a44;border-radius:50%;flex-shrink:0;}',
       '#ksNav .nav-user{display:flex;align-items:center;gap:7px;text-decoration:none;flex-shrink:0;}',
       '#ksNav .nav-avatar{width:26px;height:26px;background:rgba(184,110,0,0.2);border:1px solid rgba(184,110,0,0.5);display:flex;align-items:center;justify-content:center;font-family:var(--f-display,"Barlow Condensed",sans-serif);font-size:.9rem;font-weight:900;color:#b86e00;text-transform:uppercase;flex-shrink:0;}',
       '#ksNav .nav-userinfo{display:flex;flex-direction:column;line-height:1.2;}',
       '#ksNav .nav-username{font-size:12px;color:#fff;font-weight:600;letter-spacing:.5px;white-space:nowrap;}',
       '#ksNav .nav-alliance{font-size:9px;color:rgba(184,110,0,0.8);letter-spacing:1px;}',
-      '#ksNav .nav-dot{width:7px;height:7px;background:#1a7a44;border-radius:50%;flex-shrink:0;}',
+      /* Bouton hamburger */
+      '#ksNav .nav-burger{background:transparent;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.8);font-size:16px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .2s;}',
+      '#ksNav .nav-burger:hover{border-color:#b86e00;color:#b86e00;}',
+      /* Boutons inline */
       '#ksNav .nav-btn{background:transparent;border:1px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.65);font-family:var(--f-mono,monospace);font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:5px 9px;cursor:pointer;transition:all .2s;white-space:nowrap;text-decoration:none;display:inline-block;flex-shrink:0;}',
       '#ksNav .nav-btn:hover{border-color:#b86e00;color:#b86e00;background:rgba(184,110,0,0.1);}',
       '#ksNav .nav-btn.green{border-color:rgba(26,122,68,0.5);color:#4db87a;}',
       '#ksNav .nav-btn.green:hover{border-color:#1a7a44;color:#1a7a44;background:rgba(26,122,68,0.1);}',
-      '#ksNav .nav-btn.amber{border-color:rgba(184,110,0,0.55);color:#b86e00;}',
-      '#ksNav .nav-btn.red{border-color:rgba(192,57,43,0.45);color:#e05a4a;}',
-      '#ksNav .nav-btn.red:hover{border-color:#c0392b;color:#c0392b;background:rgba(192,57,43,0.1);}',
-      /* Champs de connexion : cachés sur très petit écran */
       '#ksNav .nav-input{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:#fff;font-family:var(--f-mono,monospace);font-size:11px;padding:5px 8px;outline:none;width:90px;transition:border-color .2s;flex-shrink:1;min-width:60px;}',
       '#ksNav .nav-input:focus{border-color:#b86e00;}',
       '#ksNav .nav-input::placeholder{color:rgba(255,255,255,0.28);}',
-      '@media(max-width:480px){#ksNav .nav-input{display:none;} #ksNav .nav-hide-mobile{display:none;}}',
-      /* Panel inscription */
-      '#ksNavRegPanel{display:none;position:fixed;top:82px;right:0;left:0;z-index:8999;background:rgba(20,26,38,0.99);border-bottom:1px solid rgba(184,110,0,0.25);padding:16px;box-shadow:0 8px 32px rgba(0,0,0,0.45);}',
-      '@media(min-width:480px){#ksNavRegPanel{left:auto;min-width:300px;top:82px;}}',
-      '#ksNavRegPanel .nav-input{width:100%;margin-bottom:8px;display:block;box-sizing:border-box;}',
-      '#ksNavRegPanel .nav-label{font-size:9px;color:rgba(255,255,255,0.4);letter-spacing:1.5px;text-transform:uppercase;display:block;margin-bottom:3px;}',
-      '#ksNavRegPanel .reg-row{display:flex;gap:6px;}',
-      /* Offset body : 48px (row1) + 34px (row2) = 82px */
-      'body{padding-top:82px !important;}',
+      /* Menu déroulant hamburger */
+      '#ksNavMenu{display:none;position:fixed;top:48px;right:0;z-index:8999;background:rgba(20,26,38,0.99);backdrop-filter:blur(12px);border-left:1px solid rgba(184,110,0,0.2);border-bottom:1px solid rgba(184,110,0,0.2);min-width:220px;box-shadow:-4px 4px 24px rgba(0,0,0,0.4);}',
+      '#ksNavMenu .mn-section{padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06);}',
+      '#ksNavMenu .mn-section:last-child{border-bottom:none;}',
+      '#ksNavMenu .mn-label{font-size:9px;color:rgba(255,255,255,0.28);letter-spacing:2px;text-transform:uppercase;padding:6px 16px 2px;}',
+      '#ksNavMenu .mn-item{display:flex;align-items:center;gap:10px;width:100%;padding:10px 16px;background:transparent;border:none;color:rgba(255,255,255,0.75);font-family:var(--f-mono,monospace);font-size:11px;letter-spacing:.5px;text-decoration:none;cursor:pointer;transition:background .15s,color .15s;text-align:left;box-sizing:border-box;}',
+      '#ksNavMenu .mn-item:hover{background:rgba(255,255,255,0.06);color:#fff;}',
+      '#ksNavMenu .mn-item.amber{color:#b86e00;}',
+      '#ksNavMenu .mn-item.amber:hover{background:rgba(184,110,0,0.1);}',
+      '#ksNavMenu .mn-item.red{color:#e05a4a;}',
+      '#ksNavMenu .mn-item.red:hover{background:rgba(192,57,43,0.1);color:#ff6b5a;}',
+      '#ksNavMenu .mn-item.green{color:#4db87a;}',
+      '#ksNavMenu .mn-item.green:hover{background:rgba(26,122,68,0.1);}',
+      '#ksNavMenu .mn-user-block{padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.06);}',
+      '#ksNavMenu .mn-avatar{width:32px;height:32px;background:rgba(184,110,0,0.2);border:1px solid rgba(184,110,0,0.5);display:flex;align-items:center;justify-content:center;font-family:var(--f-display,"Barlow Condensed",sans-serif);font-size:1rem;font-weight:900;color:#b86e00;text-transform:uppercase;flex-shrink:0;}',
+      '#ksNavMenu .mn-uname{font-size:13px;color:#fff;font-weight:600;}',
+      '#ksNavMenu .mn-ualliance{font-size:10px;color:rgba(184,110,0,0.8);letter-spacing:1px;}',
+      /* body offset */
+      'body{padding-top:48px !important;}',
       '.auth-input{width:100%;padding:6px 8px;background:var(--surface2,#edf0f5);border:1px solid var(--border,#ccd4e0);font-family:var(--f-body,sans-serif);font-size:13px;color:var(--text,#18202e);outline:none;}',
       '.auth-input:focus{border-color:#b86e00;}',
       '.auth-label{font-size:10px;color:var(--text-dim,#445068);display:block;margin-bottom:2px;font-family:var(--f-mono,monospace);letter-spacing:1px;}',
@@ -502,63 +502,120 @@
     return 'home';
   }
 
-  function navLnk(href, label, key, active) {
-    return '<a href="' + href + '" class="nav-link' + (active === key ? ' active' : '') + '">' + label + '</a>';
-  }
-
   function renderAuthUI() {
     var nav = document.getElementById('ksNav');
     if (!nav) return;
-    var active = getActivePage();
-
-    var links = ''
-      + navLnk('bear_calculator.html', '🐻 Bear Hunt',    'calc',   active)
-      + navLnk('island-guide.html',    '🏝 Île Oasis',    'island', active)
-      + navLnk('mystic-trial.html',    '🎯 Mystic Trial', 'mystic', active);
-
-    var row2 = '<div class="nav-row2"><div class="nav-links">' + links + '</div></div>';
 
     if (isLoggedIn()) {
       var u = currentUser;
       var initial = (u.username || '?')[0].toUpperCase();
       var cloudBtns = IS_CALC
-        ? '<button onclick="window._auth.saveToCloud()" class="nav-btn green nav-hide-mobile">☁ Sauver</button>'
-          + '<button onclick="window._auth.loadFromCloud()" class="nav-btn nav-hide-mobile">☁ Charger</button>'
-        : '';
-      var allyBtn = u.alliance
-        ? '<button onclick="window._auth.openAllianceModal()" class="nav-btn amber nav-hide-mobile">👥 ' + u.alliance + '</button>'
+        ? '<button onclick="window._auth.saveToCloud()" class="nav-btn green">☁ Sauver</button>'
         : '';
 
       nav.innerHTML = ''
-        + '<div class="nav-row1">'
-        +   '<a href="index.html" class="nav-logo">Kingshot <span>Help</span></a>'
-        +   '<div class="nav-right">'
-        +     cloudBtns
-        +     allyBtn
-        +     '<div class="nav-dot"></div>'
-        +     '<a href="profile.html" class="nav-user">'
-        +       '<div class="nav-avatar">' + initial + '</div>'
-        +       '<div class="nav-userinfo">'
-        +         '<span class="nav-username">' + u.username + '</span>'
-        +         (u.alliance ? '<span class="nav-alliance">' + u.alliance + '</span>' : '')
-        +       '</div>'
-        +     '</a>'
-        +     '<button onclick="window._auth.doLogout()" class="nav-btn red">Déco</button>'
-        +   '</div>'
-        + '</div>'
-        + row2;
-
+        + '<a href="index.html" class="nav-logo">Kingshot <span>Help</span></a>'
+        + '<div class="nav-right">'
+        +   cloudBtns
+        +   '<div class="nav-dot"></div>'
+        +   '<a href="profile.html" class="nav-user">'
+        +     '<div class="nav-avatar">' + initial + '</div>'
+        +     '<div class="nav-userinfo">'
+        +       '<span class="nav-username">' + u.username + '</span>'
+        +       (u.alliance ? '<span class="nav-alliance">' + u.alliance + '</span>' : '')
+        +     '</div>'
+        +   '</a>'
+        +   '<button class="nav-burger" onclick="window._auth.toggleMenu()">☰</button>'
+        + '</div>';
     } else {
       nav.innerHTML = ''
-        + '<div class="nav-row1">'
-        +   '<a href="index.html" class="nav-logo">Kingshot <span>Help</span></a>'
-        +   '<div class="nav-right">'
-        +     '<button onclick="window._auth.togglePanel(\'login\')" class="nav-btn green">Connexion</button>'
+        + '<a href="index.html" class="nav-logo">Kingshot <span>Help</span></a>'
+        + '<div class="nav-right">'
+        +   '<button onclick="window._auth.togglePanel(\'login\')" class="nav-btn green">Connexion</button>'
+        +   '<button class="nav-burger" onclick="window._auth.toggleMenu()">☰</button>'
+        + '</div>';
+    }
+    buildMenu();
+  }
+
+  function buildMenu() {
+    var menu = document.getElementById('ksNavMenu');
+    if (!menu) return;
+    var active = getActivePage();
+
+    function mi(href, icon, label, key) {
+      return '<a href="' + href + '" class="mn-item' + (active === key ? ' amber' : '') + '" onclick="window._auth.closeMenu()">'
+        + '<span>' + icon + '</span><span>' + label + '</span></a>';
+    }
+
+    if (isLoggedIn()) {
+      var u = currentUser;
+      var initial = (u.username || '?')[0].toUpperCase();
+      var cloudSection = IS_CALC
+        ? '<div class="mn-section">'
+          + '<button onclick="window._auth.saveToCloud();window._auth.closeMenu();" class="mn-item green"><span>☁</span><span>Sauvegarder</span></button>'
+          + '<button onclick="window._auth.loadFromCloud();window._auth.closeMenu();" class="mn-item"><span>☁</span><span>Charger depuis le cloud</span></button>'
+          + '</div>'
+        : '';
+      var allySection = u.alliance
+        ? '<button onclick="window._auth.openAllianceModal();window._auth.closeMenu();" class="mn-item amber"><span>👥</span><span>' + u.alliance + ' — Alliance</span></button>'
+        : '';
+
+      menu.innerHTML = ''
+        + '<div class="mn-user-block">'
+        +   '<div class="mn-avatar">' + initial + '</div>'
+        +   '<div><div class="mn-uname">' + u.username + '</div>'
+        +   (u.alliance ? '<div class="mn-ualliance">' + u.alliance + (u.server ? ' · ' + u.server : '') + '</div>' : '')
         +   '</div>'
         + '</div>'
-        + row2;
+        + '<div class="mn-section">'
+        +   '<div class="mn-label">Navigation</div>'
+        +   mi('index.html',           '🏠', 'Accueil',      'home')
+        +   mi('bear_calculator.html', '🐻', 'Bear Hunt',    'calc')
+        +   mi('island-guide.html',    '🏝', 'Île Oasis',    'island')
+        +   mi('mystic-trial.html',    '🎯', 'Mystic Trial', 'mystic')
+        + '</div>'
+        + '<div class="mn-section">'
+        +   '<div class="mn-label">Mon compte</div>'
+        +   mi('profile.html', '👤', 'Mon profil', 'profile')
+        +   allySection
+        + '</div>'
+        + cloudSection
+        + '<div class="mn-section">'
+        +   '<button onclick="window._auth.doLogout()" class="mn-item red"><span>⏻</span><span>Déconnexion</span></button>'
+        + '</div>';
+
+    } else {
+      menu.innerHTML = ''
+        + '<div class="mn-section">'
+        +   '<div class="mn-label">Navigation</div>'
+        +   mi('index.html',           '🏠', 'Accueil',      'home')
+        +   mi('bear_calculator.html', '🐻', 'Bear Hunt',    'calc')
+        +   mi('island-guide.html',    '🏝', 'Île Oasis',    'island')
+        +   mi('mystic-trial.html',    '🎯', 'Mystic Trial', 'mystic')
+        + '</div>'
+        + '<div class="mn-section">'
+        +   '<button onclick="window._auth.togglePanel(\'login\');window._auth.closeMenu();" class="mn-item green"><span>→</span><span>Connexion</span></button>'
+        + '</div>';
     }
   }
+
+  function toggleMenu() {
+    var menu = document.getElementById('ksNavMenu');
+    if (!menu) return;
+    var open = menu.style.display === 'block';
+    menu.style.display = open ? 'none' : 'block';
+    var burger = document.querySelector('#ksNav .nav-burger');
+    if (burger) burger.textContent = open ? '☰' : '✕';
+  }
+
+  function closeMenu() {
+    var menu = document.getElementById('ksNavMenu');
+    if (menu) menu.style.display = 'none';
+    var burger = document.querySelector('#ksNav .nav-burger');
+    if (burger) burger.textContent = '☰';
+  }
+
 
   // ═══════════════════════════════════════════════════════
   //  INIT
@@ -571,6 +628,11 @@
       var nav = document.createElement('nav');
       nav.id = 'ksNav';
       document.body.prepend(nav);
+    }
+    if (!document.getElementById('ksNavMenu')) {
+      var menu = document.createElement('div');
+      menu.id = 'ksNavMenu';
+      document.body.appendChild(menu);
     }
 
     if (!document.getElementById('ksNavRegPanel')) {
@@ -619,6 +681,12 @@
       if (panel && panel.style.display === 'block') {
         if (!panel.contains(e.target) && !document.getElementById('ksNav').contains(e.target)) {
           panel.style.display = 'none';
+        }
+      }
+      var mnu = document.getElementById('ksNavMenu');
+      if (mnu && mnu.style.display === 'block') {
+        if (!mnu.contains(e.target) && !document.getElementById('ksNav').contains(e.target)) {
+          closeMenu();
         }
       }
     });
@@ -753,7 +821,10 @@
     toggleRegister:    toggleRegister,
     togglePanel:       togglePanel,
     switchPanelTab:    switchPanelTab,
-    closePanelAuth:    closePanelAuth
+    closePanelAuth:    closePanelAuth,
+    toggleMenu:        toggleMenu,
+    closeMenu:         closeMenu,
+    buildMenu:         buildMenu
   };
 
   init();
