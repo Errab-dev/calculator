@@ -1878,7 +1878,7 @@ function runAutoOptimize(){
         const hasManualsForAll = nJ <= manualJoinerCaps.length;
 
         if(hasManualsForAll){
-          // Toutes les caps sont fixes → une seule combinaison à tester
+          // Toutes les caps sont fixes → allocation optimale respectant le stock
           let remI=lead.remI, remC=lead.remC, remA=lead.remA;
           let totalScore=lead.score;
           const joinerAllocs=[];
@@ -1886,11 +1886,14 @@ function runAutoOptimize(){
           for(let j=0;j<nJ;j++){
             const jCap=manualJoinerCaps[j];
             if(jCap>remI+remC+remA){ok=false;break;}
-            const best=_bestRatioForCap(jCap,remI,remC,remA,wJ,allRatios);
-            if(!best){ok=false;break;}
-            joinerAllocs.push({jNum:j+1,cap:jCap,...best});
-            remI-=best.nI; remC-=best.nC; remA-=best.nA;
-            totalScore+=best.score;
+            const opt=solveOptimal(jCap,remI,remC,remA,wJ);
+            if(opt.i+opt.c+opt.a<=0){ok=false;break;}
+            const tot=opt.i+opt.c+opt.a;
+            const ri=Math.round(opt.i/tot*100),rc=Math.round(opt.c/tot*100),ra=100-ri-rc;
+            const sc=dmg(opt.i,opt.c,opt.a,wJ);
+            joinerAllocs.push({jNum:j+1,cap:tot,ri,rc,ra,nI:opt.i,nC:opt.c,nA:opt.a,score:sc});
+            remI-=opt.i; remC-=opt.c; remA-=opt.a;
+            totalScore+=sc;
           }
           if(ok) pushTop5({totalScore, leadAlloc:lead, joiners:joinerAllocs, remI, remC, remA});
         } else {
@@ -1904,11 +1907,14 @@ function runAutoOptimize(){
           for(let j=0;j<manualJoinerCaps.length&&j<nJ;j++){
             const jCap=manualJoinerCaps[j];
             if(jCap>mRemI+mRemC+mRemA){manualOk=false;break;}
-            const best=_bestRatioForCap(jCap,mRemI,mRemC,mRemA,wJ,allRatios);
-            if(!best){manualOk=false;break;}
-            manualAllocs.push({jNum:j+1,cap:jCap,...best});
-            mRemI-=best.nI; mRemC-=best.nC; mRemA-=best.nA;
-            manualScore+=best.score; remAfterManual-=jCap;
+            const opt=solveOptimal(jCap,mRemI,mRemC,mRemA,wJ);
+            if(opt.i+opt.c+opt.a<=0){manualOk=false;break;}
+            const tot=opt.i+opt.c+opt.a;
+            const ri=Math.round(opt.i/tot*100),rc=Math.round(opt.c/tot*100),ra=100-ri-rc;
+            const sc=dmg(opt.i,opt.c,opt.a,wJ);
+            manualAllocs.push({jNum:j+1,cap:tot,ri,rc,ra,nI:opt.i,nC:opt.c,nA:opt.a,score:sc});
+            mRemI-=opt.i; mRemC-=opt.c; mRemA-=opt.a;
+            manualScore+=sc; remAfterManual-=jCap;
           }
           if(!manualOk) continue;
 
@@ -1921,11 +1927,14 @@ function runAutoOptimize(){
             let ok=true;
             for(let j=0;j<nAuto;j++){
               if(capAuto>remI+remC+remA){ok=false;break;}
-              const best=_bestRatioForCap(capAuto,remI,remC,remA,wJ,allRatios);
-              if(!best){ok=false;break;}
-              joinerAllocs.push({jNum:manualJoinerCaps.length+j+1,cap:capAuto,...best});
-              remI-=best.nI; remC-=best.nC; remA-=best.nA;
-              totalScore+=best.score;
+              const opt=solveOptimal(capAuto,remI,remC,remA,wJ);
+              if(opt.i+opt.c+opt.a<=0){ok=false;break;}
+              const tot=opt.i+opt.c+opt.a;
+              const ri=Math.round(opt.i/tot*100),rc=Math.round(opt.c/tot*100),ra=100-ri-rc;
+              const sc=dmg(opt.i,opt.c,opt.a,wJ);
+              joinerAllocs.push({jNum:manualJoinerCaps.length+j+1,cap:tot,ri,rc,ra,nI:opt.i,nC:opt.c,nA:opt.a,score:sc});
+              remI-=opt.i; remC-=opt.c; remA-=opt.a;
+              totalScore+=sc;
             }
             if(ok) pushTop5({totalScore, leadAlloc:lead, joiners:joinerAllocs, remI, remC, remA});
           }
