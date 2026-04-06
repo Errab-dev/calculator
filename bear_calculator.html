@@ -590,6 +590,23 @@ select option { background: #ffffff; color: var(--text); }
   border-color: var(--amber); box-shadow: 0 0 0 2px var(--amber-glow);
 }
 
+/* ── TOGGLE SWITCH ── */
+.toggle-wrap { cursor: pointer; flex-shrink: 0; }
+.toggle-track {
+  width: 44px; height: 24px; border-radius: 12px;
+  background: var(--border); position: relative;
+  transition: background .2s;
+}
+.toggle-track.on { background: var(--amber); }
+.toggle-thumb {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: #ffffff; position: absolute;
+  top: 2px; left: 2px;
+  transition: left .2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,.3);
+}
+.toggle-track.on .toggle-thumb { left: 22px; }
+
 </style>
 </head>
 <body>
@@ -865,6 +882,17 @@ select option { background: #ffffff; color: var(--text); }
       </div>
     </div>
 
+    <!-- Toggle Bonus Joiners -->
+    <div style="display:flex;align-items:center;gap:12px;margin:12px 0 6px;padding:10px 14px;background:var(--surface2);border:1px solid var(--border)">
+      <label style="font-family:var(--f-mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-dim);flex:1" id="joinerBonusLabel" data-i18n="joiner_bonus_label">Calcul avec tes bonus & héros</label>
+      <div class="toggle-wrap" onclick="toggleJoinerBonus()" id="joinerBonusToggle" title="ON = tes bonus sont appliqués · OFF = stats neutres">
+        <div class="toggle-track" id="joinerBonusTrack">
+          <div class="toggle-thumb" id="joinerBonusThumb"></div>
+        </div>
+      </div>
+      <span style="font-family:var(--f-mono);font-size:10px;letter-spacing:1px;min-width:28px;text-align:center" id="joinerBonusState">OFF</span>
+    </div>
+
     <div class="jctrl">
       <button class="jbtn jbtn-add" id="btnAdd" onclick="addJoiner()">+ Ajouter un joiner</button>
       <button class="jbtn jbtn-rem" id="btnRem" onclick="removeJoiner()">− Retirer</button>
@@ -1064,6 +1092,7 @@ const I18N = {
     hero_list_inf: 'Infanterie', hero_list_cav: 'Cavalerie', hero_list_arc: 'Archer',
     gen_label: g => `Gén ${g}`,
     fmt_locale: 'fr-FR',
+    joiner_bonus_label: 'Calcul avec tes bonus & héros',
   },
   en: {
     hdr_sub: 'Squad Composition · Global Optimization',
@@ -1168,6 +1197,7 @@ const I18N = {
     hero_list_inf: 'Infantry', hero_list_cav: 'Cavalry', hero_list_arc: 'Archer',
     gen_label: g => `Gen ${g}`,
     fmt_locale: 'en-US',
+    joiner_bonus_label: 'Calculate with your bonuses & heroes',
   },
   es: {
     hdr_sub: 'Composición de Escuadrones · Optimización Global',
@@ -1272,6 +1302,7 @@ const I18N = {
     hero_list_inf: 'Infantería', hero_list_cav: 'Caballería', hero_list_arc: 'Arquero',
     gen_label: g => `Gén ${g}`,
     fmt_locale: 'es-ES',
+    joiner_bonus_label: 'Cálculo con tus bonus y héroes',
   },
   it: {
     hdr_sub: 'Composizione degli Squadroni · Ottimizzazione Globale',
@@ -1376,6 +1407,7 @@ const I18N = {
     hero_list_inf: 'Fanteria', hero_list_cav: 'Cavalleria', hero_list_arc: 'Arciere',
     gen_label: g => `Gen ${g}`,
     fmt_locale: 'it-IT',
+    joiner_bonus_label: 'Calcolo con i tuoi bonus & eroi',
   },
 };
 
@@ -1569,6 +1601,31 @@ function calcWeightsFor(extra) {
 // Poids du leader (tous les héros leader + joiners)
 function calcWeights() { return calcWeightsFor(calcHeroBonuses()); }
 
+/* ── Toggle : Joiners avec ou sans bonus ── */
+let joinerUseBonus = false;
+
+function calcWeightsJoinerAuto() {
+  return joinerUseBonus ? calcWeights() : calcWeightsNeutral();
+}
+
+function toggleJoinerBonus(){
+  joinerUseBonus = !joinerUseBonus;
+  const track = document.getElementById('joinerBonusTrack');
+  const state = document.getElementById('joinerBonusState');
+  if(joinerUseBonus){
+    track.classList.add('on');
+    state.textContent = 'ON';
+    state.style.color = 'var(--amber)';
+  } else {
+    track.classList.remove('on');
+    state.textContent = 'OFF';
+    state.style.color = '';
+  }
+  invalidateJoinerCache();
+  refreshAfterStatChange();
+  saveState();
+}
+
 // Cache des poids joiners { [i]: weights }
 let _joinerWeightsCache = {};
 function invalidateJoinerCache(i){ if(i===undefined) _joinerWeightsCache={}; else delete _joinerWeightsCache[i]; }
@@ -1588,7 +1645,7 @@ function calcWeightsJoiner(i) {
   const data = joinerHeroData[i];
   // Pas de héros joiner → poids purement neutres (aucun bonus)
   if(!data?.heroKey) {
-    _joinerWeightsCache[i] = calcWeightsNeutral();
+    _joinerWeightsCache[i] = calcWeightsJoinerAuto();
     return _joinerWeightsCache[i];
   }
   const extra = { totalAtk:0, totalLth:0, totalDmgEV:0, lthReduceEnemy:0, atkInf:0, atkCav:0, atkArc:0, lthInf:0, lthCav:0, lthArc:0 };
@@ -1783,7 +1840,7 @@ function runAutoOptimize(){
 
   const allRatios=_allRatios(); // ~4851 combos
   const wL=calcWeights();
-  const wJ=calcWeightsNeutral(); // Joiners : sans bonus gouverneur ni héros
+  const wJ=calcWeightsJoinerAuto(); // Joiners : selon toggle bonus ON/OFF
 
   // Caps joiner saisies manuellement par l'utilisateur (dans l'ordre des panels)
   // Si une cap est saisie → taille fixe pour ce joiner
@@ -2016,7 +2073,7 @@ function _computeNAuto(nAuto,s,leadCap,forcedCapsList,slotsAuto,callback){
   let bestScore=-1,bestAlloc=null;
   const wL=calcWeights();
   const wJForced=forcedCapsList.map((_,fi)=>calcWeightsJoiner(fi+1));
-  const wJAuto=calcWeightsNeutral();
+  const wJAuto=calcWeightsJoinerAuto();
   const STEPS=30;
 
   function iterCap(cap,maxI,maxC,maxA,fn){
@@ -2433,6 +2490,7 @@ function saveState(){
       bonusLthSquad: document.getElementById('bonusLthSquad')?.value,
       heroes: heroSlots.map(s=>({heroKey:s.heroKey,skillLevels:s.skillLevels,widgetLevel:s.widgetLevel,heroStats:s.heroStats||{atk:'',def:'',lth:'',hp:''}})),
       marchSlotCount:document.getElementById('marchSlotCount')?.value||'6',
+      joinerUseBonus: joinerUseBonus,
       inf:gv('tInf'),cav:gv('tCav'),arc:gv('tArc'),leadCap:gv('leadCap'),lInf:parseFloat(document.getElementById('lInf')?.value)||10,lCav:parseFloat(document.getElementById('lCav')?.value)||10,lArc:parseFloat(document.getElementById('lArc')?.value)||80,leadExactI:document.getElementById('leadCap')?.dataset.exactI,leadExactC:document.getElementById('leadCap')?.dataset.exactC,leadExactA:document.getElementById('leadCap')?.dataset.exactA,joiners}));
   }catch(e){}
   _flashSaveIndicator(t('saved'));
@@ -2517,6 +2575,22 @@ function loadState(){
     if(calcState.marchSlotCount){
       const el=document.getElementById('marchSlotCount');
       if(el){el.value=calcState.marchSlotCount;syncJCtrl();}
+    }
+
+    // 7b. Toggle bonus joiners
+    if(calcState.joinerUseBonus !== undefined){
+      joinerUseBonus = !!calcState.joinerUseBonus;
+      const track = document.getElementById('joinerBonusTrack');
+      const state = document.getElementById('joinerBonusState');
+      if(joinerUseBonus){
+        track.classList.add('on');
+        state.textContent = 'ON';
+        state.style.color = 'var(--amber)';
+      } else {
+        track.classList.remove('on');
+        state.textContent = 'OFF';
+        state.style.color = '';
+      }
     }
 
     // 8. Joiners (max JMAX)
