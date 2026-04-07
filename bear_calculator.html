@@ -665,68 +665,43 @@ select option { background: #ffffff; color: var(--text); }
     </div>
     <div class="hdr-badge">
       <a href="index.html" style="font-family:var(--f-mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-faint);text-decoration:none;display:flex;align-items:center;gap:5px;transition:color .15s;justify-content:flex-end;" onmouseover="this.style.color='var(--amber)'" onmouseout="this.style.color='var(--text-faint)'">← Accueil</a>
-      <button class="troop-edit-btn" onclick="openTroopModal()" style="margin-top:6px">⚙ Troupes</button>
       <div style="margin-top:4px;color:var(--amber);opacity:.5">v8.2</div>
       <div id="saveIndicator" style="margin-top:6px;font-size:9px;color:var(--green);opacity:0;transition:opacity .4s;letter-spacing:1px" data-i18n="saved">✓ SAUVEGARDÉ</div>
     </div>
   </div>
 </header>
 
-<!-- ══ ÉTAPE 00 — NIVEAU DES TROUPES ══ -->
-<div class="sec">
-  <div class="sec-num">00</div>
-  <div class="sec-body">
-    <div class="sec-title" data-i18n="sec00_title">Niveau de tes troupes</div>
-    <div class="sec-desc" data-i18n="sec00_desc">Sélectionne le tier et le niveau TG de chaque type de troupe</div>
-  </div>
-</div>
-
-<div class="panel">
+<!-- ══ TROUPES — Résumé compact (données depuis le profil) ══ -->
+<div class="panel" style="margin-top:12px">
   <div class="panel-accent pa-multi"></div>
-  <div class="panel-body">
-    <div class="help-box">
-      <span class="help-icon">⚔️</span>
-      <div class="help-text" data-i18n="help00">
-        Le <strong>Tier</strong> (T1 à T11) correspond au niveau de tes troupes dans le jeu. Le <strong>TG</strong> (0 à 5) est le niveau de forge Truegold. Ces valeurs changent les stats d'Attaque et de Santé, ce qui impacte directement les dégâts calculés.
-      </div>
-    </div>
-    <!-- En-tête colonnes -->
-    <div class="tier-table-header">
-      <div></div>
-      <div>Tier</div>
-      <div>TG</div>
-      <div data-i18n="col_atk">Attaque</div>
-      <div data-i18n="col_hp">Santé</div>
-    </div>
-    <!-- Ligne Infanterie -->
-    <div class="tier-row">
-      <div class="tier-row-label"><span class="field-dot fd-inf"></span><span data-troop="inf">Infanterie</span></div>
-      <div><select id="tierInfT" onchange="onTierChange()"></select></div>
-      <div><select id="tierInfG" onchange="onTierChange()"></select></div>
-      <div class="tier-stat cv-inf" id="si_atk">—</div>
-      <div class="tier-stat cv-inf" id="si_hp">—</div>
-    </div>
-    <!-- Ligne Cavalerie -->
-    <div class="tier-row">
-      <div class="tier-row-label"><span class="field-dot fd-cav"></span><span data-troop="cav">Cavalerie</span></div>
-      <div><select id="tierCavT" onchange="onTierChange()"></select></div>
-      <div><select id="tierCavG" onchange="onTierChange()"></select></div>
-      <div class="tier-stat cv-cav" id="sc_atk">—</div>
-      <div class="tier-stat cv-cav" id="sc_hp">—</div>
-    </div>
-    <!-- Ligne Archers -->
-    <div class="tier-row">
-      <div class="tier-row-label"><span class="field-dot fd-arc"></span><span data-troop="arc">Archers</span></div>
-      <div><select id="tierArcT" onchange="onTierChange()"></select></div>
-      <div><select id="tierArcG" onchange="onTierChange()"></select></div>
-      <div class="tier-stat cv-arc" id="sa_atk">—</div>
-      <div class="tier-stat cv-arc" id="sa_hp">—</div>
+  <div class="panel-header">
+    <span class="ph-icon">⚔️</span>
+    <span class="ph-title">Tes troupes</span>
+    <button class="troop-edit-btn" onclick="openTroopModal()" style="margin-left:auto">⚙ Modifier</button>
+  </div>
+  <div class="panel-body" style="padding:10px 16px">
+    <div id="troopSummaryBar" style="font-family:var(--f-mono);font-size:12px;color:var(--text-dim);line-height:2">
+      Chargement depuis le profil…
     </div>
   </div>
 </div>
 
-<!-- Champs bonus cachés — remplis depuis profil.html via localStorage -->
+<!-- Champs tier/TG cachés — fonctionnels mais invisibles -->
 <div style="display:none">
+  <select id="tierInfT" onchange="onTierChange()"></select>
+  <select id="tierInfG" onchange="onTierChange()"></select>
+  <select id="tierCavT" onchange="onTierChange()"></select>
+  <select id="tierCavG" onchange="onTierChange()"></select>
+  <select id="tierArcT" onchange="onTierChange()"></select>
+  <select id="tierArcG" onchange="onTierChange()"></select>
+  <div id="si_atk"></div><div id="si_hp"></div>
+  <div id="sc_atk"></div><div id="sc_hp"></div>
+  <div id="sa_atk"></div><div id="sa_hp"></div>
+  <input type="number" id="tInf" oninput="onStockChange()">
+  <input type="number" id="tCav" oninput="onStockChange()">
+  <input type="number" id="tArc" oninput="onStockChange()">
+  <div id="stockChip"></div>
+  <!-- Bonus stats cachés -->
   <input type="number" id="bonusAtkInf" value="0">
   <input type="number" id="bonusAtkCav" value="0">
   <input type="number" id="bonusAtkArc" value="0">
@@ -738,43 +713,6 @@ select option { background: #ffffff; color: var(--text); }
   <input type="number" id="bonusHp" value="0">
   <input type="number" id="bonusDef" value="0">
   <div id="bonusSummary"></div>
-</div>
-
-<!-- ══ ÉTAPE 1 — STOCK ══ -->
-<div class="sec">
-  <div class="sec-num">01</div>
-  <div class="sec-body">
-    <div class="sec-title" data-i18n="sec01_title">Tes troupes disponibles</div>
-    <div class="sec-desc" data-i18n="sec01_desc">Entre le nombre total de chaque type de troupe que tu possèdes</div>
-  </div>
-</div>
-
-<div class="panel">
-  <div class="panel-accent pa-multi"></div>
-  <div class="panel-body">
-    <div class="help-box">
-      <span class="help-icon">💡</span>
-      <div class="help-text" data-i18n="help01">
-        Dans le jeu, clique sur ta <strong>photo de profil</strong>, puis sur l'onglet <strong>Escouades</strong>. Tu y verras le total de chaque type de troupe que tu possèdes.
-      </div>
-    </div>
-    <div class="field">
-      <div class="field-label"><span class="field-dot fd-inf"></span><span data-troop="inf">Infanterie</span></div>
-      <input type="number" id="tInf" placeholder="ex : 90 000" min="0" oninput="onStockChange()">
-    </div>
-    <div class="field">
-      <div class="field-label"><span class="field-dot fd-cav"></span><span data-troop="cav">Cavalerie</span></div>
-      <input type="number" id="tCav" placeholder="ex : 87 000" min="0" oninput="onStockChange()">
-    </div>
-    <div class="field">
-      <div class="field-label"><span class="field-dot fd-arc"></span><span data-troop="arc">Archers</span></div>
-      <input type="number" id="tArc" placeholder="ex : 160 000" min="0" oninput="onStockChange()">
-    </div>
-    <div id="stockChip" class="chip idle">
-      <span class="chip-icon">◈</span>
-      <span>Entre tes stocks ci-dessus pour commencer</span>
-    </div>
-  </div>
 </div>
 
 <!-- ══ ÉTAPE 2 — LEADER ══ -->
@@ -3308,14 +3246,15 @@ function applyTroopModal(){
   };
   localStorage.setItem(TROOP_KEY, JSON.stringify(data));
   closeTroopModal();
+  updateTroopSummary();
 }
 
 function loadTroopProfile(){
   try {
     const raw = localStorage.getItem(TROOP_KEY);
-    if(!raw) return;
+    if(!raw) { updateTroopSummary(); return; }
     const d = JSON.parse(raw);
-    // Appliquer tiers si pas déjà chargé par loadState
+    // Appliquer tiers
     if(d.tierInfT){ document.getElementById('tierInfT').value=d.tierInfT; }
     if(d.tierInfG){ document.getElementById('tierInfG').value=d.tierInfG; }
     if(d.tierCavT){ document.getElementById('tierCavT').value=d.tierCavT; }
@@ -3323,12 +3262,37 @@ function loadTroopProfile(){
     if(d.tierArcT){ document.getElementById('tierArcT').value=d.tierArcT; }
     if(d.tierArcG){ document.getElementById('tierArcG').value=d.tierArcG; }
     onTierChange();
-    // Appliquer quantités si les champs sont vides
-    if(!document.getElementById('tInf').value && d.inf) document.getElementById('tInf').value=d.inf;
-    if(!document.getElementById('tCav').value && d.cav) document.getElementById('tCav').value=d.cav;
-    if(!document.getElementById('tArc').value && d.arc) document.getElementById('tArc').value=d.arc;
+    // Appliquer quantités
+    if(d.inf) document.getElementById('tInf').value=d.inf;
+    if(d.cav) document.getElementById('tCav').value=d.cav;
+    if(d.arc) document.getElementById('tArc').value=d.arc;
     if(d.inf||d.cav||d.arc) onStockChange();
-  } catch(e){}
+    updateTroopSummary();
+  } catch(e){ updateTroopSummary(); }
+}
+
+function updateTroopSummary(){
+  const el = document.getElementById('troopSummaryBar');
+  if(!el) return;
+  const ti = document.getElementById('tierInfT')?.value||'6';
+  const gi = document.getElementById('tierInfG')?.value||'0';
+  const tc = document.getElementById('tierCavT')?.value||'6';
+  const gc = document.getElementById('tierCavG')?.value||'0';
+  const ta = document.getElementById('tierArcT')?.value||'6';
+  const ga = document.getElementById('tierArcG')?.value||'0';
+  const qi = parseInt(document.getElementById('tInf')?.value)||0;
+  const qc = parseInt(document.getElementById('tCav')?.value)||0;
+  const qa = parseInt(document.getElementById('tArc')?.value)||0;
+  const tot = qi+qc+qa;
+  if(tot>0){
+    el.innerHTML =
+      `<span style="color:var(--inf)">INF</span> T${ti}/TG${gi} · <strong>${fmt(qi)}</strong> &nbsp;·&nbsp; `+
+      `<span style="color:var(--cav)">CAV</span> T${tc}/TG${gc} · <strong>${fmt(qc)}</strong> &nbsp;·&nbsp; `+
+      `<span style="color:var(--arc)">ARC</span> T${ta}/TG${ga} · <strong>${fmt(qa)}</strong>`+
+      `<br><span style="font-size:10px;color:var(--text-faint)">Total : ${fmt(tot)} troupes — depuis ton profil</span>`;
+  } else {
+    el.innerHTML = '<span style="color:var(--text-faint)">Aucune troupe configurée — clique sur <strong>⚙ Modifier</strong> ou renseigne-les dans ton <a href="profile.html" style="color:var(--amber)">profil</a></span>';
+  }
 }
 
 </script>

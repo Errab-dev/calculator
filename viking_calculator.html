@@ -229,47 +229,32 @@ footer { text-align: center; padding: 40px 20px 20px; }
     </div>
     <div class="hdr-badge">
       <a href="index.html" style="font-family:var(--f-mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-faint);text-decoration:none;display:flex;align-items:center;gap:5px;transition:color .15s;justify-content:flex-end;" onmouseover="this.style.color='var(--viking)'" onmouseout="this.style.color='var(--text-faint)'">← Accueil</a>
-      <button class="troop-edit-btn" onclick="openTroopModal()" style="margin-top:6px">⚙ Troupes</button>
       <div style="margin-top:4px;color:var(--viking);opacity:.5">v1.0</div>
     </div>
   </div>
 </header>
 
-<!-- ══ ÉTAPE 1 — STOCK ══ -->
-<div class="sec">
-  <div class="sec-num">01</div>
-  <div class="sec-body">
-    <div class="sec-title">Tes troupes disponibles</div>
-    <div class="sec-desc">Entre le nombre total de chaque type de troupe</div>
+<!-- ══ TROUPES — Résumé compact ══ -->
+<div class="panel" style="margin-top:12px">
+  <div class="panel-accent pa-multi"></div>
+  <div class="panel-header">
+    <span class="ph-icon">⚔️</span>
+    <span class="ph-title">Tes troupes</span>
+    <button class="troop-edit-btn" onclick="openTroopModal()" style="margin-left:auto">⚙ Modifier</button>
+  </div>
+  <div class="panel-body" style="padding:10px 16px">
+    <div id="troopSummaryBar" style="font-family:var(--f-mono);font-size:12px;color:var(--text-dim);line-height:2">
+      Chargement depuis le profil…
+    </div>
   </div>
 </div>
 
-<div class="panel">
-  <div class="panel-accent pa-multi"></div>
-  <div class="panel-body">
-    <div class="help-box">
-      <span class="help-icon">⚔️</span>
-      <div class="help-text">
-        Dans le jeu, clique sur ta <strong>photo de profil</strong> → <strong>Escouades</strong>. Entre le total de chaque type ci-dessous. Pour maximiser tes points, il faut envoyer un max d'<strong>Infanterie</strong> et de <strong>Cavalerie</strong> en renfort — les archers font peu de kills.
-      </div>
-    </div>
-    <div class="field">
-      <div class="field-label"><span class="field-dot fd-inf"></span>Infanterie</div>
-      <input type="number" id="tInf" placeholder="ex : 140 000" min="0" oninput="updateStockChip()">
-    </div>
-    <div class="field">
-      <div class="field-label"><span class="field-dot fd-cav"></span>Cavalerie</div>
-      <input type="number" id="tCav" placeholder="ex : 87 000" min="0" oninput="updateStockChip()">
-    </div>
-    <div class="field">
-      <div class="field-label"><span class="field-dot fd-arc"></span>Archers</div>
-      <input type="number" id="tArc" placeholder="ex : 530 000" min="0" oninput="updateStockChip()">
-    </div>
-    <div id="stockChip" class="chip idle">
-      <span class="chip-icon">◈</span>
-      <span>Entre tes stocks pour commencer</span>
-    </div>
-  </div>
+<!-- Champs cachés fonctionnels -->
+<div style="display:none">
+  <input type="number" id="tInf">
+  <input type="number" id="tCav">
+  <input type="number" id="tArc">
+  <div id="stockChip"></div>
 </div>
 
 <!-- ══ ÉTAPE 2 — CONFIG MARCHES ══ -->
@@ -646,9 +631,8 @@ function applyTroopModal(){
   if(qi) document.getElementById('tInf').value = qi;
   if(qc) document.getElementById('tCav').value = qc;
   if(qa) document.getElementById('tArc').value = qa;
-  updateStockChip();
 
-  // Sauvegarder dans le profil (on garde les tiers existants)
+  // Sauvegarder dans le profil
   try {
     const existing = JSON.parse(localStorage.getItem(TROOP_KEY) || '{}');
     existing.inf = parseInt(qi) || 0;
@@ -657,18 +641,37 @@ function applyTroopModal(){
     localStorage.setItem(TROOP_KEY, JSON.stringify(existing));
   } catch(e){}
   closeTroopModal();
+  updateTroopSummary();
 }
 
 function loadTroopProfile(){
   try {
     const raw = localStorage.getItem(TROOP_KEY);
-    if(!raw) return;
+    if(!raw) { updateTroopSummary(); return; }
     const d = JSON.parse(raw);
-    if(!document.getElementById('tInf').value && d.inf) document.getElementById('tInf').value = d.inf;
-    if(!document.getElementById('tCav').value && d.cav) document.getElementById('tCav').value = d.cav;
-    if(!document.getElementById('tArc').value && d.arc) document.getElementById('tArc').value = d.arc;
-    updateStockChip();
-  } catch(e){}
+    if(d.inf) document.getElementById('tInf').value = d.inf;
+    if(d.cav) document.getElementById('tCav').value = d.cav;
+    if(d.arc) document.getElementById('tArc').value = d.arc;
+    updateTroopSummary();
+  } catch(e){ updateTroopSummary(); }
+}
+
+function updateTroopSummary(){
+  const el = document.getElementById('troopSummaryBar');
+  if(!el) return;
+  const qi = parseInt(document.getElementById('tInf')?.value)||0;
+  const qc = parseInt(document.getElementById('tCav')?.value)||0;
+  const qa = parseInt(document.getElementById('tArc')?.value)||0;
+  const tot = qi+qc+qa;
+  if(tot>0){
+    el.innerHTML =
+      `<span style="color:var(--inf)">INF</span> <strong>${fmt(qi)}</strong> &nbsp;·&nbsp; `+
+      `<span style="color:var(--cav)">CAV</span> <strong>${fmt(qc)}</strong> &nbsp;·&nbsp; `+
+      `<span style="color:var(--arc)">ARC</span> <strong>${fmt(qa)}</strong>`+
+      `<br><span style="font-size:10px;color:var(--text-faint)">Total : ${fmt(tot)} troupes — depuis ton profil</span>`;
+  } else {
+    el.innerHTML = '<span style="color:var(--text-faint)">Aucune troupe configurée — clique sur <strong>⚙ Modifier</strong> ou renseigne-les dans ton profil</span>';
+  }
 }
 
 // Charger les troupes du profil au démarrage
