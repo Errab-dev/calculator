@@ -520,6 +520,7 @@
   function getActivePage() {
     var p = location.pathname;
     if (p.includes('bear_calculator')) return 'calc';
+    if (p.includes('viking_calculator')) return 'viking';
     if (p.includes('profile'))         return 'profile';
     if (p.includes('island-guide'))    return 'island';
     if (p.includes('mystic-trial'))    return 'mystic';
@@ -597,6 +598,7 @@
         +   '<div class="mn-label">Navigation</div>'
         +   mi('index.html',           '🏠', 'Accueil',      'home')
         +   mi('bear_calculator.html', '🐻', 'Bear Hunt',    'calc')
+        +   mi('viking_calculator.html','🛡️', 'Viking Vengeance', 'viking')
         +   mi('island-guide.html',    '🏝', 'Île Oasis',    'island')
         +   mi('mystic-trial.html',    '🎯', 'Mystic Trial', 'mystic')
         + '</div>'
@@ -617,6 +619,7 @@
         +   '<div class="mn-label">Navigation</div>'
         +   mi('index.html',           '🏠', 'Accueil',      'home')
         +   mi('bear_calculator.html', '🐻', 'Bear Hunt',    'calc')
+        +   mi('viking_calculator.html','🛡️', 'Viking Vengeance', 'viking')
         +   mi('island-guide.html',    '🏝', 'Île Oasis',    'island')
         +   mi('mystic-trial.html',    '🎯', 'Mystic Trial', 'mystic')
         + '</div>'
