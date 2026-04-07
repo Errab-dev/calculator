@@ -3230,7 +3230,25 @@ function applyTroopModal(){
 
 function loadTroopProfile(){
   try {
-    const raw = localStorage.getItem(TROOP_KEY);
+    let raw = localStorage.getItem(TROOP_KEY);
+
+    // Migration : si bearTroopData n'existe pas, récupérer depuis l'ancien bearCalcState
+    if(!raw){
+      try {
+        const oldState = JSON.parse(localStorage.getItem('bearCalcState')||'{}');
+        if(oldState.inf || oldState.cav || oldState.arc || oldState.tierInfT){
+          const migrated = {
+            tierInfT: oldState.tierInfT||'6', tierInfG: oldState.tierInfG||'0',
+            tierCavT: oldState.tierCavT||'6', tierCavG: oldState.tierCavG||'0',
+            tierArcT: oldState.tierArcT||'6', tierArcG: oldState.tierArcG||'0',
+            inf: oldState.inf||0, cav: oldState.cav||0, arc: oldState.arc||0,
+          };
+          localStorage.setItem(TROOP_KEY, JSON.stringify(migrated));
+          raw = localStorage.getItem(TROOP_KEY);
+        }
+      } catch(e){}
+    }
+
     if(!raw) { updateTroopSummary(); return; }
     const d = JSON.parse(raw);
     // Tiers — toujours depuis le profil
