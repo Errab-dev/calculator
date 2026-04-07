@@ -2489,12 +2489,6 @@ function saveState(){
   try{
     const joiners=[];for(let i=1;i<=jCount;i++)joiners.push({cap:gv(`j${i}_cap`),inf:parseFloat(document.getElementById(`j${i}_inf`)?.value)||10,cav:parseFloat(document.getElementById(`j${i}_cav`)?.value)||10,arc:parseFloat(document.getElementById(`j${i}_arc`)?.value)||80,exactI:document.getElementById(`j${i}_cap`)?.dataset.exactI,exactC:document.getElementById(`j${i}_cap`)?.dataset.exactC,exactA:document.getElementById(`j${i}_cap`)?.dataset.exactA});
     localStorage.setItem('bearCalcState',JSON.stringify({
-      tierInfT: document.getElementById('tierInfT')?.value,
-      tierInfG: document.getElementById('tierInfG')?.value,
-      tierCavT: document.getElementById('tierCavT')?.value,
-      tierCavG: document.getElementById('tierCavG')?.value,
-      tierArcT: document.getElementById('tierArcT')?.value,
-      tierArcG: document.getElementById('tierArcG')?.value,
       bonusAtkInf: document.getElementById('bonusAtkInf')?.value,
       bonusAtkCav: document.getElementById('bonusAtkCav')?.value,
       bonusAtkArc: document.getElementById('bonusAtkArc')?.value,
@@ -2506,7 +2500,7 @@ function saveState(){
       heroes: heroSlots.map(s=>({heroKey:s.heroKey,skillLevels:s.skillLevels,widgetLevel:s.widgetLevel,heroStats:s.heroStats||{atk:'',def:'',lth:'',hp:''}})),
       marchSlotCount:document.getElementById('marchSlotCount')?.value||'6',
       joinerUseBonus: joinerUseBonus,
-      inf:gv('tInf'),cav:gv('tCav'),arc:gv('tArc'),leadCap:gv('leadCap'),lInf:parseFloat(document.getElementById('lInf')?.value)||10,lCav:parseFloat(document.getElementById('lCav')?.value)||10,lArc:parseFloat(document.getElementById('lArc')?.value)||80,leadExactI:document.getElementById('leadCap')?.dataset.exactI,leadExactC:document.getElementById('leadCap')?.dataset.exactC,leadExactA:document.getElementById('leadCap')?.dataset.exactA,joiners}));
+      leadCap:gv('leadCap'),lInf:parseFloat(document.getElementById('lInf')?.value)||10,lCav:parseFloat(document.getElementById('lCav')?.value)||10,lArc:parseFloat(document.getElementById('lArc')?.value)||80,leadExactI:document.getElementById('leadCap')?.dataset.exactI,leadExactC:document.getElementById('leadCap')?.dataset.exactC,leadExactA:document.getElementById('leadCap')?.dataset.exactA,joiners}));
   }catch(e){}
   _flashSaveIndicator(t('saved'));
 }
@@ -2542,17 +2536,7 @@ function loadState(){
     document.getElementById('btnAddHero').disabled = false;
     while(jCount > 0){ document.getElementById(`jtab${jCount}`)?.remove(); document.getElementById(`jpanel${jCount}`)?.remove(); jCount--; }
 
-    // 3. Tiers
-    ['InfT','InfG','CavT','CavG','ArcT','ArcG'].forEach(k=>{
-      const key='tier'+k, el=document.getElementById(key);
-      if(el && calcState[key]!==undefined){
-        el.value=String(calcState[key]);
-        if(el.value!==String(calcState[key])){
-          for(let i=0;i<el.options.length;i++){if(String(el.options[i].value)===String(calcState[key])){el.selectedIndex=i;break;}}
-        }
-      }
-    });
-    onTierChange();
+    // Tiers et stocks viennent du profil (bearTroopData) via loadTroopProfile()
 
     // 4. Héros (max 3)
     if(calcState.heroes?.length){
@@ -2565,12 +2549,6 @@ function loadState(){
       if(heroSlotCount>=3)document.getElementById('btnAddHero').disabled=true;
       updateHeroSummary();
     }
-
-    // 5. Stocks
-    if(calcState.inf)document.getElementById('tInf').value=calcState.inf;
-    if(calcState.cav)document.getElementById('tCav').value=calcState.cav;
-    if(calcState.arc)document.getElementById('tArc').value=calcState.arc;
-    if(calcState.inf||calcState.cav||calcState.arc) onStockChange();
 
     // 6. Lead
     if(calcState.leadCap){
@@ -3178,8 +3156,9 @@ if(_initBtn)_initBtn.classList.add('active');
 applyTranslations();
 syncJCtrl();
 buildTierOptions();
-loadState();
-loadTroopProfile(); // Charger troupes depuis profil
+loadTroopProfile(); // Base depuis le profil
+loadState();        // loadState écrase avec l'état du calculateur si disponible
+updateTroopSummary(); // Rafraîchir le résumé avec les valeurs finales
 _initDone = true;
 window.addEventListener('beforeunload', saveState);
 
@@ -3254,19 +3233,19 @@ function loadTroopProfile(){
     const raw = localStorage.getItem(TROOP_KEY);
     if(!raw) { updateTroopSummary(); return; }
     const d = JSON.parse(raw);
-    // Appliquer tiers
-    if(d.tierInfT){ document.getElementById('tierInfT').value=d.tierInfT; }
-    if(d.tierInfG){ document.getElementById('tierInfG').value=d.tierInfG; }
-    if(d.tierCavT){ document.getElementById('tierCavT').value=d.tierCavT; }
-    if(d.tierCavG){ document.getElementById('tierCavG').value=d.tierCavG; }
-    if(d.tierArcT){ document.getElementById('tierArcT').value=d.tierArcT; }
-    if(d.tierArcG){ document.getElementById('tierArcG').value=d.tierArcG; }
+    // Tiers — toujours depuis le profil
+    if(d.tierInfT) document.getElementById('tierInfT').value=d.tierInfT;
+    if(d.tierInfG) document.getElementById('tierInfG').value=d.tierInfG;
+    if(d.tierCavT) document.getElementById('tierCavT').value=d.tierCavT;
+    if(d.tierCavG) document.getElementById('tierCavG').value=d.tierCavG;
+    if(d.tierArcT) document.getElementById('tierArcT').value=d.tierArcT;
+    if(d.tierArcG) document.getElementById('tierArcG').value=d.tierArcG;
     onTierChange();
-    // Appliquer quantités
+    // Quantités — toujours depuis le profil
     if(d.inf) document.getElementById('tInf').value=d.inf;
     if(d.cav) document.getElementById('tCav').value=d.cav;
     if(d.arc) document.getElementById('tArc').value=d.arc;
-    if(d.inf||d.cav||d.arc) onStockChange();
+    onStockChange();
     updateTroopSummary();
   } catch(e){ updateTroopSummary(); }
 }
