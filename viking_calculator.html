@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Viking Vengeance — Répartiteur</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600;700;800;900&family=Barlow:wght@300;400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:         #f0f3f7;
+  --bg2:        #ffffff;
+  --surface:    #ffffff;
+  --surface2:   #edf0f5;
+  --border:     #ccd4e0;
+  --border2:    #dde3ec;
+  --amber:      #b86e00;
+  --amber-dim:  #d48820;
+  --amber-glow: rgba(184,110,0,.10);
+  --red:        #c0392b;
+  --red-dim:    rgba(192,57,43,.10);
+  --green:      #1a7a44;
+  --green-dim:  rgba(26,122,68,.10);
+  --inf:        #1a68aa;
+  --cav:        #1e8040;
+  --arc:        #8a5800;
+  --text:       #18202e;
+  --text-dim:   #445068;
+  --text-faint: #8090a8;
+  --viking:     #8b2500;
+  --viking-dim: rgba(139,37,0,.10);
+  --viking-glow:rgba(139,37,0,.15);
+  --f-display:  'Barlow Condensed', sans-serif;
+  --f-body:     'Barlow', sans-serif;
+  --f-mono:     'Share Tech Mono', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg); color: var(--text);
+  font-family: var(--f-body); font-size: 15px; line-height: 1.6;
+  min-height: 100vh; padding: 0 0 80px;
+  background-image:
+    linear-gradient(rgba(180,195,215,.4) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(180,195,215,.4) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+body::before {
+  content: ''; position: fixed; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.008) 2px, rgba(0,0,0,.008) 4px);
+  pointer-events: none; z-index: 1000;
+}
+
+.page { max-width: 560px; margin: 0 auto; padding: 0 16px; }
+
+/* ── HEADER ── */
+.hdr { padding: 32px 0 20px; border-bottom: 1px solid var(--border); margin-bottom: 28px; position: relative; }
+.hdr::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 80px; height: 2px; background: var(--viking); box-shadow: 0 0 12px var(--viking); }
+.hdr-top { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.hdr-label { font-family: var(--f-mono); font-size: 11px; color: var(--viking); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 6px; opacity: .9; }
+.hdr-title { font-family: var(--f-display); font-size: 2.8rem; font-weight: 900; line-height: .9; text-transform: uppercase; letter-spacing: -1px; }
+.hdr-title span { color: var(--viking); }
+.hdr-sub { font-family: var(--f-mono); font-size: 11px; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; margin-top: 10px; }
+.hdr-badge { font-family: var(--f-mono); font-size: 10px; color: var(--text-dim); letter-spacing: 1.5px; text-align: right; line-height: 2; }
+
+/* ── SECTION LABEL ── */
+.sec { display: flex; align-items: center; gap: 0; margin: 28px 0 0; }
+.sec-num { font-family: var(--f-mono); font-size: 11px; color: #ffffff; background: var(--viking); padding: 4px 10px; letter-spacing: 1px; font-weight: 700; flex-shrink: 0; }
+.sec-body { flex: 1; background: var(--surface); border: 1px solid var(--border); border-left: none; padding: 11px 16px; }
+.sec-title { font-family: var(--f-display); font-size: 1.05rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--text); }
+.sec-desc { font-family: var(--f-body); font-size: 13px; color: var(--text-dim); margin-top: 3px; }
+
+/* ── PANEL ── */
+.panel { background: var(--surface); border: 1px solid var(--border); margin-top: 8px; margin-bottom: 4px; position: relative; overflow: hidden; animation: fadeUp .2s ease both; }
+.panel-accent { position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+.pa-viking { background: linear-gradient(90deg, var(--viking), transparent 70%); }
+.pa-multi { background: linear-gradient(90deg, var(--inf), var(--cav), var(--arc)); }
+.pa-green { background: linear-gradient(90deg, var(--green), transparent 70%); }
+.panel-header { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--border2); }
+.ph-icon { font-family: var(--f-mono); font-size: 11px; color: var(--viking); }
+.ph-title { font-family: var(--f-display); font-size: .95rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+.panel-body { padding: 16px; }
+
+/* ── HELP BOX ── */
+.help-box { display: flex; align-items: flex-start; gap: 10px; padding: 10px 14px; margin-bottom: 16px; background: rgba(139,37,0,.04); border: 1px solid rgba(139,37,0,.12); border-left: 2px solid var(--viking); }
+.help-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+.help-text { font-size: 13px; color: var(--text-dim); line-height: 1.65; }
+.help-text strong { color: var(--text); font-weight: 600; }
+
+/* ── FIELDS ── */
+.field { margin-bottom: 16px; }
+.field:last-child { margin-bottom: 0; }
+.field-label { display: flex; align-items: center; gap: 8px; font-family: var(--f-body); font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.field-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.fd-inf { background: var(--inf); box-shadow: 0 0 5px var(--inf); }
+.fd-cav { background: var(--cav); box-shadow: 0 0 5px var(--cav); }
+.fd-arc { background: var(--arc); box-shadow: 0 0 5px var(--arc); }
+.fd-viking { background: var(--viking); box-shadow: 0 0 5px var(--viking); }
+.field-sub { font-size: 12px; color: var(--text-faint); margin-top: 5px; font-style: italic; }
+
+input[type=number], select {
+  width: 100%; background: var(--bg2); border: 1px solid var(--border); color: var(--text);
+  font-family: var(--f-mono); font-size: 1.05rem; padding: 11px 14px; outline: none;
+  transition: border-color .15s, box-shadow .15s;
+  -moz-appearance: textfield; appearance: textfield; letter-spacing: 1px;
+}
+input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+input[type=number]:focus, select:focus { border-color: var(--viking); box-shadow: 0 0 0 2px var(--viking-glow); }
+input[type=number]::placeholder { color: var(--text-faint); font-size: .88rem; }
+select { cursor: pointer; font-size: .95rem; }
+
+/* ── CHIP ── */
+.chip { display: flex; align-items: flex-start; gap: 8px; padding: 10px 14px; margin-top: 12px; font-size: 13px; font-weight: 500; border-left: 2px solid; line-height: 1.5; }
+.chip-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+.chip.ok   { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+.chip.warn { background: var(--red-dim); border-color: var(--red); color: var(--red); }
+.chip.idle { background: var(--bg2); border-color: var(--border); color: var(--text-dim); }
+
+/* ── MARCH CARDS ── */
+.march-card { background: var(--bg2); border: 1px solid var(--border); margin-bottom: 8px; padding: 12px 14px; position: relative; }
+.march-card::before { content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 3px; }
+.mc-reinf::before { background: var(--green); }
+.mc-home::before { background: var(--text-faint); }
+.mc-hq::before { background: var(--viking); }
+.march-label { font-family: var(--f-display); font-size: .9rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+.march-tag { font-family: var(--f-mono); font-size: 9px; padding: 2px 8px; letter-spacing: 1px; border: 1px solid; }
+.mt-reinf { color: var(--green); border-color: rgba(26,122,68,.3); background: rgba(26,122,68,.06); }
+.mt-home { color: var(--text-faint); border-color: var(--border); }
+.mt-hq { color: var(--viking); border-color: rgba(139,37,0,.3); background: rgba(139,37,0,.06); }
+.march-troops { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+.mt-cell { text-align: center; padding: 8px 4px; background: var(--surface2); border: 1px solid var(--border2); }
+.mt-lbl { font-size: 10px; color: var(--text-dim); margin-bottom: 3px; display: flex; align-items: center; justify-content: center; gap: 4px; }
+.mt-val { font-family: var(--f-display); font-size: 1.1rem; font-weight: 700; }
+.cv-inf { color: var(--inf); } .cv-cav { color: var(--cav); } .cv-arc { color: var(--arc); }
+.march-total { font-family: var(--f-mono); font-size: 11px; color: var(--text-dim); margin-top: 6px; letter-spacing: .5px; }
+
+/* ── KPI ── */
+.kpi-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); margin: 12px 0; }
+.kpi-cell { background: var(--surface); padding: 14px 10px; text-align: center; }
+.kpi-lbl { font-size: 11px; color: var(--text-dim); margin-bottom: 5px; font-weight: 500; }
+.kpi-val { font-family: var(--f-display); font-size: 1.3rem; font-weight: 900; line-height: 1; }
+.kpi-sub { font-family: var(--f-mono); font-size: 10px; color: var(--text-dim); margin-top: 4px; }
+
+/* ── TBAR ── */
+.tbar-wrap { margin: 12px 0 6px; }
+.tbar { height: 7px; display: flex; overflow: hidden; background: var(--border2); border: 1px solid var(--border); }
+.tbar-i { background: var(--inf); transition: width .3s; }
+.tbar-c { background: var(--cav); transition: width .3s; }
+.tbar-a { background: var(--arc); transition: width .3s; }
+
+/* ── OPTIMIZE BTN ── */
+.opt-btn {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  width: 100%; padding: 16px 24px; margin-top: 12px;
+  background: var(--viking-dim); border: 2px solid var(--viking);
+  color: var(--viking); font-family: var(--f-display); font-size: 1.1rem; font-weight: 800;
+  letter-spacing: 3px; text-transform: uppercase; cursor: pointer; transition: all .2s;
+}
+.opt-btn:hover { background: var(--viking-glow); box-shadow: 0 2px 16px rgba(139,37,0,.18); }
+
+/* ── EXPORT ── */
+.export-btn {
+  width: 100%; margin-top: 14px; padding: 11px 16px;
+  background: transparent; border: 1px solid var(--border);
+  color: var(--text-dim); font-family: var(--f-mono); font-size: 10px;
+  letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all .15s;
+}
+.export-btn:hover { border-color: var(--viking); color: var(--viking); background: var(--viking-dim); }
+
+.reset-zone { text-align: center; margin-top: 20px; }
+.reset-btn { background: none; border: none; font-size: 11px; color: var(--text-faint); cursor: pointer; letter-spacing: 1.5px; text-transform: uppercase; padding: 6px 12px; border-bottom: 1px solid var(--text-faint); font-family: var(--f-mono); }
+.reset-btn:hover { color: var(--red); border-color: var(--red); }
+
+footer { text-align: center; padding: 40px 20px 20px; }
+.footer-title { font-family: var(--f-display); font-size: 1rem; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; color: var(--text-faint); margin-bottom: 4px; }
+.footer-sub { font-family: var(--f-mono); font-size: 10px; color: var(--text-faint); letter-spacing: 1.5px; opacity: .5; }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── TROOP MODAL ── */
+.troop-modal-overlay {
+  display:none; position:fixed; inset:0; z-index:9999;
+  background:rgba(0,0,0,.45); backdrop-filter:blur(3px);
+  align-items:center; justify-content:center; padding:16px;
+}
+.troop-modal-overlay.open { display:flex; }
+.troop-modal {
+  background:var(--surface); border:1px solid var(--border);
+  max-width:420px; width:100%; max-height:85vh; overflow-y:auto;
+  box-shadow:0 12px 40px rgba(0,0,0,.2); position:relative;
+}
+.troop-modal-head {
+  display:flex; align-items:center; gap:10px; padding:14px 16px;
+  border-bottom:1px solid var(--border); background:var(--surface2);
+}
+.troop-modal-title { font-family:var(--f-display); font-size:1rem; font-weight:800; letter-spacing:2px; text-transform:uppercase; flex:1; }
+.troop-modal-close { background:none; border:none; font-size:1.2rem; color:var(--text-faint); cursor:pointer; padding:4px; }
+.troop-modal-close:hover { color:var(--red); }
+.troop-modal-body { padding:16px; }
+.troop-modal-row { display:grid; grid-template-columns:60px 1fr 1fr; gap:8px; align-items:center; margin-bottom:8px; }
+.troop-modal-row input { font-size:.85rem; padding:8px 6px; }
+.troop-modal-save {
+  width:100%; margin-top:12px; padding:12px;
+  background:var(--viking-dim); border:2px solid var(--viking); color:var(--viking);
+  font-family:var(--f-display); font-size:.95rem; font-weight:700;
+  letter-spacing:2px; text-transform:uppercase; cursor:pointer;
+}
+.troop-modal-save:hover { background:var(--viking-glow); }
+.troop-edit-btn {
+  font-family:var(--f-mono); font-size:10px; letter-spacing:1.5px; text-transform:uppercase;
+  padding:5px 12px; background:var(--surface2); border:1px solid var(--border);
+  color:var(--text-dim); cursor:pointer; transition:all .15s;
+}
+.troop-edit-btn:hover { border-color:var(--viking); color:var(--viking); }
+
+#results { display: none; }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="hdr">
+  <div class="hdr-top">
+    <div>
+      <div class="hdr-label">// Kingshot · Viking Vengeance</div>
+      <div class="hdr-title">VIKING<span>CALC</span></div>
+      <div class="hdr-sub">Répartiteur de Troupes · Maximisation des Points</div>
+    </div>
+    <div class="hdr-badge">
+      <a href="index.html" style="font-family:var(--f-mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-faint);text-decoration:none;display:flex;align-items:center;gap:5px;transition:color .15s;justify-content:flex-end;" onmouseover="this.style.color='var(--viking)'" onmouseout="this.style.color='var(--text-faint)'">← Accueil</a>
+      <button class="troop-edit-btn" onclick="openTroopModal()" style="margin-top:6px">⚙ Troupes</button>
+      <div style="margin-top:4px;color:var(--viking);opacity:.5">v1.0</div>
+    </div>
+  </div>
+</header>
+
+<!-- ══ ÉTAPE 1 — STOCK ══ -->
+<div class="sec">
+  <div class="sec-num">01</div>
+  <div class="sec-body">
+    <div class="sec-title">Tes troupes disponibles</div>
+    <div class="sec-desc">Entre le nombre total de chaque type de troupe</div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-accent pa-multi"></div>
+  <div class="panel-body">
+    <div class="help-box">
+      <span class="help-icon">⚔️</span>
+      <div class="help-text">
+        Dans le jeu, clique sur ta <strong>photo de profil</strong> → <strong>Escouades</strong>. Entre le total de chaque type ci-dessous. Pour maximiser tes points, il faut envoyer un max d'<strong>Infanterie</strong> et de <strong>Cavalerie</strong> en renfort — les archers font peu de kills.
+      </div>
+    </div>
+    <div class="field">
+      <div class="field-label"><span class="field-dot fd-inf"></span>Infanterie</div>
+      <input type="number" id="tInf" placeholder="ex : 140 000" min="0" oninput="updateStockChip()">
+    </div>
+    <div class="field">
+      <div class="field-label"><span class="field-dot fd-cav"></span>Cavalerie</div>
+      <input type="number" id="tCav" placeholder="ex : 87 000" min="0" oninput="updateStockChip()">
+    </div>
+    <div class="field">
+      <div class="field-label"><span class="field-dot fd-arc"></span>Archers</div>
+      <input type="number" id="tArc" placeholder="ex : 530 000" min="0" oninput="updateStockChip()">
+    </div>
+    <div id="stockChip" class="chip idle">
+      <span class="chip-icon">◈</span>
+      <span>Entre tes stocks pour commencer</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ÉTAPE 2 — CONFIG MARCHES ══ -->
+<div class="sec">
+  <div class="sec-num">02</div>
+  <div class="sec-body">
+    <div class="sec-title">Configuration des marches</div>
+    <div class="sec-desc">Combien de fils de marche et quelle capacité par marche ?</div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-accent pa-viking"></div>
+  <div class="panel-body">
+    <div class="help-box">
+      <span class="help-icon">🛡️</span>
+      <div class="help-text">
+        <strong>Fils de marche</strong> = nombre de marches simultanées que tu peux envoyer. <strong>Capacité</strong> = taille max de chaque marche. Garde en tête que <strong>3 héros restent au Guard Station</strong> — ils ne partent pas en renfort.
+      </div>
+    </div>
+    <div class="field">
+      <div class="field-label"><span class="field-dot fd-viking"></span>Nombre de fils de marche</div>
+      <select id="marchCount">
+        <option value="1">1 marche</option>
+        <option value="2">2 marches</option>
+        <option value="3">3 marches</option>
+        <option value="4">4 marches</option>
+        <option value="5" selected>5 marches</option>
+        <option value="6">6 marches</option>
+      </select>
+      <div class="field-sub">Tes fils de marche disponibles pour le renfort</div>
+    </div>
+    <div class="field">
+      <div class="field-label"><span class="field-dot fd-viking"></span>Capacité par marche</div>
+      <input type="number" id="marchCap" placeholder="ex : 110 000" min="1000">
+      <div class="field-sub">Profil → Escouade → Formation de troupe → capacité max</div>
+    </div>
+    <button class="opt-btn" onclick="compute()">
+      <span style="font-size:1rem;opacity:.7">⚡</span>
+      RÉPARTIR MES TROUPES
+      <span style="font-size:1rem;opacity:.7">⚡</span>
+    </button>
+  </div>
+</div>
+
+<!-- ══ RÉSULTATS ══ -->
+<div id="results">
+  <div class="sec">
+    <div class="sec-num">✓</div>
+    <div class="sec-body">
+      <div class="sec-title">Répartition optimale</div>
+      <div class="sec-desc">Tes marches de renfort + ce qui reste à la maison</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-accent pa-green"></div>
+    <div class="panel-body">
+      <div id="kpiArea"></div>
+      <div id="marchesArea"></div>
+      <div id="homeArea"></div>
+      <div id="tipsArea"></div>
+      <button class="export-btn" onclick="exportDiscord()">▣ &nbsp;COPIER LE RÉSUMÉ POUR DISCORD</button>
+    </div>
+  </div>
+</div>
+
+<div class="reset-zone">
+  <button class="reset-btn" onclick="resetAll()">↺ Tout réinitialiser</button>
+</div>
+
+<!-- ══ MODALE TROUPES ══ -->
+<div class="troop-modal-overlay" id="troopModalOverlay" onclick="if(event.target===this)closeTroopModal()">
+  <div class="troop-modal">
+    <div class="troop-modal-head">
+      <span style="font-size:15px">⚙</span>
+      <span class="troop-modal-title">Troupes — Édition rapide</span>
+      <button class="troop-modal-close" onclick="closeTroopModal()">✕</button>
+    </div>
+    <div class="troop-modal-body">
+      <div style="font-family:var(--f-mono);font-size:10px;letter-spacing:1.5px;color:var(--text-faint);text-transform:uppercase;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border2)">◆ QUANTITÉ DE TROUPES</div>
+      <div class="troop-modal-row">
+        <div style="font-size:12px;font-weight:600;display:flex;align-items:center;gap:5px"><span class="field-dot fd-inf"></span>INF</div>
+        <input type="number" id="tm_infQ" placeholder="140 000" min="0">
+      </div>
+      <div class="troop-modal-row">
+        <div style="font-size:12px;font-weight:600;display:flex;align-items:center;gap:5px"><span class="field-dot fd-cav"></span>CAV</div>
+        <input type="number" id="tm_cavQ" placeholder="87 000" min="0">
+      </div>
+      <div class="troop-modal-row">
+        <div style="font-size:12px;font-weight:600;display:flex;align-items:center;gap:5px"><span class="field-dot fd-arc"></span>ARC</div>
+        <input type="number" id="tm_arcQ" placeholder="530 000" min="0">
+      </div>
+      <div style="font-size:11px;color:var(--text-faint);margin-top:8px;font-style:italic">Les modifications sont sauvegardées dans ton profil et appliquées au calculateur.</div>
+      <button class="troop-modal-save" onclick="applyTroopModal()">✓ APPLIQUER</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<footer>
+  <div class="footer-title">Viking Vengeance Calculator</div>
+  <div class="footer-sub"><a href="index.html" style="color:var(--viking);text-decoration:none;">← Kingshot Help</a> · v1.0 · Non affilié à Century Games</div>
+</footer>
+
+<script>
+const gv = id => parseInt(document.getElementById(id)?.value) || 0;
+const fmt = n => n == null ? '—' : Math.round(n).toLocaleString('fr-FR');
+
+function updateStockChip() {
+  const inf = gv('tInf'), cav = gv('tCav'), arc = gv('tArc');
+  const total = inf + cav + arc;
+  const chip = document.getElementById('stockChip');
+  if (total > 0) {
+    chip.className = 'chip ok';
+    chip.innerHTML = `<span class="chip-icon">✓</span><span>Total : <strong>${fmt(total)} troupes</strong> — INF ${fmt(inf)} · CAV ${fmt(cav)} · ARC ${fmt(arc)}</span>`;
+  } else {
+    chip.className = 'chip idle';
+    chip.innerHTML = '<span class="chip-icon">◈</span><span>Entre tes stocks pour commencer</span>';
+  }
+}
+
+function compute() {
+  const inf = gv('tInf'), cav = gv('tCav'), arc = gv('tArc');
+  const total = inf + cav + arc;
+  const nMarches = parseInt(document.getElementById('marchCount').value) || 5;
+  const cap = gv('marchCap');
+
+  // Stock chip
+  const chip = document.getElementById('stockChip');
+  if (total > 0) {
+    chip.className = 'chip ok';
+    chip.innerHTML = `<span class="chip-icon">✓</span><span>Total : <strong>${fmt(total)} troupes</strong> — INF ${fmt(inf)} · CAV ${fmt(cav)} · ARC ${fmt(arc)}</span>`;
+  } else {
+    chip.className = 'chip idle';
+    chip.innerHTML = '<span class="chip-icon">◈</span><span>Entre tes stocks pour commencer</span>';
+  }
+
+  if (total <= 0 || cap <= 0) {
+    document.getElementById('results').style.display = 'none';
+    return;
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     ALGORITHME DE RÉPARTITION VIKING
+     
+     Règles :
+     1. INF en priorité (attaque en premier → plus de kills → plus de points)
+     2. CAV en second (attaque après INF, bon damage)
+     3. ARC en dernier (attaque en dernier, peu de kills)
+     4. Chaque marche ne peut pas dépasser la cap
+     5. Remplir les marches au max avec INF+CAV
+     6. Les ARC restent à la maison sauf si INF+CAV ne suffisent pas à remplir
+  ══════════════════════════════════════════════════════════════ */
+
+  const totalSlots = nMarches * cap; // capacité totale de toutes les marches
+  const infCav = inf + cav;
+
+  // Combien d'INF+CAV on peut envoyer (limité par stock et capacité)
+  const infCavToSend = Math.min(infCav, totalSlots);
+
+  // Si INF+CAV ne remplissent pas toutes les marches, on complète avec ARC
+  const arcToSend = Math.min(arc, Math.max(0, totalSlots - infCav));
+
+  const totalSent = infCavToSend + arcToSend;
+  const actualMarches = Math.min(nMarches, Math.ceil(totalSent / cap));
+
+  // Répartir INF et CAV dans les marches
+  // Stratégie : chaque marche reçoit un ratio INF/CAV proportionnel
+  // pour que chaque marche soit efficace (INF en premier pour les kills)
+  const infToSend = Math.min(inf, infCavToSend);
+  const cavToSend = infCavToSend - infToSend;
+
+  // Construire les marches
+  const marches = [];
+  let remInf = infToSend, remCav = cavToSend, remArc = arcToSend;
+
+  for (let m = 0; m < actualMarches; m++) {
+    const isLast = (m === actualMarches - 1);
+    let mInf = 0, mCav = 0, mArc = 0;
+    let space = cap;
+
+    if (isLast) {
+      // Dernière marche : prend tout le reste
+      mInf = remInf;
+      mCav = remCav;
+      mArc = remArc;
+    } else {
+      // Répartition égale entre les marches restantes
+      const marchesRestantes = actualMarches - m;
+
+      // INF d'abord : diviser équitablement
+      mInf = Math.min(Math.floor(remInf / marchesRestantes), space);
+      space -= mInf;
+
+      // CAV ensuite
+      mCav = Math.min(Math.floor(remCav / marchesRestantes), space);
+      space -= mCav;
+
+      // ARC si il reste de la place
+      mArc = Math.min(Math.floor(remArc / marchesRestantes), space);
+    }
+
+    marches.push({ inf: mInf, cav: mCav, arc: mArc, total: mInf + mCav + mArc });
+    remInf -= mInf;
+    remCav -= mCav;
+    remArc -= mArc;
+  }
+
+  // Ce qui reste à la maison
+  const homeInf = inf - infToSend;
+  const homeCav = cav - cavToSend;
+  const homeArc = arc - arcToSend;
+  const homeTotal = homeInf + homeCav + homeArc;
+
+  // ── RENDER ──
+  document.getElementById('results').style.display = 'block';
+
+  // KPIs
+  const sentPct = total > 0 ? Math.round(totalSent / total * 100) : 0;
+  document.getElementById('kpiArea').innerHTML = `
+    <div class="kpi-grid">
+      <div class="kpi-cell">
+        <div class="kpi-lbl">Marches<br>envoyées</div>
+        <div class="kpi-val" style="color:var(--green)">${actualMarches}</div>
+        <div class="kpi-sub">/ ${nMarches} dispo</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-lbl">Troupes<br>en renfort</div>
+        <div class="kpi-val" style="color:var(--viking)">${fmt(totalSent)}</div>
+        <div class="kpi-sub">${sentPct}% du stock</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-lbl">Restent<br>à la maison</div>
+        <div class="kpi-val" style="color:${homeTotal > 0 ? 'var(--text-dim)' : 'var(--green)'}">${fmt(homeTotal)}</div>
+        <div class="kpi-sub">${homeTotal > 0 ? 'dont ' + fmt(homeArc) + ' ARC' : 'tout envoyé !'}</div>
+      </div>
+    </div>
+  `;
+
+  // Marches de renfort
+  let marchHTML = '';
+  marches.forEach((m, i) => {
+    const pctI = m.total > 0 ? (m.inf / m.total * 100).toFixed(0) : 0;
+    const pctC = m.total > 0 ? (m.cav / m.total * 100).toFixed(0) : 0;
+    const pctA = m.total > 0 ? (m.arc / m.total * 100).toFixed(0) : 0;
+    marchHTML += `
+    <div class="march-card mc-reinf">
+      <div class="march-label">
+        Marche ${i + 1}
+        <span class="march-tag mt-reinf">RENFORT</span>
+        <span style="margin-left:auto;font-family:var(--f-mono);font-size:11px;color:var(--text-dim)">${fmt(m.total)} troupes</span>
+      </div>
+      <div class="march-troops">
+        <div class="mt-cell"><div class="mt-lbl"><span class="field-dot fd-inf"></span>INF</div><div class="mt-val cv-inf">${fmt(m.inf)}</div></div>
+        <div class="mt-cell"><div class="mt-lbl"><span class="field-dot fd-cav"></span>CAV</div><div class="mt-val cv-cav">${fmt(m.cav)}</div></div>
+        <div class="mt-cell"><div class="mt-lbl"><span class="field-dot fd-arc"></span>ARC</div><div class="mt-val cv-arc">${fmt(m.arc)}</div></div>
+      </div>
+      <div class="tbar-wrap">
+        <div class="tbar">
+          <div class="tbar-i" style="width:${pctI}%"></div>
+          <div class="tbar-c" style="width:${pctC}%"></div>
+          <div class="tbar-a" style="width:${pctA}%"></div>
+        </div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('marchesArea').innerHTML = marchHTML;
+
+  // Maison
+  if (homeTotal > 0) {
+    document.getElementById('homeArea').innerHTML = `
+    <div class="march-card mc-home" style="margin-top:14px">
+      <div class="march-label">
+        🏠 Reste à la maison
+        <span class="march-tag mt-home">DÉFENSE</span>
+        <span style="margin-left:auto;font-family:var(--f-mono);font-size:11px;color:var(--text-dim)">${fmt(homeTotal)} troupes</span>
+      </div>
+      <div class="march-troops">
+        <div class="mt-cell"><div class="mt-lbl"><span class="field-dot fd-inf"></span>INF</div><div class="mt-val cv-inf">${fmt(homeInf)}</div></div>
+        <div class="mt-cell"><div class="mt-lbl"><span class="field-dot fd-cav"></span>CAV</div><div class="mt-val cv-cav">${fmt(homeCav)}</div></div>
+        <div class="mt-cell"><div class="mt-lbl"><span class="field-dot fd-arc"></span>ARC</div><div class="mt-val cv-arc">${fmt(homeArc)}</div></div>
+      </div>
+    </div>`;
+  } else {
+    document.getElementById('homeArea').innerHTML = `
+    <div class="chip ok" style="margin-top:14px">
+      <span class="chip-icon">✓</span>
+      <span>Toutes tes troupes sont envoyées en renfort — ville vide = points max pour tes alliés !</span>
+    </div>`;
+  }
+
+  // Tips contextuels
+  let tips = '';
+  if (homeArc > 0 && homeInf === 0 && homeCav === 0) {
+    tips = `<div class="chip ok" style="margin-top:10px"><span class="chip-icon">💡</span><span>Parfait — seuls tes <strong>Archers</strong> restent à la maison. Ils font très peu de kills contre les Vikings, donc ils ne volent presque pas de points à tes renforts.</span></div>`;
+  } else if (homeInf > 0 || homeCav > 0) {
+    tips = `<div class="chip warn" style="margin-top:10px"><span class="chip-icon">⚠</span><span><strong>${fmt(homeInf + homeCav)} INF+CAV</strong> restent à la maison et vont voler des kills aux renforts de tes alliés. Essaie d'augmenter tes fils de marche ou ta capacité.</span></div>`;
+  }
+  tips += `<div class="chip idle" style="margin-top:8px"><span class="chip-icon">🛡️</span><span>Rappelle <strong>1 marche forte</strong> après les waves 9 et 19 pour défendre le QG (waves 10 et 20).</span></div>`;
+  document.getElementById('tipsArea').innerHTML = tips;
+
+  // Scroll to results
+  setTimeout(() => document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' }), 200);
+}
+
+function exportDiscord() {
+  const inf = gv('tInf'), cav = gv('tCav'), arc = gv('tArc');
+  const nMarches = parseInt(document.getElementById('marchCount').value) || 5;
+  const cap = gv('marchCap');
+
+  let lines = [];
+  lines.push('🛡️ **Viking Vengeance — Répartition**');
+  lines.push(`**Stock** : INF ${fmt(inf)} | CAV ${fmt(cav)} | ARC ${fmt(arc)}`);
+  lines.push(`**Config** : ${nMarches} marches × ${fmt(cap)} cap`);
+  lines.push('');
+
+  // Recalculate quickly
+  const totalSlots = nMarches * cap;
+  const infCav = inf + cav;
+  const infCavToSend = Math.min(infCav, totalSlots);
+  const infToSend = Math.min(inf, infCavToSend);
+  const cavToSend = infCavToSend - infToSend;
+  const arcToSend = Math.min(arc, Math.max(0, totalSlots - infCav));
+  const homeInf = inf - infToSend, homeCav = cav - cavToSend, homeArc = arc - arcToSend;
+
+  lines.push(`⚔️ **Envoyé** : INF ${fmt(infToSend)} · CAV ${fmt(cavToSend)} · ARC ${fmt(arcToSend)}`);
+  lines.push(`🏠 **Maison** : INF ${fmt(homeInf)} · CAV ${fmt(homeCav)} · ARC ${fmt(homeArc)}`);
+  lines.push('');
+  lines.push('_Viking Vengeance Calculator · Kingshot Help_');
+
+  navigator.clipboard.writeText(lines.join('\n')).then(() => {
+    const btn = document.querySelector('.export-btn');
+    btn.textContent = '✓ COPIÉ !';
+    btn.style.borderColor = 'var(--green)';
+    btn.style.color = 'var(--green)';
+    setTimeout(() => {
+      btn.innerHTML = '▣ &nbsp;COPIER LE RÉSUMÉ POUR DISCORD';
+      btn.style.borderColor = '';
+      btn.style.color = '';
+    }, 2500);
+  });
+}
+
+function resetAll() {
+  if (!confirm('Réinitialiser tous les champs ?')) return;
+  ['tInf', 'tCav', 'tArc', 'marchCap'].forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('marchCount').value = '5';
+  document.getElementById('results').style.display = 'none';
+  const chip = document.getElementById('stockChip');
+  chip.className = 'chip idle';
+  chip.innerHTML = '<span class="chip-icon">◈</span><span>Entre tes stocks pour commencer</span>';
+}
+
+/* ══ MODALE TROUPES — Édition rapide ══ */
+const TROOP_KEY = 'bearTroopData';
+
+function openTroopModal(){
+  document.getElementById('tm_infQ').value = document.getElementById('tInf')?.value || '';
+  document.getElementById('tm_cavQ').value = document.getElementById('tCav')?.value || '';
+  document.getElementById('tm_arcQ').value = document.getElementById('tArc')?.value || '';
+  document.getElementById('troopModalOverlay').classList.add('open');
+}
+
+function closeTroopModal(){
+  document.getElementById('troopModalOverlay').classList.remove('open');
+}
+
+function applyTroopModal(){
+  const qi = document.getElementById('tm_infQ').value;
+  const qc = document.getElementById('tm_cavQ').value;
+  const qa = document.getElementById('tm_arcQ').value;
+  if(qi) document.getElementById('tInf').value = qi;
+  if(qc) document.getElementById('tCav').value = qc;
+  if(qa) document.getElementById('tArc').value = qa;
+  updateStockChip();
+
+  // Sauvegarder dans le profil (on garde les tiers existants)
+  try {
+    const existing = JSON.parse(localStorage.getItem(TROOP_KEY) || '{}');
+    existing.inf = parseInt(qi) || 0;
+    existing.cav = parseInt(qc) || 0;
+    existing.arc = parseInt(qa) || 0;
+    localStorage.setItem(TROOP_KEY, JSON.stringify(existing));
+  } catch(e){}
+  closeTroopModal();
+}
+
+function loadTroopProfile(){
+  try {
+    const raw = localStorage.getItem(TROOP_KEY);
+    if(!raw) return;
+    const d = JSON.parse(raw);
+    if(!document.getElementById('tInf').value && d.inf) document.getElementById('tInf').value = d.inf;
+    if(!document.getElementById('tCav').value && d.cav) document.getElementById('tCav').value = d.cav;
+    if(!document.getElementById('tArc').value && d.arc) document.getElementById('tArc').value = d.arc;
+    updateStockChip();
+  } catch(e){}
+}
+
+// Charger les troupes du profil au démarrage
+loadTroopProfile();
+</script>
+<script src="auth-bundle.js"></script>
+</body>
+</html>

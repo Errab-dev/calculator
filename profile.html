@@ -444,6 +444,7 @@ footer {
   <!-- SUBNAV ONGLETS (fixe sous navbar) -->
   <div id="profileSubnav" style="display:none">
     <button class="pnav-btn active" id="pnav-compos" onclick="switchTab('compos')">Compositions</button>
+    <button class="pnav-btn" id="pnav-troops" onclick="switchTab('troops')">Troupes</button>
     <button class="pnav-btn" id="pnav-stats"  onclick="switchTab('stats')">Stats Bonus</button>
     <button class="pnav-btn" id="pnav-heroes" onclick="switchTab('heroes')">Héros</button>
   </div>
@@ -599,6 +600,52 @@ function renderMain() {
       <div id="compoList"></div>
     </div>
 
+    <!-- TAB : TROUPES -->
+    <div id="tabTroops" style="display:none;margin-top:16px">
+      <div class="panel">
+        <div class="panel-accent" style="background:linear-gradient(90deg,var(--inf),var(--cav),var(--arc))"></div>
+        <div class="panel-body">
+          <p style="font-size:13px;color:var(--text-dim);margin-bottom:16px">Renseigne tes niveaux de troupes et tes quantités. Ces données sont partagées automatiquement avec les calculateurs <strong>Bear Hunt</strong> et <strong>Viking Vengeance</strong>.</p>
+
+          <!-- Tier / TG par type -->
+          <div style="font-family:var(--f-mono);font-size:10px;letter-spacing:1.5px;color:var(--text-faint);text-transform:uppercase;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border2)">◆ NIVEAU DES TROUPES</div>
+          <div style="display:grid;grid-template-columns:80px 1fr 1fr;gap:8px;align-items:center;margin-bottom:16px">
+            <div></div>
+            <div style="text-align:center;font-family:var(--f-mono);font-size:9px;letter-spacing:1px;color:var(--text-faint)">TIER</div>
+            <div style="text-align:center;font-family:var(--f-mono);font-size:9px;letter-spacing:1px;color:var(--text-faint)">TRUEGOLD</div>
+
+            <div style="font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:var(--inf);box-shadow:0 0 5px var(--inf)"></span>INF</div>
+            <select id="trpInfT" class="bonus-field" onchange="onTroopsChange()"></select>
+            <select id="trpInfG" class="bonus-field" onchange="onTroopsChange()"></select>
+
+            <div style="font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:var(--cav);box-shadow:0 0 5px var(--cav)"></span>CAV</div>
+            <select id="trpCavT" class="bonus-field" onchange="onTroopsChange()"></select>
+            <select id="trpCavG" class="bonus-field" onchange="onTroopsChange()"></select>
+
+            <div style="font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:var(--arc);box-shadow:0 0 5px var(--arc)"></span>ARC</div>
+            <select id="trpArcT" class="bonus-field" onchange="onTroopsChange()"></select>
+            <select id="trpArcG" class="bonus-field" onchange="onTroopsChange()"></select>
+          </div>
+
+          <!-- Quantités -->
+          <div style="font-family:var(--f-mono);font-size:10px;letter-spacing:1.5px;color:var(--text-faint);text-transform:uppercase;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border2)">◆ QUANTITÉ DE TROUPES</div>
+          <div style="display:grid;grid-template-columns:80px 1fr;gap:8px;align-items:center">
+            <div style="font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:var(--inf);box-shadow:0 0 5px var(--inf)"></span>INF</div>
+            <div class="bonus-input-wrap"><input type="number" id="trpInfQ" class="bonus-field" placeholder="ex : 140 000" min="0" oninput="onTroopsChange()"></div>
+
+            <div style="font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:var(--cav);box-shadow:0 0 5px var(--cav)"></span>CAV</div>
+            <div class="bonus-input-wrap"><input type="number" id="trpCavQ" class="bonus-field" placeholder="ex : 87 000" min="0" oninput="onTroopsChange()"></div>
+
+            <div style="font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:var(--arc);box-shadow:0 0 5px var(--arc)"></span>ARC</div>
+            <div class="bonus-input-wrap"><input type="number" id="trpArcQ" class="bonus-field" placeholder="ex : 530 000" min="0" oninput="onTroopsChange()"></div>
+          </div>
+
+          <div style="margin-top:10px;font-family:var(--f-mono);font-size:11px;color:var(--text-dim);letter-spacing:.3px" id="troopTotal">—</div>
+          <div id="troopSaveIndicator" style="margin-top:6px;font-family:var(--f-mono);font-size:10px;color:var(--green);opacity:0;transition:opacity .4s;letter-spacing:1px">✓ SAUVEGARDÉ</div>
+        </div>
+      </div>
+    </div>
+
     <!-- TAB : HÉROS -->
     <div id="tabHeroes" style="display:none;margin-top:16px">
       <p style="font-size:13px;color:var(--text-dim);margin-bottom:16px">Configure tes héros une fois, ils seront disponibles dans le calculateur Bear Hunt. Clique sur un héros pour saisir ses stats, niveaux de compétences et niveau de widget.</p>
@@ -652,6 +699,7 @@ function renderMain() {
   renderCompos();
   loadBonusStats();
   loadHeroesData();
+  loadTroopsData();
 }
 
 function renderCompos() {
@@ -702,11 +750,13 @@ function renderCompos() {
 function switchTab(tab) {
   const tabs = {
     compos:  document.getElementById('tabCompos'),
+    troops:  document.getElementById('tabTroops'),
     stats:   document.getElementById('tabStats'),
     heroes:  document.getElementById('tabHeroes'),
   };
   const btns = {
     compos:  document.getElementById('pnav-compos'),
+    troops:  document.getElementById('pnav-troops'),
     stats:   document.getElementById('pnav-stats'),
     heroes:  document.getElementById('pnav-heroes'),
   };
@@ -804,7 +854,128 @@ async function loadBonusStats() {
 
 
 // ══════════════════════════════════════════════════
-//  BASE DE DONNÉES HÉROS
+//  TROUPES (Tier, TG, Quantités)
+// ══════════════════════════════════════════════════
+const TROOP_KEY = 'bearTroopData';
+let _troopsTimer = null;
+
+function initTroopSelects() {
+  ['trpInfT','trpCavT','trpArcT'].forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel || sel.options.length > 0) return;
+    for (let t = 1; t <= 11; t++) {
+      const opt = document.createElement('option');
+      opt.value = t; opt.textContent = 'T' + t;
+      if (t === 6) opt.selected = true;
+      sel.appendChild(opt);
+    }
+  });
+  ['trpInfG','trpCavG','trpArcG'].forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel || sel.options.length > 0) return;
+    for (let g = 0; g <= 5; g++) {
+      const opt = document.createElement('option');
+      opt.value = g; opt.textContent = 'TG' + g;
+      if (g === 0) opt.selected = true;
+      sel.appendChild(opt);
+    }
+  });
+}
+
+function onTroopsChange() {
+  // Update total display
+  const qi = parseInt(document.getElementById('trpInfQ')?.value) || 0;
+  const qc = parseInt(document.getElementById('trpCavQ')?.value) || 0;
+  const qa = parseInt(document.getElementById('trpArcQ')?.value) || 0;
+  const tot = qi + qc + qa;
+  const el = document.getElementById('troopTotal');
+  if (el) el.textContent = tot > 0
+    ? `Total : ${tot.toLocaleString('fr-FR')} troupes — INF ${qi.toLocaleString('fr-FR')} · CAV ${qc.toLocaleString('fr-FR')} · ARC ${qa.toLocaleString('fr-FR')}`
+    : '—';
+
+  // Save to localStorage immediately
+  const data = {
+    tierInfT: document.getElementById('trpInfT')?.value || '6',
+    tierInfG: document.getElementById('trpInfG')?.value || '0',
+    tierCavT: document.getElementById('trpCavT')?.value || '6',
+    tierCavG: document.getElementById('trpCavG')?.value || '0',
+    tierArcT: document.getElementById('trpArcT')?.value || '6',
+    tierArcG: document.getElementById('trpArcG')?.value || '0',
+    inf: qi, cav: qc, arc: qa,
+  };
+  localStorage.setItem(TROOP_KEY, JSON.stringify(data));
+
+  // Save to cloud with debounce
+  clearTimeout(_troopsTimer);
+  _troopsTimer = setTimeout(saveTroopsToCloud, 1500);
+
+  // Flash indicator
+  const ind = document.getElementById('troopSaveIndicator');
+  if (ind) { ind.style.opacity = '0'; }
+}
+
+async function saveTroopsToCloud() {
+  if (!currentUser?.id) return;
+  const raw = localStorage.getItem(TROOP_KEY);
+  if (!raw) return;
+  try {
+    const data = JSON.parse(raw);
+    const res = await client.from('profiles')
+      .update({ troop_data: data })
+      .eq('id', currentUser.id);
+    if (res.error) throw res.error;
+    const ind = document.getElementById('troopSaveIndicator');
+    if (ind) { ind.style.opacity = '1'; setTimeout(() => ind.style.opacity = '0', 1500); }
+  } catch(e) {
+    console.error('saveTroopsToCloud error:', e);
+  }
+}
+
+function loadTroopsData() {
+  initTroopSelects();
+  // 1. localStorage
+  try {
+    const raw = localStorage.getItem(TROOP_KEY);
+    if (raw) {
+      const d = JSON.parse(raw);
+      if (d.tierInfT) document.getElementById('trpInfT').value = d.tierInfT;
+      if (d.tierInfG) document.getElementById('trpInfG').value = d.tierInfG;
+      if (d.tierCavT) document.getElementById('trpCavT').value = d.tierCavT;
+      if (d.tierCavG) document.getElementById('trpCavG').value = d.tierCavG;
+      if (d.tierArcT) document.getElementById('trpArcT').value = d.tierArcT;
+      if (d.tierArcG) document.getElementById('trpArcG').value = d.tierArcG;
+      if (d.inf) document.getElementById('trpInfQ').value = d.inf;
+      if (d.cav) document.getElementById('trpCavQ').value = d.cav;
+      if (d.arc) document.getElementById('trpArcQ').value = d.arc;
+      onTroopsChange();
+    }
+  } catch(e) {}
+  // 2. Cloud (async)
+  loadTroopsFromCloud();
+}
+
+async function loadTroopsFromCloud() {
+  if (!currentUser?.id) return;
+  try {
+    const res = await client.from('profiles')
+      .select('troop_data')
+      .eq('id', currentUser.id)
+      .single();
+    if (res.error || !res.data?.troop_data) return;
+    const d = res.data.troop_data;
+    if (d.tierInfT) document.getElementById('trpInfT').value = d.tierInfT;
+    if (d.tierInfG) document.getElementById('trpInfG').value = d.tierInfG;
+    if (d.tierCavT) document.getElementById('trpCavT').value = d.tierCavT;
+    if (d.tierCavG) document.getElementById('trpCavG').value = d.tierCavG;
+    if (d.tierArcT) document.getElementById('trpArcT').value = d.tierArcT;
+    if (d.tierArcG) document.getElementById('trpArcG').value = d.tierArcG;
+    if (d.inf) document.getElementById('trpInfQ').value = d.inf;
+    if (d.cav) document.getElementById('trpCavQ').value = d.cav;
+    if (d.arc) document.getElementById('trpArcQ').value = d.arc;
+    localStorage.setItem(TROOP_KEY, JSON.stringify(d));
+    onTroopsChange();
+  } catch(e) {}
+}
 // ══════════════════════════════════════════════════
 const HEROES_DB = {
 
