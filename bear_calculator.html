@@ -3156,14 +3156,15 @@ if(_initBtn)_initBtn.classList.add('active');
 applyTranslations();
 syncJCtrl();
 buildTierOptions();
+
+/* ══ MODALE TROUPES — Édition rapide ══ */
+const TROOP_KEY = 'bearTroopData';
+
 loadTroopProfile(); // Base depuis le profil
 loadState();        // loadState écrase avec l'état du calculateur si disponible
 updateTroopSummary(); // Rafraîchir le résumé avec les valeurs finales
 _initDone = true;
 window.addEventListener('beforeunload', saveState);
-
-/* ══ MODALE TROUPES — Édition rapide ══ */
-const TROOP_KEY = 'bearTroopData';
 
 function _initTmSelects(){
   ['tm_infT','tm_cavT','tm_arcT'].forEach(id=>{
